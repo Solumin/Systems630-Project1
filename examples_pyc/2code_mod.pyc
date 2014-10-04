@@ -1,0 +1,47 @@
+-- magic number
+03f3 0d0a 
+
+-- time stamp
+1c8d 2054 
+
+-- not sure yet
+63 00 00 00 00 argcounts
+   00 00 00 00 nlocals
+   01 00 00 00 stacksize
+   40 00 00 00 flags
+73 09 00 00 00 string followed by 4 bytes?
+
+-- main
+64 00 00
+47 
+48
+64 01 00 
+53
+--
+
+28 02 00 00 00 consts
+
+73 2d 00 00 00 :string with 45 bytes
+
+7468 6973 2069 7320 6120 7369 6d70
+6c65 2063 6f64 6520 746f 6f20 6275
+7420 7769 7468 206d 6f72 6520 7374
+7566 66 This is a simple code too but with more stuff
+
+4e N: none
+
+28 00 00 00 00 names
+28 00 00 00 00 varnames
+28 00 00 00 00 freevars
+28 00 00 00 00 cellvars
+
+73 08 00 00 00 :string with 8 bytes
+
+3263 6f64 652e 7079 filename: 2code.py
+
+74 08 00 00 00 :string with 8 bytes
+
+3c6d 6f64 756c 653e 0100 0000 <module>
+
+73 00 00 00 00 s: 
+	:lnotab

@@ -1,0 +1,68 @@
+-- magic number
+03f3 0d0a 
+
+-- time stamp
+9fb7 2954 
+
+63 00 00 00 00 argcounts
+   00 00 00 00 nlocals
+   02 00 00 00 stacksize
+   40 00 00 00 flags
+73 28 00 00 00 s: number of bytes corresponding to the code
+
+-- main
+64 04 00
+5c 02 00 
+5a 00 00
+5a 01 00 
+65 00 00
+73 18 00
+65 01 00
+72 24 00 
+64 02 00
+47 
+65 00 00
+47 
+48
+6e 00 00 
+64 03 00
+53
+--
+
+28 05 00 00 00 consts
+
+69 01 00 00 00 i: int in 1
+69 00 00 00 00 i: int in 0
+74 05 00 00 00 t: string is going to start
+48 65 6c 6c 6f 'Hello'
+4e 			 N: None
+
+28 02 00 00 00 (: tuple of 2 elements?
+
+69 01 00 00 00 i: int in 1
+69 00 00 00 00 i: int in 0
+
+28 02 00 00 00 names
+
+74 01 00 00 00 t:
+61 			   (a) 
+74 01 00 00 00 t:
+62 			   (b)
+
+28 00 00 00 00 varnames
+28 00 00 00 00 freevars
+28 00 00 00 00 cellvars
+
+73 08 00 00 00 s:
+
+37 63 6f 64 65 2e 70 79 filename: 7code.py
+
+74 08 00 00 00 t:
+
+3c 6d 6f 64 75 6c 65 3e name: <module>
+
+01 00 00 00 firstlineno
+
+73 04 00 00 00 s:
+
+0c01 0c01 lnotab 

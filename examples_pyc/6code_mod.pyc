@@ -1,0 +1,83 @@
+-- magic number
+03f3 0d0a 
+
+-- time stamp
+a296 2954 
+
+-- not sure yet
+63 00 00 00 00 argcounts
+   00 00 00 00 nlocals
+   01 00 00 00 stacksize
+   40 00 00 00 flags
+73 0d 00 00 00 number of bytes for the code!
+
+-- main
+64 00 00
+84 00 00 
+5a 00 00
+64 01 00 
+53
+--
+
+28 02 00 00 00 consts
+
+63 01 00 00 00 argcounts
+   01 00 00 00 nlocals
+   02 00 00 00 stacksize
+   43 00 00 00 flags
+73 08 00 00 00 string followed by 4 bytes?
+
+7c 00 00 ??
+
+-- def of foo
+64 01 00 
+17
+53 
+-- end
+
+28 02 00 00 00 
+
+4e              N:(None)
+69 01 00 00 00  i:(int in 1)
+
+28 00 00 00 00 
+28 01 00 00 00 
+
+74 01 00 00 00 t:string is going to start
+
+78				(x)
+
+28 00 00 00 00 
+28 00 00 00 00
+
+73 08 00 00 00 s:string is going to start
+
+36 63 6f 64 65 2e 70 79 (6code.py)
+
+74 03 00 00 00 t:string is going to start
+
+66 6f6f (foo)
+
+01 00 00 00 
+
+73 02 00 00 00
+
+00 01 4e N(None) ??
+
+28 01 00 00 00
+
+52 01 00 00 00 R: (string in 1)?
+
+28 00 00 00 00 varnames
+28 00 00 00 00 freevars
+28 00 00 00 00 cellvars
+
+73 08 00 00 00 :string is going to start 
+
+3663 6f64 652e 7079 filename: 6code.py
+
+74 08 00 00 00 :string is going to start
+
+3c 6d6f 6475 6c65 3e01 0000 00 <module>
+
+73 00 00 00 00

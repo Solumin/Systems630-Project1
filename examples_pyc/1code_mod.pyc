@@ -1,0 +1,44 @@
+-- magic number
+03f3 0d0a 
+
+-- time stamp
+fe8c 2054 
+
+-- not sure yet 
+63 00 00 00 00 argcounts
+   00 00 00 00 nlocals
+   01 00 00 00 stacksize
+   40 00 00 00 flags?
+73 09 00 00 00 string followed by 4bytes?
+    
+
+-- main 
+64 00 00
+47 
+48
+64 01 00 
+53
+--
+
+28 02 00 00 00 consts
+
+73 15 00 00 00 s:
+54 6869 7320 6973 2061 2073 696d 706c 6520 636f 6465 'This is a simple code'
+
+4e N: None
+
+28 00 00 00 00 names
+28 00 00 00 00 varnames
+28 00 00 00 00 freevars
+28 00 00 00 00 cellvars
+
+73 08 00 00 00 s:
+3163 6f64 652e 7079 filename: 1code.py
+
+74 08 00 00 00 t:
+3c6d 6f64 756c 653e name: <module>
+
+01 00 00 00 firstlineno
+
+73 00 00 00 00 s:
+		lnotab

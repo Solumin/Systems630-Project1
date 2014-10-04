@@ -1,0 +1,94 @@
+-- magic number
+03f3 0d0a 
+
+-- time stamp
+2593 2054 
+
+63 00 00 00 00 argcounts
+   00 00 00 00 nlocals
+   02 00 00 00 stacksize
+   40 00 00 00 flags
+73 22 00 00 00 s: numbers of bytes for the code
+
+-- main
+64 00 00 LOAD_CONST 0
+84 00 00 MAKE_FUNCTION 0
+5a 00 00 STORE_NAME 0
+64 01 00 LOAD_CONST 1
+5a 01 00 STORE_NAME 1
+64 02 00 LOAD_CONST 2
+47		 PRINT_ITEM
+65 00 00 LOAD_NAME 0
+65 01 00 LOAD_NAME 1
+83 01 00 CALL_FUNCTION 1
+47		 PRINT_ITEM
+48  	 PRINT_NEWLINE
+64 03 00 LOAD_CONST 3
+53		 RETURN_VALUE
+--
+
+28 04 00 00 00 consts
+
+63 01 00 00 00 argcounts
+   01 00 00 00 nlocals
+   02 00 00 00 stacksize
+   43 00 00 00 flags
+73 08 00 00 00 s: number of bytes to read
+
+(code for myfunc)
+7c 00 00 LOAD_FAST 0
+64 01 00 LOAD_CONST 1
+17 		 BINARY_ADD
+53		 RETURN_VALUE
+(end code)
+
+28 02 00 00 00 consts
+4e N:(None)
+69 02 00 00 00 i: int in 2
+
+28 00 00 00 00
+
+28 01 00 00 00 names
+
+74 01 00 00 00 t:
+78 (x)
+
+28 00 00 00 00 
+28 00 00 00 00 
+
+73 08 00 00 00 s:
+33 636f6465 2e70 797 filename: 3code.py
+
+74 06 00 00 00 s:
+6d 79 66 75 6e 63 function_name: myfunc
+
+01 00 00 00 firslineno
+
+73 02 00 00 00 t:
+00 01 lnotab?
+
+69 03 00 00 00 i: int in 3
+
+73 14 00 00 00 s:
+69 66 20 78 20 3d 20 33 2c 20 74 68 65 6e 20 78 2b 32 20 3d 'if x = 3, then x+2 ='
+4e N: None
+
+28 02 00 00 00 names?
+52 01 00 00 00
+52 00 00 00 00 
+
+28 00 00 00 00 varnames
+28 00 00 00 00 freevars
+28 00 00 00 00 cellvars
+
+73 08 00 00 00 s:
+33 636f6465 2e70 797 filename: 3code.py
+
+74 08 00 00 00 
+3c 6d 6f 64 75 6c 65 3e name: <module>
+
+01 00 00 00 firstlineno
+
+73 04 00 00 00 s:
+
+0903 0601 lnotab
