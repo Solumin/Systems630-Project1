@@ -1,0 +1,11 @@
+dis: Cpython bytecode disassemlber.
+
+/usr/lib/python2.7/opcode.py: Lists all opcodes with their numeric
+representation! Defines opmap (maps name -> opcode) and opname (maps opcode ->
+name)
+
+PYC format: http://nedbatchelder.com/blog/200804/the_structure_of_pyc_files.html
+Outdated?
+Check marchal format though!
+
+The PYC for a single file contains multiple code objects, FOR SURE.

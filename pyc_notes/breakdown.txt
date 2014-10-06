@@ -1,0 +1,110 @@
+0000000: 03f3 0d0a da70 2054 6300 0000 0000 0000  .....p Tc.......
+0000010: 0001 0000 0040 0000 0073 0d00 0000 6400  .....@...s....d.
+0000020: 0084 0000 5a00 0064 0100 5328 0200 0000  ....Z..d..S(....
+0000030: 6301 0000 0001 0000 0002 0000 0043 0000  c............C..
+0000040: 0073 0800 0000 7c00 0064 0100 1753 2802  .s....|..d...S(.
+0000050: 0000 004e 6901 0000 0028 0000 0000 2801  ...Ni....(....(.
+0000060: 0000 0074 0100 0000 7828 0000 0000 2800  ...t....x(....(.
+0000070: 0000 0073 0700 0000 7465 7374 2e70 7974  ...s....test.pyt
+0000080: 0300 0000 666f 6f01 0000 0073 0200 0000  ....foo....s....
+0000090: 0001 4e28 0100 0000 5201 0000 0028 0000  ..N(....R....(..
+00000a0: 0000 2800 0000 0028 0000 0000 7307 0000  ..(....(....s...
+00000b0: 0074 6573 742e 7079 7408 0000 003c 6d6f  .test.pyt....<mo
+00000c0: 6475 6c65 3e01 0000 0073 0000 0000       dule>....s....
+
+!! Python version and newline:
+03f3 0d0a
+!! Date:
+da70 2054
+!! c: Code Object
+63
+!! co_argcount
+00 0000 00
+!! co_nlocals
+00 0000 00
+!! co_stacksize:
+01 0000 00
+!! co_flags:
+40 0000 00
+!! s: string object with d = 13 bytes, module's code
+73 0d00 0000
+!! Module code:
+64 00 00 LOAD_CONST (the 'foo' code object)
+84 00 00 MAKE_FUNCTION
+5a 00 00 STORE_NAME (foo)
+64 01 00 LOAD_CONST (None)
+53       RETURN_VALUE
+!! start of co_consts
+!! Tuple, with 2 objects
+28 0200 0000 
+!! Code object 
+63
+!! foo's co_argcount
+01 0000 00
+!! foo's co_nlocals
+01 0000 00
+!! foo's co_stacksize
+02 0000 00
+!! foo's co_flags
+43 0000 00
+!! s: strings with 8 bytes, foo's code
+73 0800 0000
+!! foo's code
+7c 00 00 LOAD_FAST (x, the argument)
+64 01 00 LOAD_CONST (the 2nd, which is 1)
+17       BINARY_ADD (x + 1)
+53       RETURN_VALUE
+!! tuple with 2 objects -- foo's co_consts?
+2802 0000 00
+!! Null
+4e
+!! Integer
+6901 0000 00
+!! tuple: empty (Null?) co_freevars, co_cellvars
+28 0000 0000
+!! tuple: 1 object
+2801 0000 00
+!! t: "interned" string?, of 1 byte
+74 0100 0000
+!! The string "x" -- name of local var
+78
+!! Another empty tuple -- co_names, co_freevars... lots of options
+28 0000 0000
+!! And another empty tuple
+2800 0000 00
+!! test.py string -- foo's co_filename?
+73 0700 0000
+7465 7374 2e70 79
+!! t: Interned string again, with 3 bytes
+74 0300 0000
+!! foo string -- Module AND function use this
+666f 6f
+!! foo's co_firstlineno
+01 0000 00
+!! string, 2 bytes
+73 0200 0000
+!! foo's co_lnotab, the string "\x00\x01"
+0001
+!! N: Null.
+4e
+!! tuple, 1 object
+28 0100 0000
+!! R: Referenced to a previous interned string. Index: 1 (0 indexed)
+52 01 0000 00
+!! empty tuples
+28 0000 0000
+2800 0000 00
+28 0000 0000
+!! string, 7 characters
+7307 0000 00
+!! test.pyt string
+74 6573 742e 7079
+!! string, 8 characters
+7408 0000 00
+!! <module> string
+3c 6d6f 
+6475 6c65 3e
+!! co_firstlineno
+01 0000 00
+!! module's co_lnotab, which is an empty string normally
+73 0000 0000

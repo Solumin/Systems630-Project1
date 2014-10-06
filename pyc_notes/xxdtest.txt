@@ -1,0 +1,63 @@
+// Header info: magic #, newline (0d0a), padding?
+0000000: 03f3 0d0a da70 2054 6300 0000 0000 0000  .....p Tc.......
+// Header: ??
+0000010: 0001 0000 0040 0000 0073 0d00 0000 6400  .....@...s....d.
+0000020: 0084 0000 5a00 0064 0100 5328 0200 0000  ....Z..d..S(....
+0000030: 6301 0000 0001 0000 0002 0000 0043 0000  c............C..
+// Actual code object for foo
+0000040: 0073 0800 0000 7c00 0064 0100 1753 2802  .s....|..d...S(.
+0000050: 0000 004e 6901 0000 0028 0000 0000 2801  ...Ni....(....(.
+0000060: 0000 0074 0100 0000 7828 0000 0000 2800  ...t....x(....(.
+0000070: 0000 0073 0700 0000 7465 7374 2e70 7974  ...s....test.pyt
+0000080: 0300 0000 666f 6f01 0000 0073 0200 0000  ....foo....s....
+// Code object ends at "0001 0a" on next line?
+0000090: 0001 4e28 0100 0000 5201 0000 0028 0000  ..N(....R....(..
+00000a0: 0000 2800 0000 0028 0000 0000 7307 0000  ..(....(....s...
+00000b0: 0074 6573 742e 7079 7408 0000 003c 6d6f  .test.pyt....<mo
+00000c0: 6475 6c65 3e01 0000 0073 0000 0000       dule>....s....
+
+03f3 0d0a: Python "version" identifier string
+Next 4 bytes: Date string. time.asctime(time.localtime(struct.unpack('i', <those 4 bytes>)[0]))
+6300 0000: 63 = 99 = c (ASCII).
+0000 0000: Padding? Nulls?
+
+Guesses: \x28 = 40 = '(' is a delimiter of some kind
+
+First 3 lines (48 bytes, \x00 to \x3f) are the same in test1 and test2. Cool!
+
+\x3d: \x43 = 67 = co_flags value (see below)
+
+\x043: 7c00 0064 0100 1753 is the code for the function body:
+Hex | Dec | Instruction
+7c    124   LOAD_FAST
+00    0     Index 0? first element of co_varnames
+00    0     Second byte of argument
+64    100   LOAD_CONST
+01    1     Index 1? first byte of constant access
+00    0     Second byte of constant access (co_consts)
+17    23    BINARY_ADD
+53    83    RETURN_VALUE
+
+\x55: The co_const array
+There's some value that marks a new constant (i've seen 69 and 49). Then the
+constant, filled so it takes a word/2 bytes. Then a null word.
+
+Other contents: see 27.13, inspect. co_argcount (1), co_code, co_consts (2),
+co_filename (test.py), co_firstlineno (2?), co_flags, co_lnotab, co_name (foo),
+co_names (local vars), co_nlocals (0), co_stacksize, co_varnames (1).
+There's allegedly also a magic number in the beginning: 03f3 0d0a, then the
+date.
+('co_argcount', 1),
+('co_cellvars', ()),
+('co_code', '|\x00\x00d\x01\x00\x17S'),
+('co_consts', (None, 1)),
+('co_filename', 'test.py'),
+('co_firstlineno', 1),
+('co_flags', 67),
+('co_freevars', ()),
+('co_lnotab', '\x00\x01'),
+('co_name', 'foo'),
+('co_names', ()),
+('co_nlocals', 1),
+('co_stacksize', 2),
+('co_varnames', ('x',))]

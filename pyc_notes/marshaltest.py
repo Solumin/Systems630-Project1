@@ -1,0 +1,10 @@
+# Numbers
+i = 63
+I = 2**40
+f = 6.3e1
+c = 127 + 63j
+# Containers
+t = (1,2,3)
+l = [0xa, 0xb, 0xc]
+d = {1: 0xa, 2: 0xb}
+s = frozenset(0xf, 0xe, 0xd)
