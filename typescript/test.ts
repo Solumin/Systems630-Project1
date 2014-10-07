@@ -1,77 +1,144 @@
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
-class Unmarshaller {
-    index: number;
-    input: string;
-    output: number;
+var fs = require('fs');
 
-    constructor(input: string) {
-        this.index = 0;
-        this.input = input;
+class Unmarshaller {
+    // How far we are into the buffer
+    index: number;
+    // The input from reading the file
+    input: Buffer;
+    // A "magic number" at the beginning of the pyc file.
+    // Somehow related to the Python version.
+    // TODO: Use to check if invalid/old/new .pyc file?
+    magicNumber: number;
+    // Date of compilation
+    date: Date;
+    // The output of unmarshalling the .pyc file
+    output;
+
+    constructor(inputFilePath: string) {
+        // We read the first 8 bytes to get the magic number and the date
+        this.index = 8;
+        // For testing purposes, this is synchronous
+        // TODO: Replace with BrowserFS call
+        this.input = fs.readFileSync(inputFilePath);
+        this.magicNumber = this.input.readUInt16LE(0);
+        // Python marshals the date in seconds -- see time.localtime in the
+        // Python stdlib.
+        // Javascript takes the date in milliseconds. Thus, 1000*time.
+        this.date = new Date(1000 * this.input.readUInt32LE(4));
     }
 
     // Processes the input string
-    value(): number {
+    value(): string {
         this.output = this.unmarshal();
         return this.output;
     }
 
-    // Reads a single character (1 byte, as string) from the input
+    // // Reads a single character (1 byte, as string) from the input
     readChar(): string {
-        var b = this.input[this.index];
+        var c = this.input.toString('ascii', this.index,this.index+1);
+        this.index += 1;
+        return c;
+    }
+
+    // // Reads a single byte from the input
+    // (Equivalent to readChar().charCodeAt(0))
+    readByte(): number {
+        var b = this.input.readUInt8(this.index);
         this.index += 1;
         return b;
     }
 
-    // Reads a single byte from the input
-    // (Equivalent to readChar().charCodeAt(0))
-    readByte(): number {
-        return this.readChar().charCodeAt(0);
-    }
-
-    // Reads a 4-byte integer from the input
+    // // Reads a 4-byte integer from the input
     readInt32(): number {
-        var i0 = this.readByte();
-        var i1 = this.readByte();
-        var i2 = this.readByte();
-        var i3 = this.readByte();
-        return (i3 << 24) + (i2 << 16) + (i1 << 8) + i0;
+        var i = this.input.readInt32(this.index);
+        this.index += 4;
+        return i;
     }
 
     // Reads a 64 bit integer
-    // WARNING: Javascript only supports double-precision floats.
-    // Any numbers greater than 2**52 will be approximate at best
-    readInt64(): number {
-        var i0 = this.readInt32();
-        var i1 = this.readInt32();
-        return (i1 * Math.pow(2, 32)) + i0;
-    }
+    // TODO: Check out gLong library (see Doppio's typescript implementation)
+    // readInt64(): number {
+    //     var i0 = this.readInt32();
+    //     var i1 = this.readInt32();
+    //     return (i1 * Math.pow(2, 32)) + i0;
+    // }
 
     // Reads a 64-bit floating-pount number
     // WARNING: Javascript only supports double-precision floats.
     // Any numbers greater than 2**52 will be approximate at best
     // Refer to IEEE 754 for more detail.
     readFloat64(): number {
-        var i0 = this.readInt32();
-        var i1 = this.readInt32();
-        console.log(i0)
-        var significand = ((i1 & 0xfffff) * Math.pow(2,32)) + i0
-        significand = 1.0 + (significand*Math.pow(2,-52));
-        var exp = ((i1 & 0x7ff00000) >> 20) - 1023;
-        var sign = (i1 & 0x80000000) == 0 ? 1 : -1;
-        return sign * (significand * Math.pow(2, exp))
+        var f = this.input.readDoubleLE(this.index);
+        this.index += 8;
+        return f;
+    }
+
+    readString(length: number, encoding = "ascii"): string {
+        var s = this.input.toString("ascii", this.index, this.index+length);
+        this.index += length;
+        return s;
+    }
+
+    readUnicodeString(length: number): string {
+        return this.readString(length, "utf8");
     }
 
     // Unmarshals the input string
     // Not yet implemented.
     unmarshal() {
-        return 0;
-        // return this.readInt32();
+        var unit = this.readChar();
+        var res;
+        switch (unit) {
+            // Constants
+            case "0": // Null
+            case "F": // False
+            case "N": // None
+            case "S": // StopIteration Exception (TODO: double check this)
+            case "T": // True
+            case ".": // Ellipsis object (TODO: double check this)
+                break;
+            // Numbers
+            // case "f": // "old" marshal-format float
+            case "g": // double-precision floating-point number
+                res = this.readFloat64();
+                break;
+            case "i": // 32-bit integer (signed)
+                res = this.readInt32();
+                break;
+            case "I": // 64-bit integer (signed)
+            case "l": // 32-bit long (unsigned integer?)
+                res = this.readInt32();
+                break;
+            // case "x": // "old" marshal-format complex
+            case "y": // complex number
+                break;
+            // Strings
+            case "R": // Reference to interned string
+            case "s": // plain string. length (int 32) + bytes
+                var length = this.readInt32();
+                res = this.readString(length);
+                break;
+            case "t": // interned string, stored in an array
+            case "u": // utf-8 string
+                var length = this.readInt32();
+                res = this.readUnicodeString(length);
+                break;
+            // Collections
+            case "(": // tuple
+            case "[": // list
+                // Now built-in classes, not types:
+            // case "{": dictionary
+            // case "<": set
+            // case ">": frozenset
+                break;                
+            // Code Objects:
+            case "c":
+                break;
+        }
+        return res;
     }
 }
 
-var u = new Unmarshaller("\x00\x00\x00\x00\x00\x80\x4f\x40")
-
-// document.body.innerHTML = "Int32: " + u.readInt32()
-// document.body.innerHTML+= "</br>Int64: " + u.readInt64()
-document.body.innerHTML+= "</br>Float64: " + u.readFloat64()
+var u = new Unmarshaller("test.pyc")
