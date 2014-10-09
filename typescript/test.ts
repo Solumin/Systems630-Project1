@@ -14,11 +14,15 @@ class NullSingleton {
         NullSingleton._instance = this;
     }
 
-    get(): NullSingleton {
+    public static get(): NullSingleton {
         if(NullSingleton._instance == null) {
             NullSingleton._instance = new NullSingleton();
             return NullSingleton._instance;
         }
+    }
+
+    toString(): string {
+        return "None";
     }
 }
 var None = NullSingleton.get();
@@ -88,6 +92,8 @@ class Unmarshaller {
     output;
 
     constructor(inputFilePath: string) {
+        // Initialize values
+        this.internedStrs = [];
         // We read the first 8 bytes to get the magic number and the date
         this.index = 8;
         // For testing purposes, this is synchronous
@@ -101,8 +107,10 @@ class Unmarshaller {
     }
 
     // Processes the input string
-    value(): string {
-        this.output = this.unmarshal();
+    value() {
+        if (this.output == null) {
+            this.output = this.unmarshal();
+        }
         return this.output;
     }
 
@@ -123,7 +131,7 @@ class Unmarshaller {
 
     // // Reads a 4-byte integer from the input
     readInt32(): number {
-        var i = this.input.readInt32(this.index);
+        var i = this.input.readInt32LE(this.index);
         this.index += 4;
         return i;
     }
@@ -160,7 +168,7 @@ class Unmarshaller {
     // Not yet implemented.
     unmarshal() {
         var unit = this.readChar();
-        var res;
+        var res: any;
         switch (unit) {
             // Constants
             case "0": // Null. TODO: Investigate usage. Dictionary keys?
@@ -198,7 +206,7 @@ class Unmarshaller {
             // Strings
             case "R": // Reference to interned string
                 var index = this.readInt32();
-                res = this.internedStrs(index);
+                res = this.internedStrs[index];
                 break;
             case "s": // plain string. length (int 32) + bytes
                 var length = this.readInt32();
@@ -218,14 +226,14 @@ class Unmarshaller {
             case "[": // list
                 var length = this.readInt32();
                 res = [];
-                for (x = 0; x < length; x++) {
+                for (var x = 0; x < length; x++) {
                     res.push(this.unmarshal());
                 }
                 break;
                 // Now built-in classes, not types:
-            case "{": dictionary
-            case "<": set
-            case ">": frozenset
+            case "{": // dictionary
+            case "<": // set
+            case ">": // frozenset
                 throw new Error("Dicts, sets and frozensets are pending investigation");
                 break;
             // Code Objects:
@@ -244,13 +252,16 @@ class Unmarshaller {
                 var name: string = this.unmarshal();
                 var firstlineno = this.readInt32();
                 var lnotab: string = this.unmarshal();
-                res = new Code(argc, nlocals, stacksize, flags, codestr, consts,
-                               names, varnames, freevars, cellvars, filename,
-                               name, firstlineno, lnotab);
+                res = new Py_CodeObject(
+                    argc, nlocals, stacksize, flags, codestr, consts,
+                    names, varnames, freevars, cellvars, filename,
+                    name, firstlineno, lnotab);
                 break;
         }
         return res;
     }
 }
 
-var u = new Unmarshaller("test.pyc")
+var u = new Unmarshaller("test.pyc");
+var code: Py_CodeObject = u.value();
+console.log(code);

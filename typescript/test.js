@@ -1,8 +1,51 @@
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
 var fs = require('fs');
+// Null is an empty value. Mostly used in the interpreter for dictionaries.
+// Python has a single null object called "None".
+var NullSingleton = (function () {
+    function NullSingleton() {
+        if (NullSingleton._instance) {
+            throw new Error("Null is already instantiated. Use get() instead.");
+        }
+        NullSingleton._instance = this;
+    }
+    NullSingleton.get = function () {
+        if (NullSingleton._instance == null) {
+            NullSingleton._instance = new NullSingleton();
+            return NullSingleton._instance;
+        }
+    };
+    NullSingleton.prototype.toString = function () {
+        return "None";
+    };
+    return NullSingleton;
+})();
+var None = NullSingleton.get();
+var Py_CodeObject = (function () {
+    // Args are in marshal order
+    function Py_CodeObject(argcount, nlocals, stacksize, flags, code, consts, names, varnames, freevars, cellvars, filename, name, firstlineno, lnotab) {
+        this.argcount = argcount;
+        this.cellvars = cellvars;
+        this.code = code;
+        this.consts = consts;
+        this.filename = filename;
+        this.firstlineno = firstlineno;
+        this.flags = flags;
+        this.freevars = freevars;
+        this.lnotab = lnotab;
+        this.name = name;
+        this.names = names;
+        this.nlocals = nlocals;
+        this.stacksize = stacksize;
+        this.varnames = varnames;
+    }
+    return Py_CodeObject;
+})();
 var Unmarshaller = (function () {
     function Unmarshaller(inputFilePath) {
+        // Initialize values
+        this.internedStrs = [];
         // We read the first 8 bytes to get the magic number and the date
         this.index = 8;
         // For testing purposes, this is synchronous
@@ -16,7 +59,9 @@ var Unmarshaller = (function () {
     }
     // Processes the input string
     Unmarshaller.prototype.value = function () {
-        this.output = this.unmarshal();
+        if (this.output == null) {
+            this.output = this.unmarshal();
+        }
         return this.output;
     };
     // // Reads a single character (1 byte, as string) from the input
@@ -34,7 +79,7 @@ var Unmarshaller = (function () {
     };
     // // Reads a 4-byte integer from the input
     Unmarshaller.prototype.readInt32 = function () {
-        var i = this.input.readInt32(this.index);
+        var i = this.input.readInt32LE(this.index);
         this.index += 4;
         return i;
     };
@@ -70,11 +115,19 @@ var Unmarshaller = (function () {
         var res;
         switch (unit) {
             case "0":
-            case "F":
             case "N":
+                res = None;
+                break;
+            case "F":
+                res = false;
+                break;
             case "S":
+                throw new Error("StopIteration is pending investigation");
             case "T":
+                res = true;
+                break;
             case ".":
+                throw new Error("Ellipsis is not yet implemented");
                 break;
             case "g":
                 res = this.readFloat64();
@@ -83,25 +136,59 @@ var Unmarshaller = (function () {
                 res = this.readInt32();
                 break;
             case "I":
+                throw new Error("We're still working on 64-bit support");
             case "l":
                 res = this.readInt32();
                 break;
             case "y":
+                throw new Error("Complex numbers are not supported");
                 break;
             case "R":
+                var index = this.readInt32();
+                res = this.internedStrs[index];
+                break;
             case "s":
                 var length = this.readInt32();
                 res = this.readString(length);
                 break;
             case "t":
+                var length = this.readInt32();
+                res = this.readString(length);
+                this.internedStrs.push(res);
+                break;
             case "u":
                 var length = this.readInt32();
                 res = this.readUnicodeString(length);
                 break;
             case "(":
             case "[":
+                var length = this.readInt32();
+                res = [];
+                for (var x = 0; x < length; x++) {
+                    res.push(this.unmarshal());
+                }
+                break;
+            case "{":
+            case "<":
+            case ">":
+                throw new Error("Dicts, sets and frozensets are pending investigation");
                 break;
             case "c":
+                var argc = this.readInt32();
+                var nlocals = this.readInt32();
+                var stacksize = this.readInt32();
+                var flags = this.readInt32();
+                var codestr = this.unmarshal();
+                var consts = this.unmarshal();
+                var names = this.unmarshal();
+                var varnames = this.unmarshal();
+                var freevars = this.unmarshal();
+                var cellvars = this.unmarshal();
+                var filename = this.unmarshal();
+                var name = this.unmarshal();
+                var firstlineno = this.readInt32();
+                var lnotab = this.unmarshal();
+                res = new Py_CodeObject(argc, nlocals, stacksize, flags, codestr, consts, names, varnames, freevars, cellvars, filename, name, firstlineno, lnotab);
                 break;
         }
         return res;
@@ -109,3 +196,5 @@ var Unmarshaller = (function () {
     return Unmarshaller;
 })();
 var u = new Unmarshaller("test.pyc");
+var code = u.value();
+console.log(code);
