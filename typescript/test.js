@@ -42,6 +42,13 @@ var Py_CodeObject = (function () {
     }
     return Py_CodeObject;
 })();
+var Complex64 = (function () {
+    function Complex64(r, j) {
+        this.real = r;
+        this.imag = j;
+    }
+    return Complex64;
+})();
 var Unmarshaller = (function () {
     function Unmarshaller(inputFilePath) {
         // Initialize values
@@ -136,12 +143,14 @@ var Unmarshaller = (function () {
                 res = this.readInt32();
                 break;
             case "I":
-                throw new Error("We're still working on 64-bit support");
+                // throw new Error("We're still working on 64-bit support");
+                res = this.readFloat64();
+                break;
             case "l":
                 res = this.readInt32();
                 break;
             case "y":
-                throw new Error("Complex numbers are not supported");
+                res = new Complex64(this.readFloat64(), this.readFloat64());
                 break;
             case "R":
                 var index = this.readInt32();
@@ -195,6 +204,7 @@ var Unmarshaller = (function () {
     };
     return Unmarshaller;
 })();
-var u = new Unmarshaller("test.pyc");
+var u = new Unmarshaller("../pyc_notes/marshaltest.pyc");
 var code = u.value();
-console.log(code);
+console.log(code.consts[14] == None);
+console.log(None);

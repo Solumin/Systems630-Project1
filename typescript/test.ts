@@ -75,6 +75,16 @@ class Py_CodeObject {
     }
 }
 
+class Complex64 {
+    real: number;
+    imag: number;
+
+    constructor(r: number, j: number) {
+        this.real = r;
+        this.imag = j;
+    }
+}
+
 class Unmarshaller {
     // How far we are into the buffer
     index: number;
@@ -196,12 +206,13 @@ class Unmarshaller {
                 break;
             case "I": // 64-bit integer (signed)
                 throw new Error("We're still working on 64-bit support");
+                break;
             case "l": // 32-bit long (unsigned integer?)
                 res = this.readInt32();
                 break;
             // case "x": // "old" marshal-format complex
             case "y": // complex number
-                throw new Error("Complex numbers are not supported");
+                res = new Complex64(this.readFloat64(), this.readFloat64());
                 break;
             // Strings
             case "R": // Reference to interned string
@@ -262,6 +273,6 @@ class Unmarshaller {
     }
 }
 
-var u = new Unmarshaller("test.pyc");
+var u = new Unmarshaller("../pyc_notes/marshaltest.pyc");
 var code: Py_CodeObject = u.value();
 console.log(code);
