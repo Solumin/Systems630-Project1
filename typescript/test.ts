@@ -94,6 +94,7 @@ class Unmarshaller {
     // Somehow related to the Python version.
     // TODO: Use to check if invalid/old/new .pyc file?
     magicNumber: number;
+    public static PYTHON_2_7_8_MAGIC: number = 0xf303;
     // Date of compilation
     date: Date;
     // The list of "interalized" strings
@@ -104,16 +105,21 @@ class Unmarshaller {
     constructor(inputFilePath: string) {
         // Initialize values
         this.internedStrs = [];
-        // We read the first 8 bytes to get the magic number and the date
-        this.index = 8;
         // For testing purposes, this is synchronous
         // TODO: Replace with BrowserFS call
         this.input = fs.readFileSync(inputFilePath);
         this.magicNumber = this.input.readUInt16LE(0);
+
+        if (this.magicNumber != Unmarshaller.PYTHON_2_7_8_MAGIC) {
+            throw new Error("Unsupported Python version.");
+        }
+
         // Python marshals the date in seconds -- see time.localtime in the
         // Python stdlib.
         // Javascript takes the date in milliseconds. Thus, 1000*time.
         this.date = new Date(1000 * this.input.readUInt32LE(4));
+        // We read the first 8 bytes to get the magic number and the date
+        this.index = 8;
     }
 
     // Processes the input string
@@ -267,6 +273,6 @@ class Unmarshaller {
     }
 }
 
-var u = new Unmarshaller("../pyc_notes/dict_check/dict.pyc");
+var u = new Unmarshaller("../pyc_notes/dict_test/dict.pyc");
 var code: Py_CodeObject = u.value();
 console.log(code);

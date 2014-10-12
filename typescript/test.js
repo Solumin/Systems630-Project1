@@ -53,16 +53,20 @@ var Unmarshaller = (function () {
     function Unmarshaller(inputFilePath) {
         // Initialize values
         this.internedStrs = [];
-        // We read the first 8 bytes to get the magic number and the date
-        this.index = 8;
         // For testing purposes, this is synchronous
         // TODO: Replace with BrowserFS call
         this.input = fs.readFileSync(inputFilePath);
         this.magicNumber = this.input.readUInt16LE(0);
+        console.log(this.magicNumber, Unmarshaller.PYTHON_2_7_8_MAGIC);
+        if (this.magicNumber != Unmarshaller.PYTHON_2_7_8_MAGIC) {
+            throw new Error("Unsupported Python version.");
+        }
         // Python marshals the date in seconds -- see time.localtime in the
         // Python stdlib.
         // Javascript takes the date in milliseconds. Thus, 1000*time.
         this.date = new Date(1000 * this.input.readUInt32LE(4));
+        // We read the first 8 bytes to get the magic number and the date
+        this.index = 8;
     }
     // Processes the input string
     Unmarshaller.prototype.value = function () {
@@ -121,7 +125,6 @@ var Unmarshaller = (function () {
         var unit = this.readChar();
         var res;
         switch (unit) {
-            case "0":
             case "N":
                 res = None;
                 break;
@@ -176,11 +179,6 @@ var Unmarshaller = (function () {
                     res.push(this.unmarshal());
                 }
                 break;
-            case "{":
-            case "<":
-            case ">":
-                throw new Error("Dicts, sets and frozensets are pending investigation");
-                break;
             case "c":
                 var argc = this.readInt32();
                 var nlocals = this.readInt32();
@@ -198,11 +196,14 @@ var Unmarshaller = (function () {
                 var lnotab = this.unmarshal();
                 res = new Py_CodeObject(argc, nlocals, stacksize, flags, codestr, consts, names, varnames, freevars, cellvars, filename, name, firstlineno, lnotab);
                 break;
+            default:
+                throw new Error("Unsupported marshal format: " + unit);
         }
         return res;
     };
+    Unmarshaller.PYTHON_2_7_8_MAGIC = 0xf303;
     return Unmarshaller;
 })();
-var u = new Unmarshaller("../pyc_notes/dict_check/dict.pyc");
+var u = new Unmarshaller("../pyc_notes/dict_test/dict.pyc");
 var code = u.value();
 console.log(code);
