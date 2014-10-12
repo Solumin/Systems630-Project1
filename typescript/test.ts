@@ -196,7 +196,6 @@ class Unmarshaller {
                 throw new Error("Ellipsis is not yet implemented");
                 break;
             // Numbers
-            // case "f": // "old" marshal-format float
             case "g": // double-precision floating-point number
                 res = this.readFloat64();
                 break;
@@ -209,7 +208,6 @@ class Unmarshaller {
             case "l": // 32-bit long (unsigned integer?)
                 res = this.readInt32();
                 break;
-            // case "x": // "old" marshal-format complex
             case "y": // complex number
                 res = new Complex64(this.readFloat64(), this.readFloat64());
                 break;
@@ -261,6 +259,9 @@ class Unmarshaller {
                     names, varnames, freevars, cellvars, filename,
                     name, firstlineno, lnotab);
                 break;
+
+            default:
+                throw new Error("Unsupported marshal format: " + unit)
         }
         return res;
     }
