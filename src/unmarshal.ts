@@ -92,7 +92,6 @@ class Unmarshaller {
     input: Buffer;
     // A "magic number" at the beginning of the pyc file.
     // Somehow related to the Python version.
-    // TODO: Use to check if invalid/old/new .pyc file?
     magicNumber: number;
     public static PYTHON_2_7_8_MAGIC: number = 0xf303;
     // Date of compilation
@@ -181,7 +180,6 @@ class Unmarshaller {
     }
 
     // Unmarshals the input string
-    // Not yet implemented.
     unmarshal() {
         var unit = this.readChar();
         var res: any;
