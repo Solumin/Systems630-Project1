@@ -143,8 +143,7 @@ var Unmarshaller = (function () {
                 res = this.readInt32();
                 break;
             case "I":
-                // throw new Error("We're still working on 64-bit support");
-                res = this.readFloat64();
+                throw new Error("We're still working on 64-bit support");
                 break;
             case "l":
                 res = this.readInt32();
@@ -204,7 +203,6 @@ var Unmarshaller = (function () {
     };
     return Unmarshaller;
 })();
-var u = new Unmarshaller("../pyc_notes/marshaltest.pyc");
+var u = new Unmarshaller("../pyc_notes/dict_check/dict.pyc");
 var code = u.value();
-console.log(code.consts[14] == None);
-console.log(None);
+console.log(code);

@@ -181,7 +181,6 @@ class Unmarshaller {
         var res: any;
         switch (unit) {
             // Constants
-            case "0": // Null. TODO: Investigate usage. Dictionary keys?
             case "N": // None
                 res = None;
                 break;
@@ -241,12 +240,6 @@ class Unmarshaller {
                     res.push(this.unmarshal());
                 }
                 break;
-                // Now built-in classes, not types:
-            case "{": // dictionary
-            case "<": // set
-            case ">": // frozenset
-                throw new Error("Dicts, sets and frozensets are pending investigation");
-                break;
             // Code Objects:
             case "c":
                 var argc = this.readInt32();
@@ -273,6 +266,6 @@ class Unmarshaller {
     }
 }
 
-var u = new Unmarshaller("../pyc_notes/marshaltest.pyc");
+var u = new Unmarshaller("../pyc_notes/dict_check/dict.pyc");
 var code: Py_CodeObject = u.value();
 console.log(code);
