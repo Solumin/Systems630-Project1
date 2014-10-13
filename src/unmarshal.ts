@@ -1,6 +1,6 @@
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
-var fs = require('fs');
+import fs = require('fs');
 import gLong = require("../lib/gLong");
 
 // Null is an empty value. Mostly used in the interpreter for dictionaries.
@@ -130,14 +130,14 @@ class Unmarshaller {
         return this.output;
     }
 
-    // // Reads a single character (1 byte, as string) from the input
+    // Reads a single character (1 byte, as string) from the input
     readChar(): string {
-        var c = this.input.toString('ascii', this.index,this.index+1);
+        var c = this.input.toString('ascii', this.index, this.index+1);
         this.index += 1;
         return c;
     }
 
-    // // Reads a single byte from the input
+    // Reads a single byte from the input
     // (Equivalent to readChar().charCodeAt(0))
     readByte(): number {
         var b = this.input.readUInt8(this.index);
@@ -154,7 +154,7 @@ class Unmarshaller {
 
     // Reads a 64 bit integer
     // TODO: Check out gLong library (see Doppio's typescript implementation)
-    readInt64(): number {
+    readInt64(): gLong {
         var low = this.readInt32();
         var high = this.readInt32();
         return gLong.fromBits(low, high);
@@ -210,8 +210,13 @@ class Unmarshaller {
             case "I": // 64-bit integer (signed)
                 res = this.readInt64();
                 break;
-            case "l": // 32-bit long (unsigned integer?)
-                throw new Error("Long integers are not yet implemented");
+            case "l": // arbitrary precision integer
+                // Stored as a 32-bit integer of length, then $length 16-bit
+                // chunks
+                var length = this.readInt32();
+                throw new Error("Long is not quite working");
+                // Long seems to be stored as 16-bit chunks (LE)
+                // Basically a long binary number split into chunks (chomps?)
                 break;
             case "y": // complex number
                 res = new Complex64(this.readFloat64(), this.readFloat64());
@@ -266,12 +271,14 @@ class Unmarshaller {
                 break;
 
             default:
+                console.log("Unsupported marshal format: " + unit + " @" +
+                        this.index);
                 throw new Error("Unsupported marshal format: " + unit)
         }
         return res;
     }
 }
 
-var u = new Unmarshaller("../pyc_notes/dict_test/dict.pyc");
+var u = new Unmarshaller("../pyc_notes/long_test/long.pyc");
 var code: Py_CodeObject = u.value();
 console.log(code);

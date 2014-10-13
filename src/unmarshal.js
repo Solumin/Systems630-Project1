@@ -1,6 +1,7 @@
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
 var fs = require('fs');
+var gLong = require("../lib/gLong");
 // Null is an empty value. Mostly used in the interpreter for dictionaries.
 // Python has a single null object called "None".
 var NullSingleton = (function () {
@@ -74,13 +75,13 @@ var Unmarshaller = (function () {
         }
         return this.output;
     };
-    // // Reads a single character (1 byte, as string) from the input
+    // Reads a single character (1 byte, as string) from the input
     Unmarshaller.prototype.readChar = function () {
         var c = this.input.toString('ascii', this.index, this.index + 1);
         this.index += 1;
         return c;
     };
-    // // Reads a single byte from the input
+    // Reads a single byte from the input
     // (Equivalent to readChar().charCodeAt(0))
     Unmarshaller.prototype.readByte = function () {
         var b = this.input.readUInt8(this.index);
@@ -95,11 +96,11 @@ var Unmarshaller = (function () {
     };
     // Reads a 64 bit integer
     // TODO: Check out gLong library (see Doppio's typescript implementation)
-    // readInt64(): number {
-    //     var i0 = this.readInt32();
-    //     var i1 = this.readInt32();
-    //     return (i1 * Math.pow(2, 32)) + i0;
-    // }
+    Unmarshaller.prototype.readInt64 = function () {
+        var low = this.readInt32();
+        var high = this.readInt32();
+        return gLong.fromBits(low, high);
+    };
     // Reads a 64-bit floating-pount number
     // WARNING: Javascript only supports double-precision floats.
     // Any numbers greater than 2**52 will be approximate at best
@@ -144,10 +145,14 @@ var Unmarshaller = (function () {
                 res = this.readInt32();
                 break;
             case "I":
-                throw new Error("We're still working on 64-bit support");
+                res = this.readInt64();
                 break;
             case "l":
-                res = this.readInt32();
+                // Stored as a 32-bit integer of length, then $length 16-bit
+                // chunks
+                var length = this.readInt32();
+                var str = this.readUnicodeString(length * 2);
+                console.log("long str is: " + str);
                 break;
             case "y":
                 res = new Complex64(this.readFloat64(), this.readFloat64());
@@ -195,6 +200,7 @@ var Unmarshaller = (function () {
                 res = new Py_CodeObject(argc, nlocals, stacksize, flags, codestr, consts, names, varnames, freevars, cellvars, filename, name, firstlineno, lnotab);
                 break;
             default:
+                console.log("Unsupported marshal format: " + unit + " @" + this.index);
                 throw new Error("Unsupported marshal format: " + unit);
         }
         return res;
@@ -202,6 +208,6 @@ var Unmarshaller = (function () {
     Unmarshaller.PYTHON_2_7_8_MAGIC = 0xf303;
     return Unmarshaller;
 })();
-var u = new Unmarshaller("../pyc_notes/dict_test/dict.pyc");
+var u = new Unmarshaller("../pyc_notes/long_test/long.pyc");
 var code = u.value();
 console.log(code);
