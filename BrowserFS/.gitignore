@@ -1,0 +1,14 @@
+node_modules/*
+doc/*
+*.DS_Store
+*.log
+*.json
+vendor/*/
+test/fixtures
+test/harness/load_fixtures.js
+!test/fixtures/files
+!test/fixtures/README.md
+tscommand*
+tools/*.js*
+build/*
+src/ignoreBaseDirFile.ts
