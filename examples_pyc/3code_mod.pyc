@@ -8,7 +8,7 @@
    00 00 00 00 nlocals
    02 00 00 00 stacksize
    40 00 00 00 flags
-73 22 00 00 00 s: numbers of bytes for the code
+73 22 00 00 00 s: 34 bytes of code
 
 -- main
 64 00 00 LOAD_CONST 0

@@ -1,0 +1,165 @@
+03f3 0d0a 
+
+51c5 3454 
+
+c: object code
+63 00 00 00 00 argcount
+   00 00 00 00 nlocal
+   03 00 00 00 stacksize
+   40 00 00 00 flags
+s: instr
+73 31 00 00 00 
+
+64 00 00
+84 00 00 
+5a 00 00
+64 01 00 
+84 00 00
+5a 01 00
+65 00 00
+64 02 00 
+83 01 00
+65 01 00 
+64 03 00
+83 01 00 
+17 
+5a 02 00 
+65 02 00
+47 
+48
+64 04 00 
+53
+
+(: tuple of size 5 consts
+28 05 00 00 00 
+
+c: code object: position 0 of co_consts
+63 01 00 00 00 argcounts 
+   01 00 00 00 nlocals
+   02 00 00 00 stacksize
+   43 00 00 00 flag
+s: instr
+73 08 00 00 00 
+
+7c 00 00
+7c 00 00
+14
+53
+
+(: tuple of size 1 consts
+28 01 00 00 00
+4e N:None
+
+(: tuple 0 names
+28 00 00 00 00
+
+(: tuple 1 varnames
+28 01 00 00 00 
+t: 
+74 01 00 00 00
+78 x
+
+(: tuple 0 freevars
+28 00 00 00 00
+
+(: tuple 0 cellvars
+28 00 00 00 00 
+
+s: string
+73 08 00 00 00
+38 63 6f 64 65 2e 70 79 8code.py: filename
+
+t:
+74 04 00 00 00 
+66 6f 6f 31 foo1: name
+
+01 00 00 00 firstlineno
+
+s: string
+73 02 00 00 00
+00 01 lnotab
+
+c: code object pos 1 co_consts
+63 01 00 00 00 
+   01 00 00 00 
+   02 00 00 00
+   43 00 00 00
+s: instr 
+73 08 00 00 00
+
+7c 00 00 
+64 01 00
+17
+53
+
+(: tuple 2 consts
+28 02 00 00 00 
+
+4e N: None
+i: integer
+69 03 00 00 00 (3)
+
+(: tuple 0 names
+28 00 00 00 00
+
+(: tuple 1 varnames
+28 01 00 00 00 
+R: read string at interned pos 0
+52 00 00 00 00
+
+(: tuple 0 freevars
+28 00 00 00 00
+
+(: tuple 0 cellvars
+28 00 00 00 00
+
+s: string
+73 08 00 00 00 
+38 63 6f 64 65 2e 70 79 8code.py filename
+
+t: 
+74 04 00 00 00
+66 6f 6f 32 foo2: name
+
+04 00 00 00 firstlineno
+
+s:
+73 02 00 00 00 
+00 01 lnotab
+
+i: integer pos 2 consts
+69 04 00 00 00 (4)
+
+i: int pos 3 consts
+69 01 00 00 00 (1)
+
+4e N:None
+
+(: tuple 3 names
+28 03 00 00 00 
+R:
+52 01 00 00 00
+R:
+52 02 00 00 00
+t:
+74 01 00 00 00
+79 (x)
+
+(: tuple 0 varnames
+28 00 00 00 00
+
+28 00 00 00 00 freevars
+28 00 00 00 00 cellvars
+
+s:
+73 08 00 00 00 
+3863 6f64 652e7079 8code.py
+
+t:
+74 08 00 00 00
+3c 6d 6f 64 75 6c 65 3e <module>
+
+01 00 00 00 firstline
+
+73 06 00 00 00 
+09 03 09 03 16 02 lnotab

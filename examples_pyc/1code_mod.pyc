@@ -1,20 +1,20 @@
 -- magic number
-03f3 0d0a 
+03 f3 0d 0a 
 
 -- time stamp
-fe8c 2054 
+fe 8c 20 54 
 
 -- not sure yet 
 63 00 00 00 00 argcounts
    00 00 00 00 nlocals
    01 00 00 00 stacksize
    40 00 00 00 flags?
-73 09 00 00 00 string followed by 4bytes?
+73 09 00 00 00 string: 9 bytes of code
     
 
 -- main 
 64 00 00
-47 
+47
 48
 64 01 00 
 53

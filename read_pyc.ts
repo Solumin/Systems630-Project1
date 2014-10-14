@@ -7,7 +7,7 @@ var infoMain = []
 var mainCode = []
 
 function readCodeFile(callback) {
-  fs.readFile('examples_pyc/4code.pyc', function doneReading(err, fileContents) {
+  fs.readFile('examples_pyc/8code.pyc', function doneReading(err, fileContents) {
     some_code = fileContents
     //myNumber++
     callback()
