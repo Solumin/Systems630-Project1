@@ -9,7 +9,7 @@ var lsfs = new BrowserFS.FileSystem.LocalStorage();
 BrowserFS.initialize(lsfs);
 
 var fs = require('fs');
-fs.writeFile('/test.txt', 'Okay, it seems to be working.', function (err) {
+fs.writeFile('/test.txt', 'Okay, it seems to be working again.', function (err) {
     fs.readFile('/test.txt', function (err, contents) {
         console.log(contents.toString());
     });
