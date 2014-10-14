@@ -2,6 +2,8 @@
 // converts into a Python code object.
 import fs = require('fs');
 import gLong = require("../lib/gLong");
+// TODO: Write declaration file for decimal.js
+import Decimal = require('../lib/decimal.js');
 
 // Null is an empty value. Mostly used in the interpreter for dictionaries.
 // Python has a single null object called "None".
@@ -145,6 +147,13 @@ class Unmarshaller {
         return b;
     }
 
+    // Read an unsigned short (used for grokking longs)
+    readUInt16(): number {
+        var s = this.input.readUInt16LE(this.index);
+        this.index += 2;
+        return s;
+    }
+
     // // Reads a 4-byte integer from the input
     readInt32(): number {
         var i = this.input.readInt32LE(this.index);
@@ -153,7 +162,6 @@ class Unmarshaller {
     }
 
     // Reads a 64 bit integer
-    // TODO: Check out gLong library (see Doppio's typescript implementation)
     readInt64(): gLong {
         var low = this.readInt32();
         var high = this.readInt32();
@@ -212,11 +220,20 @@ class Unmarshaller {
                 break;
             case "l": // arbitrary precision integer
                 // Stored as a 32-bit integer of length, then $length 16-bit
-                // chunks
+                // digits.
                 var length = this.readInt32();
-                throw new Error("Long is not quite working");
-                // Long seems to be stored as 16-bit chunks (LE)
-                // Basically a long binary number split into chunks (chomps?)
+                res = new Decimal(0);
+                if (length != 0) {
+                    var shift = new Decimal(15);
+                    for(var i = 0; i < Math.abs(length); i++) {
+                        var digit = new Decimal(this.readUInt16());
+                        res = res.plus(digit.times(
+                                    Decimal.pow(2, shift.times(i))));
+                    }
+                }
+                if (length < 0) {
+                    res = res.times(-1);
+                }
                 break;
             case "y": // complex number
                 res = new Complex64(this.readFloat64(), this.readFloat64());
@@ -282,3 +299,6 @@ class Unmarshaller {
 var u = new Unmarshaller("../pyc_notes/long_test/long.pyc");
 var code: Py_CodeObject = u.value();
 console.log(code);
+code.consts.forEach(function(element, index, array) {
+    console.log("\t" + index + ": " + element);
+});
