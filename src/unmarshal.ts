@@ -1,3 +1,4 @@
+// <reference path="../lib/node.d.ts" />
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
 import fs = require('fs');
