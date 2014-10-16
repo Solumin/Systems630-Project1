@@ -1,10 +1,10 @@
-// <reference path="../lib/node.d.ts" />
+/// <reference path="../lib/node.d.ts" />
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
 import fs = require('fs');
 import gLong = require("../lib/gLong");
 // TODO: Write declaration file for decimal.js
-import Decimal = require('../lib/decimal.js');
+var Decimal = require('../lib/decimal');
 
 // Null is an empty value. Mostly used in the interpreter for dictionaries.
 // Python has a single null object called "None".
@@ -297,7 +297,7 @@ class Unmarshaller {
     }
 }
 
-var u = new Unmarshaller("../pyc_notes/long_test/long.pyc");
+var u = new Unmarshaller("../examples_pyc/5code.pyc");
 var code: Py_CodeObject = u.value();
 console.log(code);
 code.consts.forEach(function(element, index, array) {

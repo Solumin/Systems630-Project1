@@ -1,9 +1,10 @@
+/// <reference path="../lib/node.d.ts" />
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
 var fs = require('fs');
 var gLong = require("../lib/gLong");
 // TODO: Write declaration file for decimal.js
-var Decimal = require('../lib/decimal.js');
+var Decimal = require('../lib/decimal');
 // Null is an empty value. Mostly used in the interpreter for dictionaries.
 // Python has a single null object called "None".
 var NullSingleton = (function () {
@@ -156,7 +157,7 @@ var Unmarshaller = (function () {
                 break;
             case "l":
                 // Stored as a 32-bit integer of length, then $length 16-bit
-                // chunks
+                // digits.
                 var length = this.readInt32();
                 res = new Decimal(0);
                 if (length != 0) {
@@ -224,7 +225,7 @@ var Unmarshaller = (function () {
     Unmarshaller.PYTHON_2_7_8_MAGIC = 0xf303;
     return Unmarshaller;
 })();
-var u = new Unmarshaller("../pyc_notes/long_test/long.pyc");
+var u = new Unmarshaller("../examples_pyc/5code.pyc");
 var code = u.value();
 console.log(code);
 code.consts.forEach(function (element, index, array) {
