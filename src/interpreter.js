@@ -1,86 +1,75 @@
-class Interpreter {
-    // The interpreter stack
-    stack: any[]
-
-    constructor() {
+var Interpreter = (function () {
+    function Interpreter() {
         this.stack = [];
     }
-
-    interpret(code: Py_CodeObject) {
-        return this.exec(
-                new Py_FrameObject(null, {}, code, {}, -1, 0, {}, false));
-    }
-
-    exec(frame: Py_FrameObject) {
-        var code: Py_CodeObject = frame.code;
-    }
-
-    readOp(f: Py_FrameObject): string {
+    Interpreter.prototype.interpret = function (code) {
+        return this.exec(new Py_FrameObject(null, {}, code, {}, -1, 0, {}, false));
+    };
+    Interpreter.prototype.exec = function (frame) {
+        var code = frame.code;
+    };
+    Interpreter.prototype.readOp = function (f) {
         f.lastInst += 1;
         return f.codeObj.code[f.lastInst];
-    }
-
-    readArg(f: Py_FrameObject): number {
+    };
+    Interpreter.prototype.readArg = function (f) {
         f.lastInst += 1;
         var low = f.codeObj.code[f.lastInst].charCodeAt();
         f.lastInst += 1;
         var high = f.codeObj.code[f.lastInst].charCodeAt();
         return (high << 8) + low;
-    }
-
-    push(v) {
+    };
+    Interpreter.prototype.push = function (v) {
         return this.stack.push(v);
-    }
-
-    pop() {
+    };
+    Interpreter.prototype.pop = function () {
         return this.stack.pop();
-    }
-
+    };
     // Opcodes
     // 23: BINARY_ADD
-    binary_add(f: Py_FrameObject) {
+    Interpreter.prototype.binary_add = function (f) {
         var a = this.pop();
         var b = this.pop();
         return a + b;
-    }
+    };
     // 71: PRINT_ITEM
-    print_item(f: Py_FrameObject) {
+    Interpreter.prototype.print_item = function (f) {
         var a = this.pop();
         console.log(a);
-    }
+    };
     // 72: PRINT_NEWLINE
-    print_newline(f: Py_FrameObject) {
+    Interpreter.prototype.print_newline = function (f) {
         console.log("\n");
-    }
+    };
     // 83: RETURN_VALUE
-    return_value(f: Py_FrameObject) {
+    Interpreter.prototype.return_value = function (f) {
         return this.pop();
-    }
+    };
     // 90: STORE_NAME
-    store_name(f: Py_FrameObject) {
+    Interpreter.prototype.store_name = function (f) {
         var i = this.readArg(f);
         var val = this.pop();
         var name = f.codeObj.names[i];
         f.locals[name] = val;
-    }
+    };
     // 100: LOAD_CONST
-    load_const(f: Py_FrameObject) {
+    Interpreter.prototype.load_const = function (f) {
         var i = this.readArg(f);
         this.push(f.codeObj.consts[i]);
-    }
+    };
     // 101: LOAD_NAME
-    load_name(f: Py_FrameObject) {
+    Interpreter.prototype.load_name = function (f) {
         var i = this.readArg(f);
         var name = f.codeObj.names[i];
         this.push(f.locals[name]);
-    }
+    };
     // 124: LOAD_FAST
-    load_fast(f: Py_FrameObject) {
+    Interpreter.prototype.load_fast = function (f) {
         var i = this.readArg(f);
         this.push(f.codeObj.varnames[i]);
-    }
+    };
     // 131: CALL_FUNCTION
-    call_function(f: Py_FrameObject) {
+    Interpreter.prototype.call_function = function (f) {
         var i = this.readArg(f);
         // number of positional parameters
         var posNum = i & 0xff;
@@ -88,10 +77,10 @@ class Interpreter {
         var keyNum = (i >> 8) & 0xff;
         console.log(this.stack);
         throw new Error("Function calls are weird.");
-    }
+    };
     // 132: MAKE_FUNCTION
-    make_function(f: Py_FrameObject) {
-       throw new Error("The documentation kind of sucks here");
-    }
-
-}
+    Interpreter.prototype.make_function = function (f) {
+        throw new Error("The documentation kind of sucks here");
+    };
+    return Interpreter;
+})();

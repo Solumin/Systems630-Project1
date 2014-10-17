@@ -2,39 +2,39 @@ class Py_FrameObject {
     // Previous stack frame (this frame's caller, may be None)
     back: Py_FrameObject;
     // Built-in namespace -- TODO: Evaluate for this project?
-    builtins: { [name: string]: Any; };
+    builtins: { [name: string]: any; };
     // Code object executed in this frame
-    code: Py_CodeObject;
+    codeObj: Py_CodeObject;
     // traceback for debugging -- TODO: Implement
-    // traceback: Any;
+    // traceback: any;
     // Exception type, if raised in this frame
-    // exc_type: Any;
+    // exc_type: any;
     // Exception value, if raised in this frame
     // exc_value
     // List of global values (global namespace!)
-    globals: { [name: string]: Any };
+    globals: { [name: string]: any };
     // Last attempted instruction
     lastInst: number;
     // Current line number
     lineNum: number;
     // Local namespace
-    locals: { [name: string]: Any };
+    locals: { [name: string]: any };
     // Flag: 1 if running in restricted mode (TODO: What?)
     restricted: boolean;
     // Tracing function for this frame
     // trace:
 
     constructor(back: Py_FrameObject,
-                builtins: { [name: string]: Any; },
-                code: Py_CodeObject;
-                globals: { [name: string]: Any },
+                builtins: { [name: string]: any; },
+                code: Py_CodeObject,
+                globals: { [name: string]: any },
                 lastInst: number,
                 lineNum: number,
-                locals: { [name: string]: Any },
+                locals: { [name: string]: any },
                 restricted: boolean) {
         this.back = back;
         this.builtins = builtins;
-        this.code = code;
+        this.codeObj = code;
         this.globals = globals;
         this.lastInst = lastInst;
         this.lineNum = lineNum;
