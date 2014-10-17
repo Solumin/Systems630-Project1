@@ -296,7 +296,7 @@ class Unmarshaller {
     }
 }
 
-var u = new Unmarshaller("../pyc_notes/long_test/long.pyc");
+var u = new Unmarshaller("../examples/simpleadd.pyc");
 var code: Py_CodeObject = u.value();
 console.log(code);
 code.consts.forEach(function(element, index, array) {
