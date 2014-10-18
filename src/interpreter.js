@@ -3,6 +3,7 @@
 // <reference path="codeobject.ts" />
 // <reference path="supportobjects.ts" />
 var frameObj = require('./frameobject');
+var funcObj = require('./funcobject');
 var Interpreter = (function () {
     function Interpreter() {
         this.stack = [];
@@ -128,7 +129,10 @@ var Interpreter = (function () {
     };
     // 132: MAKE_FUNCTION
     Interpreter.prototype.make_function = function (f) {
-        throw new Error("The documentation kind of sucks here");
+        var numArgs = this.readArg(f);
+        var code = this.pop();
+        var func = new funcObj.Py_FuncObject(code, f.globals, null, code.name);
+        this.push(func);
     };
     return Interpreter;
 })();

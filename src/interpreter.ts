@@ -7,6 +7,7 @@ import frameObj = require('./frameobject');
 import codeObj = require('./codeobject');
 import support = require('./supportobjects');
 import unmarshal = require('./unmarshal');
+import funcObj = require('./funcobject');
 
 export class Interpreter {
     // The interpreter stack
@@ -145,8 +146,12 @@ export class Interpreter {
         throw new Error("Function calls are weird.");
     }
     // 132: MAKE_FUNCTION
+    // TODO: Default param support
     make_function(f: frameObj.Py_FrameObject) {
-       throw new Error("The documentation kind of sucks here");
+        var numDefault = this.readArg(f);
+        var code = this.pop();
+        var func = new funcObj.Py_FuncObject(code, f.globals, null, code.name);
+        this.push(func);
     }
 
 }
