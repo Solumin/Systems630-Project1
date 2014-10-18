@@ -19,15 +19,16 @@ export class Interpreter {
 
     interpret(code: codeObj.Py_CodeObject) {
         return this.exec(
-            new frameObj.Py_FrameObject(null, {}, code, {}, -1, 0, {}, false));
+            new frameObj.Py_FrameObject(null, {}, code, {}, -1,
+                code.firstlineno, {}, false));
     }
 
     exec(frame: frameObj.Py_FrameObject) {
         var code: codeObj.Py_CodeObject = frame.codeObj;
         for (var op = this.readOp(frame); op != undefined;
                 op = this.readOp(frame)) {
-            console.log("Op: " + op + " (code: " + op + " @" +
-                    frame.lastInst + ")");
+            // console.log("Op: " + op + " (code: " + op + " @" +
+            //         frame.lastInst + ")");
             switch(op) {
                 case 0x17:
                     this.binary_add(frame);
@@ -81,12 +82,12 @@ export class Interpreter {
     }
 
     push(v) {
-        console.log("Pushing " + v + " to the stack");
+        // console.log("Pushing " + v + " to the stack");
         return this.stack.push(v);
     }
 
     pop() {
-        console.log("Popping stack...");
+        // console.log("Popping stack...");
         return this.stack.pop();
     }
 
@@ -133,7 +134,8 @@ export class Interpreter {
     // 124: LOAD_FAST
     load_fast(f: frameObj.Py_FrameObject) {
         var i = this.readArg(f);
-        this.push(f.codeObj.varnames[i]);
+        var name = f.codeObj.varnames[i];
+        this.push(f.locals[name]);
     }
     // 131: CALL_FUNCTION
     call_function(f: frameObj.Py_FrameObject) {
@@ -142,8 +144,30 @@ export class Interpreter {
         var posNum = i & 0xff;
         // number of keyword arguments
         var keyNum = (i >> 8) & 0xff;
-        console.log(this.stack);
-        throw new Error("Function calls are weird.");
+        var keyVs = [];
+        var posVs = [];
+        for (var x = 0; x < keyNum; x++) {
+            keyVs.push(this.pop());
+        }
+        for (var x = 0; x < posNum; x++) {
+            posVs.push(this.pop());
+        }
+        console.log("Keyword args: " + keyVs);
+        console.log("Position args: " + posVs);
+        var func: funcObj.Py_FuncObject = this.pop();
+
+        console.log("Func to call: " + func.name);
+        console.log("Function args: " + func.code.varnames);
+
+        var locals: { [name: string]: any } = {};
+        func.code.varnames.reverse().forEach( function(elem, idx, arr) {
+            console.log("Name: " + elem + " = " + posVs[idx]);
+            locals[elem] = posVs[idx];
+        });
+
+        var newf = new frameObj.Py_FrameObject(f, f.builtins, func.code,
+                func.globals, -1, func.code.firstlineno, locals, false);
+        this.push(this.exec(newf));
     }
     // 132: MAKE_FUNCTION
     // TODO: Default param support
@@ -153,5 +177,4 @@ export class Interpreter {
         var func = new funcObj.Py_FuncObject(code, f.globals, null, code.name);
         this.push(func);
     }
-
 }
