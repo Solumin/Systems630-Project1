@@ -46,7 +46,6 @@ var Interpreter = (function () {
                     this.make_function(frame);
                     break;
                 default:
-                    console.log("Unknown: " + op);
                     throw new Error("Unknown op code: " + op);
                     break;
             }
@@ -81,17 +80,18 @@ var Interpreter = (function () {
     // 71: PRINT_ITEM
     Interpreter.prototype.print_item = function (f) {
         var a = this.pop();
-        console.log(a);
+        if (a == undefined) {
+            throw new Error("Attempted to write undefined data\n" + this.stack);
+        }
+        process.stdout.write(a.toString());
     };
     // 72: PRINT_NEWLINE
     Interpreter.prototype.print_newline = function (f) {
-        console.log("\n");
+        process.stdout.write("\n");
     };
     // 83: RETURN_VALUE
     Interpreter.prototype.return_value = function (f) {
-        var top = this.pop();
-        console.log("Ret val: " + top);
-        return top;
+        // NOP -- clear stack?
     };
     // 90: STORE_NAME
     Interpreter.prototype.store_name = function (f) {
@@ -132,18 +132,13 @@ var Interpreter = (function () {
         for (var x = 0; x < posNum; x++) {
             posVs.push(this.pop());
         }
-        console.log("Keyword args: " + keyVs);
-        console.log("Position args: " + posVs);
         var func = this.pop();
-        console.log("Func to call: " + func.name);
-        console.log("Function args: " + func.code.varnames);
         var locals = {};
         func.code.varnames.reverse().forEach(function (elem, idx, arr) {
-            console.log("Name: " + elem + " = " + posVs[idx]);
             locals[elem] = posVs[idx];
         });
         var newf = new frameObj.Py_FrameObject(f, f.builtins, func.code, func.globals, -1, func.code.firstlineno, locals, false);
-        this.push(this.exec(newf));
+        this.exec(newf);
     };
     // 132: MAKE_FUNCTION
     // TODO: Default param support

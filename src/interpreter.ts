@@ -27,8 +27,6 @@ export class Interpreter {
         var code: codeObj.Py_CodeObject = frame.codeObj;
         for (var op = this.readOp(frame); op != undefined;
                 op = this.readOp(frame)) {
-            // console.log("Op: " + op + " (code: " + op + " @" +
-            //         frame.lastInst + ")");
             switch(op) {
                 case 0x17:
                     this.binary_add(frame);
@@ -61,7 +59,6 @@ export class Interpreter {
                     this.make_function(frame);
                     break;
                 default:
-                    console.log("Unknown: " + op);
                     throw new Error("Unknown op code: " + op);
                     break;
             }
@@ -98,21 +95,26 @@ export class Interpreter {
         var b = this.pop();
         this.push(a + b);
     }
+
     // 71: PRINT_ITEM
     print_item(f: frameObj.Py_FrameObject) {
         var a = this.pop();
-        console.log(a);
+        if (a == undefined) {
+            throw new Error("Attempted to write undefined data\n" + this.stack);
+        }
+        process.stdout.write(a.toString());
     }
+
     // 72: PRINT_NEWLINE
     print_newline(f: frameObj.Py_FrameObject) {
-        console.log("\n");
+        process.stdout.write("\n");
     }
+
     // 83: RETURN_VALUE
     return_value(f: frameObj.Py_FrameObject) {
-        var top = this.pop();
-        console.log("Ret val: " + top);
-        return top;
+        // NOP -- clear stack?
     }
+
     // 90: STORE_NAME
     store_name(f: frameObj.Py_FrameObject) {
         var i = this.readArg(f);
@@ -120,23 +122,27 @@ export class Interpreter {
         var name = f.codeObj.names[i];
         f.locals[name] = val;
     }
+
     // 100: LOAD_CONST
     load_const(f: frameObj.Py_FrameObject) {
         var i = this.readArg(f);
         this.push(f.codeObj.consts[i]);
     }
+
     // 101: LOAD_NAME
     load_name(f: frameObj.Py_FrameObject) {
         var i = this.readArg(f);
         var name = f.codeObj.names[i];
         this.push(f.locals[name]);
     }
+
     // 124: LOAD_FAST
     load_fast(f: frameObj.Py_FrameObject) {
         var i = this.readArg(f);
         var name = f.codeObj.varnames[i];
         this.push(f.locals[name]);
     }
+
     // 131: CALL_FUNCTION
     call_function(f: frameObj.Py_FrameObject) {
         var i = this.readArg(f);
@@ -152,23 +158,19 @@ export class Interpreter {
         for (var x = 0; x < posNum; x++) {
             posVs.push(this.pop());
         }
-        console.log("Keyword args: " + keyVs);
-        console.log("Position args: " + posVs);
-        var func: funcObj.Py_FuncObject = this.pop();
 
-        console.log("Func to call: " + func.name);
-        console.log("Function args: " + func.code.varnames);
+        var func: funcObj.Py_FuncObject = this.pop();
 
         var locals: { [name: string]: any } = {};
         func.code.varnames.reverse().forEach( function(elem, idx, arr) {
-            console.log("Name: " + elem + " = " + posVs[idx]);
             locals[elem] = posVs[idx];
         });
 
         var newf = new frameObj.Py_FrameObject(f, f.builtins, func.code,
                 func.globals, -1, func.code.firstlineno, locals, false);
-        this.push(this.exec(newf));
+        this.exec(newf)
     }
+
     // 132: MAKE_FUNCTION
     // TODO: Default param support
     make_function(f: frameObj.Py_FrameObject) {
