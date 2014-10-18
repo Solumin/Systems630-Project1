@@ -1,7 +1,8 @@
 /// <reference path="unmarshal.ts" />
 /// <reference path="frameobject.ts" />
+/// <reference path="codeobject.ts" />
 
-module Interpreter {
+module PyInterpreter {
 
     export class Interpreter {
         // The interpreter stack
@@ -27,9 +28,9 @@ module Interpreter {
 
         readArg(f: Py_FrameObject): number {
             f.lastInst += 1;
-            var low = f.codeObj.code[f.lastInst].charCodeAt();
+            var low = f.codeObj.code.charCodeAt(f.lastInst);
             f.lastInst += 1;
-            var high = f.codeObj.code[f.lastInst].charCodeAt();
+            var high = f.codeObj.code.charCodeAt(f.lastInst);
             return (high << 8) + low;
         }
 

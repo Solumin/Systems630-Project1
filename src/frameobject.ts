@@ -1,6 +1,7 @@
 /// <reference path="unmarshal.ts" />
+/// <reference path="codeobject.ts" />
 
-module Interpreter {
+module PyInterpreter {
 
     export class Py_FrameObject {
         // Previous stack frame (this frame's caller, may be None)

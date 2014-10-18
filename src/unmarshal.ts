@@ -1,4 +1,6 @@
 /// <reference path="../lib/node.d.ts" />
+/// <reference path="codeobject.ts" />
+
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
 import fs = require('fs');
@@ -6,7 +8,7 @@ import gLong = require("../lib/gLong");
 // TODO: Write declaration file for decimal.js
 var Decimal = require('../lib/decimal');
 
-module Interpreter {
+module PyInterpreter {
     // Null is an empty value. Mostly used in the interpreter for dictionaries.
     // Python has a single null object called "None".
     export class NullSingleton {
@@ -32,53 +34,6 @@ module Interpreter {
     }
     var None = NullSingleton.get();
 
-    export class Py_CodeObject {
-        argcount: number;
-        cellvars: string[];
-        code: string;
-        consts: any[];
-        filename: string;
-        firstlineno: number;
-        flags: number;
-        freevars: string[];
-        lnotab: string;
-        name: string;
-        names: string[];
-        nlocals: number;
-        stacksize: number;
-        varnames: string[];
-
-        // Args are in marshal order
-        constructor(argcount: number,
-                    nlocals: number,
-                    stacksize: number,
-                    flags: number,
-                    code: string,
-                    consts: any[],
-                    names: string[],
-                    varnames: string[],
-                    freevars: string[],
-                    cellvars: string[],
-                    filename: string,
-                    name: string,
-                    firstlineno: number,
-                    lnotab: string) {
-            this.argcount = argcount;
-            this.cellvars = cellvars;
-            this.code = code;
-            this.consts = consts;
-            this.filename = filename;
-            this.firstlineno = firstlineno;
-            this.flags = flags;
-            this.freevars = freevars;
-            this.lnotab = lnotab;
-            this.name = name;
-            this.names = names;
-            this.nlocals = nlocals;
-            this.stacksize = stacksize;
-            this.varnames = varnames;
-        }
-    }
 
     export class Complex64 {
         real: number;
