@@ -28,6 +28,9 @@ export class Interpreter {
         for (var op = this.readOp(frame); op != undefined;
                 op = this.readOp(frame)) {
             switch(op) {
+                case 0x14:
+                    this.binary_mult(frame);
+                    break;
                 case 0x17:
                     this.binary_add(frame);
                     break;
@@ -89,6 +92,13 @@ export class Interpreter {
     }
 
     // Opcodes
+    // 20: BINARY_MULTIPLY
+    binary_mult(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(a * b);
+    }
+
     // 23: BINARY_ADD
     binary_add(f: frameObj.Py_FrameObject) {
         var a = this.pop();

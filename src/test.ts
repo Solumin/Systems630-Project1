@@ -17,5 +17,17 @@ console.log("Simple addition function:");
 i.interpret(code);
 
 console.log("Multiple function arguments code:");
-var u = new unmarshal.Unmarshaller("../examples/multiargs.pyc")
+var u = new unmarshal.Unmarshaller("../examples/multiargs.pyc");
+i.interpret(u.value());
+
+console.log("Example: 1code");
+var u = new unmarshal.Unmarshaller("../examples/1code.pyc");
+i.interpret(u.value());
+
+console.log("Example: 3code");
+var u = new unmarshal.Unmarshaller("../examples/3code.pyc");
+i.interpret(u.value());
+
+console.log("Example: 4code");
+var u = new unmarshal.Unmarshaller("../examples/4code.pyc");
 i.interpret(u.value());

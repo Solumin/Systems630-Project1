@@ -15,6 +15,9 @@ var Interpreter = (function () {
         var code = frame.codeObj;
         for (var op = this.readOp(frame); op != undefined; op = this.readOp(frame)) {
             switch (op) {
+                case 0x14:
+                    this.binary_mult(frame);
+                    break;
                 case 0x17:
                     this.binary_add(frame);
                     break;
@@ -71,6 +74,12 @@ var Interpreter = (function () {
         return this.stack.pop();
     };
     // Opcodes
+    // 20: BINARY_MULTIPLY
+    Interpreter.prototype.binary_mult = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(a * b);
+    };
     // 23: BINARY_ADD
     Interpreter.prototype.binary_add = function (f) {
         var a = this.pop();
