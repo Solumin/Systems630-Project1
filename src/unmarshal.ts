@@ -25,7 +25,7 @@ export class Unmarshaller {
     // The list of "interalized" strings
     internedStrs: string[];
     // The output of unmarshalling the .pyc file
-    output;
+    output: codeObj.Py_CodeObject;
 
     constructor(inputFilePath: string) {
         // Initialize values
@@ -48,7 +48,7 @@ export class Unmarshaller {
     }
 
     // Processes the input string
-    value() {
+    value(): codeObj.Py_CodeObject {
         if (this.output == null) {
             this.output = this.unmarshal();
         }
