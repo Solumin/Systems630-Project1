@@ -12,6 +12,44 @@ var Interpreter = (function () {
     };
     Interpreter.prototype.exec = function (frame) {
         var code = frame.codeObj;
+        for (var op = this.readOp(frame); op != undefined; op = this.readOp(frame)) {
+            switch (op) {
+                case '\x17':
+                    this.binary_add(frame);
+                    break;
+                case '\x47':
+                    this.print_item(frame);
+                    break;
+                case '\x48':
+                    this.print_newline(frame);
+                    break;
+                case '\x53':
+                    this.return_value(frame);
+                    break;
+                case '\x5a':
+                    this.store_name(frame);
+                    break;
+                case '\x64':
+                    this.load_const(frame);
+                    break;
+                case '\x65':
+                    this.load_name(frame);
+                    break;
+                case '\x7c':
+                    this.load_fast(frame);
+                    break;
+                case '\x83':
+                    this.call_function(frame);
+                    break;
+                case '\x84':
+                    this.make_function(frame);
+                    break;
+                default:
+                    console.log("Unknown: " + op);
+                    throw new Error("Unknown op code: " + op);
+                    break;
+            }
+        }
     };
     Interpreter.prototype.readOp = function (f) {
         f.lastInst += 1;
@@ -25,9 +63,11 @@ var Interpreter = (function () {
         return (high << 8) + low;
     };
     Interpreter.prototype.push = function (v) {
+        console.log("Pushing " + v + " to the stack");
         return this.stack.push(v);
     };
     Interpreter.prototype.pop = function () {
+        console.log("Popping stack...");
         return this.stack.pop();
     };
     // Opcodes
@@ -35,7 +75,7 @@ var Interpreter = (function () {
     Interpreter.prototype.binary_add = function (f) {
         var a = this.pop();
         var b = this.pop();
-        return a + b;
+        this.push(a + b);
     };
     // 71: PRINT_ITEM
     Interpreter.prototype.print_item = function (f) {
@@ -48,7 +88,9 @@ var Interpreter = (function () {
     };
     // 83: RETURN_VALUE
     Interpreter.prototype.return_value = function (f) {
-        return this.pop();
+        var top = this.pop();
+        console.log("Ret val: " + top);
+        return top;
     };
     // 90: STORE_NAME
     Interpreter.prototype.store_name = function (f) {
