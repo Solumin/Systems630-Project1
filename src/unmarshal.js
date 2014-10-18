@@ -1,5 +1,6 @@
-/// <reference path="../lib/node.d.ts" />
 /// <reference path="codeobject.ts" />
+/// <reference path="supportobjects.ts" />
+/// <reference path="../lib/node.d.ts" />
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
 var fs = require('fs');
@@ -8,36 +9,6 @@ var gLong = require("../lib/gLong");
 var Decimal = require('../lib/decimal');
 var PyInterpreter;
 (function (PyInterpreter) {
-    // Null is an empty value. Mostly used in the interpreter for dictionaries.
-    // Python has a single null object called "None".
-    var NullSingleton = (function () {
-        function NullSingleton() {
-            if (NullSingleton._instance) {
-                throw new Error("Null is already instantiated. Use get() instead.");
-            }
-            NullSingleton._instance = this;
-        }
-        NullSingleton.get = function () {
-            if (NullSingleton._instance == null) {
-                NullSingleton._instance = new NullSingleton();
-                return NullSingleton._instance;
-            }
-        };
-        NullSingleton.prototype.toString = function () {
-            return "None";
-        };
-        return NullSingleton;
-    })();
-    PyInterpreter.NullSingleton = NullSingleton;
-    var None = NullSingleton.get();
-    var Complex64 = (function () {
-        function Complex64(r, j) {
-            this.real = r;
-            this.imag = j;
-        }
-        return Complex64;
-    })();
-    PyInterpreter.Complex64 = Complex64;
     // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX")
     // and converts into a Python code object.
     var Unmarshaller = (function () {
