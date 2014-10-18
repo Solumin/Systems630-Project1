@@ -1,12 +1,17 @@
+// <reference path="unmarshal.ts" />
+// <reference path="frameobject.ts" />
+// <reference path="codeobject.ts" />
+// <reference path="supportobjects.ts" />
+var frameObj = require('./frameobject');
 var Interpreter = (function () {
     function Interpreter() {
         this.stack = [];
     }
     Interpreter.prototype.interpret = function (code) {
-        return this.exec(new Py_FrameObject(null, {}, code, {}, -1, 0, {}, false));
+        return this.exec(new frameObj.Py_FrameObject(null, {}, code, {}, -1, 0, {}, false));
     };
     Interpreter.prototype.exec = function (frame) {
-        var code = frame.code;
+        var code = frame.codeObj;
     };
     Interpreter.prototype.readOp = function (f) {
         f.lastInst += 1;
@@ -14,9 +19,9 @@ var Interpreter = (function () {
     };
     Interpreter.prototype.readArg = function (f) {
         f.lastInst += 1;
-        var low = f.codeObj.code[f.lastInst].charCodeAt();
+        var low = f.codeObj.code.charCodeAt(f.lastInst);
         f.lastInst += 1;
-        var high = f.codeObj.code[f.lastInst].charCodeAt();
+        var high = f.codeObj.code.charCodeAt(f.lastInst);
         return (high << 8) + low;
     };
     Interpreter.prototype.push = function (v) {
@@ -84,3 +89,4 @@ var Interpreter = (function () {
     };
     return Interpreter;
 })();
+exports.Interpreter = Interpreter;

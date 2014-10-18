@@ -13,3 +13,4 @@ var Py_FrameObject = (function () {
     }
     return Py_FrameObject;
 })();
+exports.Py_FrameObject = Py_FrameObject;
