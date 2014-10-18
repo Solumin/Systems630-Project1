@@ -8,7 +8,6 @@ import fs = require('fs');
 import gLong = require("../lib/gLong");
 // TODO: Write declaration file for decimal.js
 var Decimal = require('../lib/decimal');
-import PyInterpreter = module("PyInterpreter");
 
 module PyInterpreter {
     // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX")
