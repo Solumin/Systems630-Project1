@@ -23,38 +23,39 @@ export class Interpreter {
 
     exec(frame: frameObj.Py_FrameObject) {
         var code: codeObj.Py_CodeObject = frame.codeObj;
-
         for (var op = this.readOp(frame); op != undefined;
                 op = this.readOp(frame)) {
+            console.log("Op: " + op + " (code: " + op + " @" +
+                    frame.lastInst + ")");
             switch(op) {
-                case '\x17':
+                case 0x17:
                     this.binary_add(frame);
                     break;
-                case '\x47':
+                case 0x47:
                     this.print_item(frame);
                     break;
-                case '\x48':
+                case 0x48:
                     this.print_newline(frame);
                     break;
-                case '\x53':
+                case 0x53:
                     this.return_value(frame);
                     break;
-                case '\x5a':
+                case 0x5a:
                     this.store_name(frame);
                     break;
-                case '\x64':
+                case 0x64:
                     this.load_const(frame);
                     break;
-                case '\x65':
+                case 0x65:
                     this.load_name(frame);
                     break;
-                case '\x7c':
+                case 0x7c:
                     this.load_fast(frame);
                     break;
-                case '\x83':
+                case 0x83:
                     this.call_function(frame);
                     break;
-                case '\x84':
+                case 0x84:
                     this.make_function(frame);
                     break;
                 default:
@@ -65,16 +66,16 @@ export class Interpreter {
         }
     }
 
-    readOp(f: frameObj.Py_FrameObject): string {
+    readOp(f: frameObj.Py_FrameObject): number {
         f.lastInst += 1;
         return f.codeObj.code[f.lastInst];
     }
 
     readArg(f: frameObj.Py_FrameObject): number {
         f.lastInst += 1;
-        var low = f.codeObj.code.charCodeAt(f.lastInst);
+        var low = f.codeObj.code[f.lastInst];
         f.lastInst += 1;
-        var high = f.codeObj.code.charCodeAt(f.lastInst);
+        var high = f.codeObj.code[f.lastInst];
         return (high << 8) + low;
     }
 

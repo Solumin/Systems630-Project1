@@ -1,7 +1,7 @@
 export class Py_CodeObject {
     argcount: number;
     cellvars: string[];
-    code: string;
+    code: Buffer;
     consts: any[];
     filename: string;
     firstlineno: number;
@@ -19,7 +19,7 @@ export class Py_CodeObject {
                 nlocals: number,
                 stacksize: number,
                 flags: number,
-                code: string,
+                code: Buffer,
                 consts: any[],
                 names: string[],
                 varnames: string[],

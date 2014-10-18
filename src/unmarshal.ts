@@ -102,13 +102,34 @@ export class Unmarshaller {
     }
 
     readString(length: number, encoding = "ascii"): string {
-        var s = this.input.toString("ascii", this.index, this.index+length);
+        var s = this.input.toString(encoding, this.index, this.index+length);
         this.index += length;
         return s;
     }
 
     readUnicodeString(length: number): string {
         return this.readString(length, "utf8");
+    }
+
+    readBinaryString(length: number): Buffer {
+        var buf = new Buffer(length);
+        this.input.copy(buf, 0, this.index, this.index+length);
+        this.index += length;
+        return buf
+    }
+
+    // Code strings are a special case: They're raw binary
+    // nodeJS buffers COULD handle this by using the 'ascii' encoding, except
+    // ONLY handles 7-bit chars. So something like "\x84", which is the
+    // MAKE_FUNCTION opcode and has the binary format 10000100b, is truncated to
+    // "\x04".
+    unmarshalCodeString(): Buffer {
+        var op = this.readChar();
+        if (op != "s") {
+            throw new Error("The code string should be marshalled as a string");
+        }
+        var length = this.readInt32();
+        return this.readBinaryString(length);
     }
 
     // Unmarshals the input string
@@ -195,7 +216,7 @@ export class Unmarshaller {
                 var nlocals = this.readInt32();
                 var stacksize = this.readInt32();
                 var flags = this.readInt32();
-                var codestr: string = this.unmarshal();
+                var codestr: Buffer = this.unmarshalCodeString();
                 var consts: string[] = this.unmarshal();
                 var names: string[] = this.unmarshal();
                 var varnames: string[] = this.unmarshal();
