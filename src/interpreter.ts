@@ -29,52 +29,52 @@ export class Interpreter {
                 op = this.readOp(frame)) {
             switch(op) {
                 case 0x00:
-                    this.stop_code(frame);            
+                    this.stop_code(frame);
                     break;
                 case 0x01:
-                    this.pop_top(frame);            
+                    this.pop_top(frame);
                     break;
                 case 0x02:
-                    this.rot_two(frame);            
+                    this.rot_two(frame);
                     break;
                 case 0x03:
-                    this.rot_three(frame);            
+                    this.rot_three(frame);
                     break;
                 case 0x04:
-                    this.dup_top(frame);            
+                    this.dup_top(frame);
                     break;
                 case 0x05:
-                    this.rot_four(frame);            
+                    this.rot_four(frame);
                     break;
                 case 0x09:
-                    this.nop(frame);            
+                    this.nop(frame);
                     break;
                 case 0x0a:
-                    this.unary_positive(frame);            
+                    this.unary_positive(frame);
                     break;
                 case 0x0b:
-                    this.unary_negative(frame);            
+                    this.unary_negative(frame);
                     break;
                 case 0x0c:
-                    this.unary_not(frame);            
+                    this.unary_not(frame);
                     break;
                 case 0x0d:
-                    this.unary_convert(frame);            
+                    this.unary_convert(frame);
                     break;
                 case 0x0f:
-                    this.unary_invert(frame);            
+                    this.unary_invert(frame);
                     break;
                 case 0x13:
-                    this.binary_power(frame);            
+                    this.binary_power(frame);
                     break;
                 case 0x14:
                     this.binary_mult(frame);
                     break;
                 case 0x015:
-                    this.binary_divide(frame);            
+                    this.binary_divide(frame);
                     break;
                 case 0x16:
-                    this.binary_modulo(frame);            
+                    this.binary_modulo(frame);
                     break;
                 case 0x17:
                     this.binary_add(frame);
@@ -218,7 +218,7 @@ export class Interpreter {
         var b = this.pop();
         this.push(b / a);
     }
-    //TODO: inplace operations 
+    //TODO: inplace operations
     // 28: INPLACE_FLOOR_DIVIDE
     inplace_floor_divide(f: frameObj.Py_FrameObject) {
         throw new Error("Not implemented yet");
@@ -322,7 +322,7 @@ export class Interpreter {
     binary_power(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
-        this.push(b^a);
+        this.push(Math.pow(b, a));
     }
     // 20: BINARY_MULTIPLY
     binary_mult(f: frameObj.Py_FrameObject) {
@@ -353,7 +353,7 @@ export class Interpreter {
     binary_subtract(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
-        this.push(b - a); 
+        this.push(b - a);
     }
     // 25: BINARY_SUBSCR
     binary_subscr(f: frameObj.Py_FrameObject) {
@@ -394,9 +394,6 @@ export class Interpreter {
     // 71: PRINT_ITEM
     print_item(f: frameObj.Py_FrameObject) {
         var a = this.pop();
-        if (a == undefined) {
-            throw new Error("Attempted to write undefined data\n" + this.stack);
-        }
         process.stdout.write(a.toString());
     }
 
