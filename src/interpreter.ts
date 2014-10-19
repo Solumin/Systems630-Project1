@@ -1,13 +1,9 @@
-// <reference path="unmarshal.ts" />
-// <reference path="frameobject.ts" />
-// <reference path="codeobject.ts" />
-// <reference path="supportobjects.ts" />
-
 import frameObj = require('./frameobject');
 import codeObj = require('./codeobject');
 import support = require('./supportobjects');
 import unmarshal = require('./unmarshal');
 import funcObj = require('./funcobject');
+import opcodes = require('./opcodes');
 
 import gLong = require("../lib/gLong");
 var Decimal = require('../lib/decimal');
@@ -81,130 +77,130 @@ export class Interpreter {
         for (var op = this.readOp(frame); op != undefined;
                 op = this.readOp(frame)) {
             switch(op) {
-                case 0x00:
+                case opcodes.STOP_CODE:
                     this.stop_code(frame);
                     break;
-                case 0x01:
+                case opcodes.POP_TOP:
                     this.pop_top(frame);
                     break;
-                case 0x02:
+                case opcodes.ROT_TWO:
                     this.rot_two(frame);
                     break;
-                case 0x03:
+                case opcodes.ROT_THREE:
                     this.rot_three(frame);
                     break;
-                case 0x04:
+                case opcodes.DUP_TOP:
                     this.dup_top(frame);
                     break;
-                case 0x05:
+                case opcodes.ROT_FOUR:
                     this.rot_four(frame);
                     break;
-                case 0x09:
+                case opcodes.NOP:
                     this.nop(frame);
                     break;
-                case 0x0a:
+                case opcodes.UNARY_POSITIVE:
                     this.unary_positive(frame);
                     break;
-                case 0x0b:
+                case opcodes.UNARY_NEGATIVE:
                     this.unary_negative(frame);
                     break;
-                case 0x0c:
+                case opcodes.UNARY_NOT:
                     this.unary_not(frame);
                     break;
-                case 0x0d:
+                case opcodes.UNARY_CONVERT:
                     this.unary_convert(frame);
                     break;
-                case 0x0f:
+                case opcodes.UNARY_INVERT:
                     this.unary_invert(frame);
                     break;
-                case 0x13:
+                case opcodes.BINARY_POWER:
                     this.binary_power(frame);
                     break;
-                case 0x14:
+                case opcodes.BINARY_MULTIPLY:
                     this.binary_mult(frame);
                     break;
-                case 0x15:
+                case opcodes.BINARY_DIVIDE:
                     this.binary_divide(frame);
                     break;
-                case 0x16:
+                case opcodes.BINARY_MODULO:
                     this.binary_modulo(frame);
                     break;
-                case 0x17:
+                case opcodes.BINARY_ADD:
                     this.binary_add(frame);
                     break;
-                case 0x18:
+                case opcodes.BINARY_SUBTRACT:
                     this.binary_subtract(frame);
                     break;
-                case 0x19:
+                case opcodes.BINARY_SUBSCR:
                     this.binary_subscr(frame);
                     break;
-                case 0x1a:
+                case opcodes.BINARY_FLOOR_DIVIDE:
                     this.binary_floor_divide(frame);
                     break;
-                case 0x1b:
+                case opcodes.BINARY_TRUE_DIVIDE:
                     this.binary_true_divide(frame);
                     break;
-                case 0x1c:
+                case opcodes.INPLACE_FLOOR_DIVIDE:
                     this.inplace_floor_divide(frame);
                     break;
-                case 0x1d:
+                case opcodes.INPLACE_TRUE_DIVIDE:
                     this.inplace_true_divide(frame);
                     break;
-                case 0x3c:
+                case opcodes.STORE_SUBSCR:
                     this.store_subscr(frame);
                     break;
-                case 0x3d:
+                case opcodes.DELETE_SUBSCR:
                     this.delete_subscr(frame);
                     break;
-                case 0x3e:
+                case opcodes.BINARY_LSHIFT:
                     this.binary_lshift(frame);
                     break;
-                case 0x3f:
+                case opcodes.BINARY_RSHIFT:
                     this.binary_rshift(frame);
                     break;
-                case 0x40:
+                case opcodes.BINARY_AND:
                     this.binary_and(frame);
                     break;
-                case 0x41:
+                case opcodes.BINARY_XOR:
                     this.binary_xor(frame);
                     break;
-                case 0x42:
+                case opcodes.BINARY_OR:
                     this.binary_or(frame);
                     break;
-                case 0x47:
+                case opcodes.PRINT_ITEM:
                     this.print_item(frame);
                     break;
-                case 0x48:
+                case opcodes.PRINT_NEWLINE:
                     this.print_newline(frame);
                     break;
-                case 0x53:
+                case opcodes.RETURN_VALUE:
                     this.return_value(frame);
                     break;
-                case 0x5a:
+                case opcodes.STORE_NAME:
                     this.store_name(frame);
                     break;
-                case 0x64:
+                case opcodes.LOAD_CONST:
                     this.load_const(frame);
                     break;
-                case 0x65:
+                case opcodes.LOAD_NAME:
                     this.load_name(frame);
                     break;
-                case 0x66:
+                case opcodes.BUILD_TUPLE:
                     this.build_tuple(frame);
                     break;
-                case 0x67:
+                case opcodes.BUILD_LIST:
                     this.build_list(frame);
                     break;
-                case 0x69:
+                case opcodes.BUILD_MAP:
                     this.build_map(frame);
                     break;
-                case 0x7c:
+                case opcodes.LOAD_FAST:
                     this.load_fast(frame);
                     break;
-                case 0x83:
+                case opcodes.CALL_FUNCTION:
                     this.call_function(frame);
                     break;
-                case 0x84:
+                case opcodes.MAKE_FUNCTION:
                     this.make_function(frame);
                     break;
                 default:
