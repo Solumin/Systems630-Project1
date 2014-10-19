@@ -31,3 +31,11 @@ i.interpret(u.value());
 console.log("Example: 4code");
 var u = new unmarshal.Unmarshaller("../examples/4code.pyc");
 i.interpret(u.value());
+
+console.log("Example: 64-bit math")
+var u = new unmarshal.Unmarshaller("../examples/int64math.pyc");
+i.interpret(u.value());
+
+console.log("Example: Complex number math")
+var u = new unmarshal.Unmarshaller("../examples/complexmath.pyc");
+i.interpret(u.value());
