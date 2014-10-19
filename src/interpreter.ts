@@ -203,6 +203,30 @@ export class Interpreter {
                 case opcodes.MAKE_FUNCTION:
                     this.make_function(frame);
                     break;
+                case opcodes.SLICE_0:
+                    this.slice_0(frame);
+                    break;
+                case opcodes.SLICE_1:
+                    this.slice_1(frame);
+                    break;
+                case opcodes.SLICE_2:
+                    this.slice_2(frame);
+                    break;
+                case opcodes.SLICE_3:
+                    this.slice_3(frame);
+                    break;
+                case opcodes.STORE_SLICE_0:
+                    this.store_slice_0(frame);
+                    break;
+                case opcodes.STORE_SLICE_1:
+                    this.store_slice_1(frame);
+                    break;
+                case opcodes.STORE_SLICE_2:
+                    this.store_slice_2(frame);
+                    break;
+                case opcodes.STORE_SLICE_3:
+                    this.store_slice_3(frame);
+                    break;
                 default:
                     throw new Error("Unknown op code: " + op);
                     break;
@@ -276,12 +300,68 @@ export class Interpreter {
     inplace_floor_divide(f: frameObj.Py_FrameObject) {
         throw new Error("Not implemented yet");
     }
-
     // 29: INPLACE_TRUE_DIVIDE
     inplace_true_divide(f: frameObj.Py_FrameObject) {
         throw new Error("Not implemented yet");
     }
-
+    // 30: SLICE+0
+    slice_0(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = a.slice(0);
+        this.push(b);
+    }
+    // 31: SLICE+1
+    slice_1(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b.slice(a));
+    }
+    // 32: SLICE+2
+    slice_2(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b.slice(0,a));
+    }
+    // 33: SLICE+3
+    slice_3(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        var c = this.pop();
+        this.push(c.slice(b,a));
+    }
+    //TODO: store_slice is not working yet
+    // 40: STORE_SLICE+0
+    store_slice_0(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        var aux = a.slice(0);
+        aux = b;
+    }
+    // 41: STORE_SLICE+1
+    store_slice_1(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        var c = this.pop();
+        var aux = b.slice(a);
+        aux = c;
+    }
+    // 42: STORE_SLICE+2
+    store_slice_2(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        var c = this.pop();
+        var aux = b.slice(0,a);
+        aux = c;
+    }
+    // 43: STORE_SLICE+3
+    store_slice_3(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        var c = this.pop();
+        var d = this.pop();
+        var aux = c.slice(b,a);
+        aux = d;
+    }
     // 60: STORE_SUBSCR
     // TODO: more testing
     store_subscr(f: frameObj.Py_FrameObject) {
@@ -290,7 +370,6 @@ export class Interpreter {
         var c = this.pop();
         b[a] = c;
     }
-
     // 61: DELETE_SUBSCR
     // TODO: more testing
     delete_subscr(f: frameObj.Py_FrameObject) {
@@ -321,6 +400,12 @@ export class Interpreter {
         throw new Error("Not implemented yet");
     }
 
+    // 115: POP_JUMP_IF_TRUE
+    pop_jump_if_true(f: frameObj.Py_FrameObject) {
+        var delta = this.readArg(f);
+
+    }
+    
     // Opcodes
     // 0: STOP_CODE
     stop_code(f: frameObj.Py_FrameObject) {
