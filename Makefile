@@ -17,24 +17,24 @@ TEST=test.ts
 TESTJS=test.js
 
 # all:
-	
-test: $(EXSOURCES) $(TESTJS)
+
+test: $(TESTJS) $(EXSOURCES)
 
 $(TESTJS): $(TEST) $(TSSOURCES)
 	@echo
 	@echo Compiling $(TESTJS)
 	$(TSC) $(TSCFLAGS) $(TEST)
 
-$(JSSOURCES): $(TSSOURCES)
-	$(TSC) $(TSCFLAGS) $^
+# $(JSSOURCES): $(TSSOURCES)
+# 	$(TSC) $(TSCFLAGS) $^
 
 %.js: %.ts
 	$(TSC) $(TSCFLAGS) $^
 
-$(EXSOURCES): $(PYSOURCES)
-	@echo
-	@echo Compiling all python sources files in $(EDIR)/
-	$(PYC) $^
+# $(EXSOURCES): $(PYSOURCES)
+# 	@echo
+# 	@echo Compiling all python sources files in $(EDIR)/
+# 	$(PYC) $?
 
 %.pyc: %.py
 	$(PYC) $^
