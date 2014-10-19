@@ -13,6 +13,7 @@ var NullSingleton = (function () {
             return NullSingleton._instance;
         }
     };
+
     NullSingleton.prototype.toString = function () {
         return "None";
     };
@@ -20,6 +21,7 @@ var NullSingleton = (function () {
 })();
 exports.NullSingleton = NullSingleton;
 exports.None = NullSingleton.get();
+
 var Complex64 = (function () {
     function Complex64(r, j) {
         this.real = r;

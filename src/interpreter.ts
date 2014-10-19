@@ -28,11 +28,95 @@ export class Interpreter {
         for (var op = this.readOp(frame); op != undefined;
                 op = this.readOp(frame)) {
             switch(op) {
+                case 0x00:
+                    this.stop_code(frame);            
+                    break;
+                case 0x01:
+                    this.pop_top(frame);            
+                    break;
+                case 0x02:
+                    this.rot_two(frame);            
+                    break;
+                case 0x03:
+                    this.rot_three(frame);            
+                    break;
+                case 0x04:
+                    this.dup_top(frame);            
+                    break;
+                case 0x05:
+                    this.rot_four(frame);            
+                    break;
+                case 0x09:
+                    this.nop(frame);            
+                    break;
+                case 0x0a:
+                    this.unary_positive(frame);            
+                    break;
+                case 0x0b:
+                    this.unary_negative(frame);            
+                    break;
+                case 0x0c:
+                    this.unary_not(frame);            
+                    break;
+                case 0x0d:
+                    this.unary_convert(frame);            
+                    break;
+                case 0x0f:
+                    this.unary_invert(frame);            
+                    break;
+                case 0x13:
+                    this.binary_power(frame);            
+                    break;
                 case 0x14:
                     this.binary_mult(frame);
                     break;
+                case 0x015:
+                    this.binary_divide(frame);            
+                    break;
+                case 0x16:
+                    this.binary_modulo(frame);            
+                    break;
                 case 0x17:
                     this.binary_add(frame);
+                    break;
+                case 0x18:
+                    this.binary_subtract(frame);
+                    break;
+                case 0x19:
+                    this.binary_subscr(frame);
+                    break;
+                case 0x1a:
+                    this.binary_floor_divide(frame);
+                    break;
+                case 0x1b:
+                    this.binary_true_divide(frame);
+                    break;
+                case 0x1c:
+                    this.inplace_floor_divide(frame);
+                    break;
+                case 0x1d:
+                    this.inplace_true_divide(frame);
+                    break;
+                case 0x3c:
+                    this.store_subscr(frame);
+                    break;
+                case 0x3d:
+                    this.delete_subscr(frame);
+                    break;
+                case 0x3e:
+                    this.binary_lshift(frame);
+                    break;
+                case 0x3f:
+                    this.binary_rshift(frame);
+                    break;
+                case 0x40:
+                    this.binary_and(frame);
+                    break;
+                case 0x41:
+                    this.binary_xor(frame);
+                    break;
+                case 0x42:
+                    this.binary_or(frame);
                     break;
                 case 0x47:
                     this.print_item(frame);
@@ -51,6 +135,15 @@ export class Interpreter {
                     break;
                 case 0x65:
                     this.load_name(frame);
+                    break;
+                case 0x66:
+                    this.build_tuple(frame);
+                    break;
+                case 0x67:
+                    this.build_list(frame);
+                    break;
+                case 0x69:
+                    this.build_map(frame);
                     break;
                 case 0x7c:
                     this.load_fast(frame);
@@ -91,21 +184,213 @@ export class Interpreter {
         return this.stack.pop();
     }
 
+
+    //TODO: From here down to Opcodes: Check if this is the correct implementation
+    // 4: DUP_TOP
+    dup_top(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        this.push(a);
+        this.push(a);
+    }
+    // 9: NOP
+    nop(f: frameObj.Py_FrameObject) {
+
+    }
+    // 13: UNARY_CONVERT
+    // TODO: convert to string. need to test which type to know how to convert?
+    unary_convert(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = a.toString();
+        this.push(b);
+    }
+    // 26: BINARY_FLOOR_DIVIDE
+    // Math.floor returns an integer. Should we change to float to be consistent with python?
+    binary_floor_divide(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(Math.floor(b / a));
+    }
+    // 27: BINARY_TRUE_DIVIDE
+    // used when from __future__ import division is in effect
+    //TODO: do not know how it is different from BINARY_DIVIDE
+    binary_true_divide(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b / a);
+    }
+    //TODO: inplace operations 
+    // 28: INPLACE_FLOOR_DIVIDE
+    inplace_floor_divide(f: frameObj.Py_FrameObject) {
+        throw new Error("Not implemented yet");
+    }
+    // 29: INPLACE_TRUE_DIVIDE
+    inplace_true_divide(f: frameObj.Py_FrameObject) {
+        throw new Error("Not implemented yet");
+    }
+    // 60: STORE_SUBSCR
+    // TODO: more testing
+    store_subscr(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        var c = this.pop();
+        b[a] = c;
+    }
+    // 61: DELETE_SUBSCR
+    // TODO: more testing
+    delete_subscr(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b.splice(a,1));
+    }
+    // 102: BUILD_TUPLE
+    // TODO: not sure what would be a tuple in typescript
+    build_tuple(f: frameObj.Py_FrameObject) {
+        throw new Error("Not implemented yet");
+    }
+    // 103: BUILD_LIST
+    //TODO: seems to work but need more testing
+    build_list(f: frameObj.Py_FrameObject) {
+        var count = this.readArg(f);
+        var l = [];
+        for (var i = count-1; i >= 0; i--){
+            l[i] = this.pop();
+        }
+        this.push(l);
+    }
+    // 105: BUILD_MAP
+    build_map(f: frameObj.Py_FrameObject) {
+        throw new Error("Not implemented yet");
+    }
+
     // Opcodes
+    // 0: STOP_CODE
+    stop_code(f: frameObj.Py_FrameObject) {
+        throw new Error("Indicates end-of-code to the compiler, not used by the interpreter.");
+    }
+    // 1: POP_TOP
+    pop_top(f: frameObj.Py_FrameObject) {
+        this.pop();
+    }
+    // 2: ROT_TWO
+    rot_two(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(a);
+        this.push(b);
+    }
+    // 3: ROT_THREE
+    rot_three(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        var c = this.pop();
+        this.push(a);
+        this.push(c);
+        this.push(b);
+    }
+    // 5: ROT_FOUR
+    rot_four(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        var c = this.pop();
+        var d = this.pop();
+        this.push(a);
+        this.push(d);
+        this.push(c);
+        this.push(b);
+    }
+    // 10: UNARY_POSITIVE
+    unary_positive(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        this.push(a);
+    }
+    // 11: UNARY_NEGATIVE
+    unary_negative(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        this.push(-1 * a);
+    }
+    // 12: UNARY_NOT
+    unary_not(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        this.push(!a);
+    }
+    // 15: UNARY_INVERT
+    unary_invert(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        this.push(-a-1);
+    }
+    // 19: BINARY_POWER
+    binary_power(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b^a);
+    }
     // 20: BINARY_MULTIPLY
     binary_mult(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(a * b);
     }
-
+    // 21: BINARY_DIVIDE
+    //used when from __future__ import division is not in effect
+    binary_divide(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b / a);
+    }
+    // 22: BINARY_MODULO
+    binary_modulo(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b % a);
+    }
     // 23: BINARY_ADD
     binary_add(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(a + b);
     }
-
+    // 24: BINARY_SUBTRACT
+    binary_subtract(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b - a); 
+    }
+    // 25: BINARY_SUBSCR
+    binary_subscr(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b[a]);
+    }
+    // 62: BINARY_LSHIFT
+    binary_lshift(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b << a);
+    }
+    // 63: BINARY_RSHIFT
+    binary_rshift(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b >> a);
+    }
+    // 64: BINARY_AND
+    binary_and(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(a & b);
+    }
+    // 65: BINARY_XOR
+    binary_xor(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(a ^ b);
+    }
+    // 66: BINARY_OR
+    binary_or(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(a | b);
+    }
     // 71: PRINT_ITEM
     print_item(f: frameObj.Py_FrameObject) {
         var a = this.pop();
