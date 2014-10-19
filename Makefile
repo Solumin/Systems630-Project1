@@ -16,11 +16,13 @@ EXSOURCES=$(PYSOURCES:.py=.pyc)
 TEST=test.ts
 TESTJS=test.js
 
-# all: $(TSSOURCES) $(JSFILE)
+# all:
 	
-test: $(TESTJS) $(EXSOURCES)
+test: $(EXSOURCES) $(TESTJS)
 
 $(TESTJS): $(TEST) $(TSSOURCES)
+	@echo
+	@echo Compiling $(TESTJS)
 	$(TSC) $(TSCFLAGS) $(TEST)
 
 $(JSSOURCES): $(TSSOURCES)
@@ -30,6 +32,8 @@ $(JSSOURCES): $(TSSOURCES)
 	$(TSC) $(TSCFLAGS) $^
 
 $(EXSOURCES): $(PYSOURCES)
+	@echo
+	@echo Compiling all python sources files in $(EDIR)/
 	$(PYC) $^
 
 %.pyc: %.py
@@ -38,12 +42,18 @@ $(EXSOURCES): $(PYSOURCES)
 .PHONY: clean clean-src clean-ex clean-test
 
 clean-src:
+	@echo
+	@echo Cleaning $(SDIR)/ JS files
 	$(RM) $(JSFILE) $(JSSOURCES)
 
 clean-ex:
+	@echo
+	@echo Cleaning $(EDIR)/ PYC files
 	$(RM) $(EXSOURCES)
 
 clean-test: clean-ex
+	@echo
+	@echo Cleaning $(TESTJS)
 	$(RM) $(TESTJS)
 
 clean: clean-test clean-src clean-ex

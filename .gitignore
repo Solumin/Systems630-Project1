@@ -3,9 +3,9 @@
 ## Except for the ones in lib/
 !lib/*.js
 # .pyc files should be generated and cleaned by make
-example/*.pyc
+examples/*.pyc
 ## Except for Cibele's modified ones
-!example/*mod.pyc
+!examples/*mod.pyc
 # Ignore Vim's swap files
 *.swp
 *.swo
