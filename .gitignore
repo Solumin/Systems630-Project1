@@ -1,1 +1,4 @@
+# Typescript-generated JS files should be ignored
+./src/*.js
+
 *.swp

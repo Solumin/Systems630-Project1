@@ -31,4 +31,8 @@ export class Complex64 {
         this.real = r;
         this.imag = j;
     }
+
+    toString(): string {
+        return "(" + this.real + " + " + this.imag + "j)";
+    }
 }

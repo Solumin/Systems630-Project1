@@ -8,7 +8,7 @@ import codeObj = require('./codeobject');
 console.log("Running unmarshal test...");
 var u = new unmarshal.Unmarshaller("../examples/play.pyc");
 var code: codeObj.Py_CodeObject = u.value();
-console.log(code);
+console.log(code.toString());
 
 console.log("\nRunning interpreter test:");
 var i = new interpreter.Interpreter();
