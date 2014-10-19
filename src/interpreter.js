@@ -69,6 +69,45 @@ var Interpreter = (function () {
                 case 0x17:
                     this.binary_add(frame);
                     break;
+                case 0x18:
+                    this.binary_subtract(frame);
+                    break;
+                case 0x19:
+                    this.binary_subscr(frame);
+                    break;
+                case 0x1a:
+                    this.binary_floor_divide(frame);
+                    break;
+                case 0x1b:
+                    this.binary_true_divide(frame);
+                    break;
+                case 0x1c:
+                    this.inplace_floor_divide(frame);
+                    break;
+                case 0x1d:
+                    this.inplace_true_divide(frame);
+                    break;
+                case 0x3c:
+                    this.store_subscr(frame);
+                    break;
+                case 0x3d:
+                    this.delete_subscr(frame);
+                    break;
+                case 0x3e:
+                    this.binary_lshift(frame);
+                    break;
+                case 0x3f:
+                    this.binary_rshift(frame);
+                    break;
+                case 0x40:
+                    this.binary_and(frame);
+                    break;
+                case 0x41:
+                    this.binary_xor(frame);
+                    break;
+                case 0x42:
+                    this.binary_or(frame);
+                    break;
                 case 0x47:
                     this.print_item(frame);
                     break;
@@ -86,6 +125,12 @@ var Interpreter = (function () {
                     break;
                 case 0x65:
                     this.load_name(frame);
+                    break;
+                case 0x66:
+                    this.build_tuple(frame);
+                    break;
+                case 0x67:
+                    this.build_list(frame);
                     break;
                 case 0x69:
                     this.build_map(frame);
@@ -129,7 +174,7 @@ var Interpreter = (function () {
         return this.stack.pop();
     };
 
-    //TODO: From here down to Opcodes: Checke if this is the correct implementation
+    //TODO: From here down to Opcodes: Check if this is the correct implementation
     // 4: DUP_TOP
     Interpreter.prototype.dup_top = function (f) {
         var a = this.pop();
@@ -142,33 +187,107 @@ var Interpreter = (function () {
     };
 
     // 13: UNARY_CONVERT
+    // TODO: convert to string. need to test which type to know how to convert?
     Interpreter.prototype.unary_convert = function (f) {
         var a = this.pop();
-
-        // TODO: convert to string. need to test which type to know how to convert?
-        this.push(a.toString());
+        var b = a.toString();
+        this.push(b);
     };
 
-    // 19: BINARY_POWER
-    Interpreter.prototype.binary_power = function (f) {
+    // 26: BINARY_FLOOR_DIVIDE
+    // Math.floor returns an integer. Should we change to float to be consistent with python?
+    Interpreter.prototype.binary_floor_divide = function (f) {
         var a = this.pop();
         var b = this.pop();
-        this.push(b ^ a);
+        this.push(Math.floor(b / a));
     };
 
-    // 21: BINARY_DIVIDE
-    //TODO: check about from __future__ import division flag
-    Interpreter.prototype.binary_divide = function (f) {
+    // 27: BINARY_TRUE_DIVIDE
+    // used when from __future__ import division is in effect
+    //TODO: do not know how it is different from BINARY_DIVIDE
+    Interpreter.prototype.binary_true_divide = function (f) {
         var a = this.pop();
         var b = this.pop();
         this.push(b / a);
     };
 
-    // 22: BINARY_MODULO
-    Interpreter.prototype.binary_modulo = function (f) {
+    //TODO: inplace operations
+    // 28: INPLACE_FLOOR_DIVIDE
+    Interpreter.prototype.inplace_floor_divide = function (f) {
+        throw new Error("Not implemented yet");
+    };
+
+    // 29: INPLACE_TRUE_DIVIDE
+    Interpreter.prototype.inplace_true_divide = function (f) {
+        throw new Error("Not implemented yet");
+    };
+
+    // 60: STORE_SUBSCR
+    // TODO: more testing
+    Interpreter.prototype.store_subscr = function (f) {
         var a = this.pop();
         var b = this.pop();
-        this.push(b % a);
+        var c = this.pop();
+        b[a] = c;
+    };
+
+    // 61: DELETE_SUBSCR
+    Interpreter.prototype.delete_subscr = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b.splice(a, 1));
+    };
+
+    // 62: BINARY_LSHIFT
+    Interpreter.prototype.binary_lshift = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b << a);
+    };
+
+    // 63: BINARY_RSHIFT
+    Interpreter.prototype.binary_rshift = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b >> a);
+    };
+
+    // 64: BINARY_AND
+    Interpreter.prototype.binary_and = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(a & b);
+    };
+
+    // 65: BINARY_XOR
+    Interpreter.prototype.binary_xor = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(a ^ b);
+    };
+
+    // 66: BINARY_OR
+    Interpreter.prototype.binary_or = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(a | b);
+    };
+
+    // 102: BUILD_TUPLE
+    // TODO: not sure what would be a tuple in typescript
+    Interpreter.prototype.build_tuple = function (f) {
+        throw new Error("Not implemented yet");
+    };
+
+    // 103: BUILD_LIST
+    //TODO: seems to work but need more testing
+    Interpreter.prototype.build_list = function (f) {
+        var count = this.readArg(f);
+        var l = [];
+        for (var i = count - 1; i >= 0; i--) {
+            l[i] = this.pop();
+        }
+        this.push(l);
     };
 
     // 105: BUILD_MAP
@@ -241,6 +360,13 @@ var Interpreter = (function () {
         this.push(-a - 1);
     };
 
+    // 19: BINARY_POWER
+    Interpreter.prototype.binary_power = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b ^ a);
+    };
+
     // 20: BINARY_MULTIPLY
     Interpreter.prototype.binary_mult = function (f) {
         var a = this.pop();
@@ -248,11 +374,40 @@ var Interpreter = (function () {
         this.push(a * b);
     };
 
+    // 21: BINARY_DIVIDE
+    //used when from __future__ import division is not in effect
+    Interpreter.prototype.binary_divide = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b / a);
+    };
+
+    // 22: BINARY_MODULO
+    Interpreter.prototype.binary_modulo = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b % a);
+    };
+
     // 23: BINARY_ADD
     Interpreter.prototype.binary_add = function (f) {
         var a = this.pop();
         var b = this.pop();
         this.push(a + b);
+    };
+
+    // 24: BINARY_SUBTRACT
+    Interpreter.prototype.binary_subtract = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b - a);
+    };
+
+    // 25: BINARY_SUBSCR
+    Interpreter.prototype.binary_subscr = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b[a]);
     };
 
     // 71: PRINT_ITEM
