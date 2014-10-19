@@ -443,12 +443,6 @@ export class Interpreter {
     build_map(f: frameObj.Py_FrameObject) {
         throw new Error("Not implemented yet");
     }
-
-    // 115: POP_JUMP_IF_TRUE
-    pop_jump_if_true(f: frameObj.Py_FrameObject) {
-        var delta = this.readArg(f);
-
-    }
     
     // Opcodes
     // 0: STOP_CODE
