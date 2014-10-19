@@ -12,13 +12,13 @@ import codeObj = require('./codeobject');
 export class Py_FuncObject {
     code: codeObj.Py_CodeObject;
     globals: { [name: string]: any };
-    defaults: any[];
+    defaults: { [name: string]: any};
     //closure: ???
     name: string;
 
     constructor(code: codeObj.Py_CodeObject,
                 globals: { [name: string]: any },
-                defaults: any[],
+                defaults: { [name: string]: any},
                 name: string) {
         this.code = code;
         this.globals = globals;

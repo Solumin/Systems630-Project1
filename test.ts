@@ -17,26 +17,30 @@ console.log("Multiple function arguments code:");
 var u = new unmarshal.Unmarshaller("examples/multiargs.pyc");
 i.interpret(u.value());
 
-console.log("Example: 1code");
+console.log("\nExample: 1code");
 var u = new unmarshal.Unmarshaller("examples/1code.pyc");
 i.interpret(u.value());
 
-console.log("Example: 3code");
+console.log("\nExample: 3code");
 var u = new unmarshal.Unmarshaller("examples/3code.pyc");
 i.interpret(u.value());
 
-console.log("Example: 4code");
+console.log("\nExample: 4code");
 var u = new unmarshal.Unmarshaller("examples/4code.pyc");
 i.interpret(u.value());
 
-console.log("Example: 64-bit math")
+console.log("\nExample: 64-bit math")
 var u = new unmarshal.Unmarshaller("examples/int64math.pyc");
 i.interpret(u.value());
 
-console.log("Example: Complex number math")
+console.log("\nExample: Complex number math")
 var u = new unmarshal.Unmarshaller("examples/complexmath.pyc");
 i.interpret(u.value());
 
-console.log("Example: Mixed arithmetic: Int64 + Int32");
+console.log("\nExample: Mixed arithmetic: Int64 + Int32");
 var u = new unmarshal.Unmarshaller("examples/mixedarim1.pyc");
+i.interpret(u.value());
+
+console.log("\nExample: Keyword arguments in functions");
+var u = new unmarshal.Unmarshaller("examples/keywordargs.pyc");
 i.interpret(u.value());

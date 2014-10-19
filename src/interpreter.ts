@@ -123,7 +123,7 @@ export class Interpreter {
                 case 0x14:
                     this.binary_mult(frame);
                     break;
-                case 0x015:
+                case 0x15:
                     this.binary_divide(frame);
                     break;
                 case 0x16:
@@ -228,12 +228,10 @@ export class Interpreter {
     }
 
     push(v) {
-        // console.log("Pushing " + v + " to the stack");
         return this.stack.push(v);
     }
 
     pop() {
-        // console.log("Popping stack...");
         return this.stack.pop();
     }
 
@@ -245,10 +243,12 @@ export class Interpreter {
         this.push(a);
         this.push(a);
     }
+
     // 9: NOP
     nop(f: frameObj.Py_FrameObject) {
 
     }
+
     // 13: UNARY_CONVERT
     // TODO: convert to string. need to test which type to know how to convert?
     unary_convert(f: frameObj.Py_FrameObject) {
@@ -256,6 +256,7 @@ export class Interpreter {
         var b = a.toString();
         this.push(b);
     }
+
     // 26: BINARY_FLOOR_DIVIDE
     // Math.floor returns an integer. Should we change to float to be consistent with python?
     binary_floor_divide(f: frameObj.Py_FrameObject) {
@@ -263,6 +264,7 @@ export class Interpreter {
         var b = this.pop();
         this.push(Math.floor(b / a));
     }
+
     // 27: BINARY_TRUE_DIVIDE
     // used when from __future__ import division is in effect
     //TODO: do not know how it is different from BINARY_DIVIDE
@@ -271,15 +273,18 @@ export class Interpreter {
         var b = this.pop();
         this.push(b / a);
     }
+
     //TODO: inplace operations
     // 28: INPLACE_FLOOR_DIVIDE
     inplace_floor_divide(f: frameObj.Py_FrameObject) {
         throw new Error("Not implemented yet");
     }
+
     // 29: INPLACE_TRUE_DIVIDE
     inplace_true_divide(f: frameObj.Py_FrameObject) {
         throw new Error("Not implemented yet");
     }
+
     // 60: STORE_SUBSCR
     // TODO: more testing
     store_subscr(f: frameObj.Py_FrameObject) {
@@ -288,6 +293,7 @@ export class Interpreter {
         var c = this.pop();
         b[a] = c;
     }
+
     // 61: DELETE_SUBSCR
     // TODO: more testing
     delete_subscr(f: frameObj.Py_FrameObject) {
@@ -295,11 +301,13 @@ export class Interpreter {
         var b = this.pop();
         this.push(b.splice(a,1));
     }
+
     // 102: BUILD_TUPLE
     // TODO: not sure what would be a tuple in typescript
     build_tuple(f: frameObj.Py_FrameObject) {
         throw new Error("Not implemented yet");
     }
+
     // 103: BUILD_LIST
     //TODO: seems to work but need more testing
     build_list(f: frameObj.Py_FrameObject) {
@@ -310,6 +318,7 @@ export class Interpreter {
         }
         this.push(l);
     }
+
     // 105: BUILD_MAP
     build_map(f: frameObj.Py_FrameObject) {
         throw new Error("Not implemented yet");
@@ -320,10 +329,12 @@ export class Interpreter {
     stop_code(f: frameObj.Py_FrameObject) {
         throw new Error("Indicates end-of-code to the compiler, not used by the interpreter.");
     }
+
     // 1: POP_TOP
     pop_top(f: frameObj.Py_FrameObject) {
         this.pop();
     }
+
     // 2: ROT_TWO
     rot_two(f: frameObj.Py_FrameObject) {
         var a = this.pop();
@@ -331,6 +342,7 @@ export class Interpreter {
         this.push(a);
         this.push(b);
     }
+
     // 3: ROT_THREE
     rot_three(f: frameObj.Py_FrameObject) {
         var a = this.pop();
@@ -340,6 +352,7 @@ export class Interpreter {
         this.push(c);
         this.push(b);
     }
+
     // 5: ROT_FOUR
     rot_four(f: frameObj.Py_FrameObject) {
         var a = this.pop();
@@ -351,38 +364,45 @@ export class Interpreter {
         this.push(c);
         this.push(b);
     }
+
     // 10: UNARY_POSITIVE
     unary_positive(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         this.push(a);
     }
+
     // 11: UNARY_NEGATIVE
     unary_negative(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         this.push(-1 * a);
     }
+
     // 12: UNARY_NOT
     unary_not(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         this.push(!a);
     }
+
     // 15: UNARY_INVERT
     unary_invert(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         this.push(-a-1);
     }
+
     // 19: BINARY_POWER
     binary_power(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(Math.pow(b, a));
     }
+
     // 20: BINARY_MULTIPLY
     binary_mult(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(a * b);
     }
+
     // 21: BINARY_DIVIDE
     //used when from __future__ import division is not in effect
     binary_divide(f: frameObj.Py_FrameObject) {
@@ -390,12 +410,14 @@ export class Interpreter {
         var b = this.pop();
         this.push(b / a);
     }
+
     // 22: BINARY_MODULO
     binary_modulo(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(b % a);
     }
+
     // 23: BINARY_ADD
     binary_add(f: frameObj.Py_FrameObject) {
         var b = this.pop();
@@ -431,42 +453,49 @@ export class Interpreter {
         var b = this.pop();
         this.push(b - a);
     }
+
     // 25: BINARY_SUBSCR
     binary_subscr(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(b[a]);
     }
+
     // 62: BINARY_LSHIFT
     binary_lshift(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(b << a);
     }
+
     // 63: BINARY_RSHIFT
     binary_rshift(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(b >> a);
     }
+
     // 64: BINARY_AND
     binary_and(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(a & b);
     }
+
     // 65: BINARY_XOR
     binary_xor(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(a ^ b);
     }
+
     // 66: BINARY_OR
     binary_or(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(a | b);
     }
+
     // 71: PRINT_ITEM
     print_item(f: frameObj.Py_FrameObject) {
         var a = this.pop();
@@ -518,20 +547,29 @@ export class Interpreter {
         var posNum = i & 0xff;
         // number of keyword arguments
         var keyNum = (i >> 8) & 0xff;
-        var keyVs = [];
-        var posVs = [];
+        var keyNames: string[] = [];
+        var keyVals: any[] = [];
+        var posVals = [];
+        var locals: { [name: string]: any } = {};
+
         for (var x = 0; x < keyNum; x++) {
-            keyVs.push(this.pop());
+            keyVals.push(this.pop());
+            keyNames.push(this.pop());
         }
+
         for (var x = 0; x < posNum; x++) {
-            posVs.push(this.pop());
+            posVals.push(this.pop());
         }
 
         var func: funcObj.Py_FuncObject = this.pop();
 
-        var locals: { [name: string]: any } = {};
-        func.code.varnames.reverse().forEach( function(elem, idx, arr) {
-            locals[elem] = posVs[idx];
+        for (var x = 0; x < keyNames.length; x++) {
+            locals[keyNames[x]] = keyVals[x];
+        }
+
+        func.code.varnames.reverse().forEach( function(name, idx, array) {
+            if (locals[name] == undefined)
+                locals[name] = posVals.pop() || func.defaults[name];
         });
 
         var newf = new frameObj.Py_FrameObject(f, f.builtins, func.code,
@@ -540,11 +578,17 @@ export class Interpreter {
     }
 
     // 132: MAKE_FUNCTION
-    // TODO: Default param support
     make_function(f: frameObj.Py_FrameObject) {
         var numDefault = this.readArg(f);
+        var defaults: { [name: string]: any } = {};
+
         var code = this.pop();
-        var func = new funcObj.Py_FuncObject(code, f.globals, null, code.name);
+
+        for (var i = code.varnames.length-1; i >= 0; i--) {
+            defaults[code.varnames[i]] = this.pop();
+        }
+
+        var func = new funcObj.Py_FuncObject(code, f.globals, defaults, code.name);
         this.push(func);
     }
 }
