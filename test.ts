@@ -44,3 +44,7 @@ i.interpret(u.value());
 console.log("\nExample: Keyword arguments in functions");
 var u = new unmarshal.Unmarshaller("examples/keywordargs.pyc");
 i.interpret(u.value());
+
+console.log("\nExample: If statement in function (simple)");
+var u = new unmarshal.Unmarshaller("examples/ifabs.pyc");
+i.interpret(u.value());
