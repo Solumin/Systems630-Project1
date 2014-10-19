@@ -241,6 +241,9 @@ export class Interpreter {
                 case opcodes.LOAD_FAST:
                     this.load_fast(frame);
                     break;
+                case opcodes.STORE_FAST:
+                    this.store_fast(frame);
+                    break;
                 case opcodes.CALL_FUNCTION:
                     this.call_function(frame);
                     break;
@@ -673,6 +676,13 @@ export class Interpreter {
         var i = this.readArg(f);
         var name = f.codeObj.varnames[i];
         this.push(f.locals[name]);
+    }
+
+    // 125: STORE_FAST
+    store_fast(f: frameObj.Py_FrameObject) {
+        var i = this.readArg(f);
+        var val = this.pop();
+        f.locals[f.codeObj.varnames[i]] = val;
     }
 
     // 131: CALL_FUNCTION
