@@ -40,6 +40,6 @@ console.log("Example: Complex number math")
 var u = new unmarshal.Unmarshaller("../examples/complexmath.pyc");
 i.interpret(u.value());
 
-console.log("Example: Mixed arithmetic: Int32 + Int64");
+console.log("Example: Mixed arithmetic: Int64 + Int32");
 var u = new unmarshal.Unmarshaller("../examples/mixedarim1.pyc");
 i.interpret(u.value());

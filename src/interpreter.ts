@@ -9,12 +9,65 @@ import support = require('./supportobjects');
 import unmarshal = require('./unmarshal');
 import funcObj = require('./funcobject');
 
+import gLong = require("../lib/gLong");
+var Decimal = require('../lib/decimal');
+
 export class Interpreter {
     // The interpreter stack
     stack: any[]
 
     constructor() {
         this.stack = [];
+    }
+
+    // In Python, there's a hierarchy among numeric types.
+    // When dealing with arithmetic ops between different numeric types, the
+    // narrower type is "widened" to the wider type. The hierarchy is:
+    // int < long < float < complex (where '<' denotes 'narrower than')
+    // In our implementation, int32 and float are the same type, but int64 is
+    // distinct.
+    // int64 < long < number < complex is the hierarchy.
+    // wider returns <0 if a '<' b, 0 if a '==' b, and >0 if a '>' b
+    // or NaN if a or b is not numeric
+    wider(a: any, b: any): number {
+        return this.numericIndex(a) - this.numericIndex(b);
+    }
+
+    private numericIndex(x: any): number {
+        if (x instanceof gLong) {
+            return 0;
+        } else if (x instanceof Decimal) {
+            return 1;
+        } else if (typeof x == 'number') {
+            return 2;
+        } else if (x instanceof support.Complex64) {
+            return 3;
+        } else {
+            return NaN;
+        }
+    }
+
+    private isNumeric(x: any): boolean {
+        return ((x instanceof gLong) || (x instanceof Decimal) ||
+                (typeof x == 'number') || (x instanceof support.Complex64));
+    }
+
+    // Assuming a is wider than b, this widens b to have the same type as a
+    // int64 < long < number < complex is the hierarchy.
+    // gLong < Decimal < number < support.Complex64
+    widen(a: any, b: any): any {
+        if (a instanceof support.Complex64) {
+            if (typeof b == 'number') {
+                return new support.Complex64(b, 0);
+            } else { // Decimal and gLong both use 'toNumber'
+                // May (will?) cause loss of precision
+                return new support.Complex64(b.toNumber(), 0);
+            }
+        } else if (typeof a == 'number') {
+            return b.toNumber(); // Decimal and gLong both use 'toNumber'
+        } else { // a is a Decimal, b is a gLong
+            return Decimal.fromString(b.toString())
+        } // No need for case where a is a gLong, since b would also be a gLong
     }
 
     interpret(code: codeObj.Py_CodeObject) {
@@ -345,10 +398,33 @@ export class Interpreter {
     }
     // 23: BINARY_ADD
     binary_add(f: frameObj.Py_FrameObject) {
-        var a = this.pop();
         var b = this.pop();
-        this.push(a + b);
+        var a = this.pop();
+        if (typeof a == 'string' && typeof b == 'string') {
+            this.push(a + b);
+        } else if (typeof a == 'number' && typeof b == 'number') {
+            this.push(a + b);
+        } else if (this.isNumeric(a) && this.isNumeric(b)) {
+            if (this.wider(a,b) > 0) {
+                var wb = this.widen(a,b);
+                if (a.add)
+                    this.push(a.add(wb));
+                else
+                    this.push(a + wb);
+            } else if (this.wider(a,b) < 0) {
+                var wa = this.widen(b,a);
+                if (wa.add)
+                    this.push(wa.add(b));
+                else
+                    this.push(wa + b);
+            } else {
+                this.push(a.add(b));
+            }
+        } else { // Let a's add function handle b. It should handle types.
+            this.push(a.add(b));
+        }
     }
+
     // 24: BINARY_SUBTRACT
     binary_subtract(f: frameObj.Py_FrameObject) {
         var a = this.pop();
