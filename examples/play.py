@@ -1,8 +1,8 @@
 #{'a':1}
 
 # test POP_TOP
-# lambda:1
-# print (lambda:1)()
+lambda:1
+print (lambda:1)()
 
 # test ROT_TWO
 a = 1; b = 2
@@ -32,6 +32,16 @@ print not a
 
 b = 12
 print ~b
+
+#test BINARY divide, power and modulo
+a = 5.5 / 2
+
+b = 3 ** 4
+
+c = 8%3
+
+print a, b, c
+
 
 # x = range(6)
 # x[2:4] += 'abc'

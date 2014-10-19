@@ -64,8 +64,17 @@ export class Interpreter {
                 case 0x0f:
                     this.unary_invert(frame);            
                     break;
+                case 0x13:
+                    this.binary_power(frame);            
+                    break;
                 case 0x14:
                     this.binary_mult(frame);
+                    break;
+                case 0x015:
+                    this.binary_divide(frame);            
+                    break;
+                case 0x16:
+                    this.binary_modulo(frame);            
                     break;
                 case 0x17:
                     this.binary_add(frame);
@@ -131,14 +140,7 @@ export class Interpreter {
     }
 
   
-
-// def_op('BINARY_POWER', 19)
-// def_op('BINARY_MULTIPLY', 20)
-// def_op('BINARY_DIVIDE', 21)
-// def_op('BINARY_MODULO', 22)
-// def_op('BINARY_ADD', 23)
-    
-    //TODO: From here down to Opcodes: Checke if this is the correct implementation
+    //TODO: From here down to Opcodes: Check if this is the correct implementation
     // 4: DUP_TOP
     dup_top(f: frameObj.Py_FrameObject) {
         var a = this.pop();
@@ -216,13 +218,31 @@ export class Interpreter {
         var a = this.pop();
         this.push(-a-1);
     }
+    // 19: BINARY_POWER
+    binary_power(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b^a);
+    }
     // 20: BINARY_MULTIPLY
     binary_mult(f: frameObj.Py_FrameObject) {
         var a = this.pop();
         var b = this.pop();
         this.push(a * b);
     }
-
+    // 21: BINARY_DIVIDE
+    //TODO: check about from __future__ import division flag
+    binary_divide(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b / a);
+    }
+    // 22: BINARY_MODULO
+    binary_modulo(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b % a);
+    }
     // 23: BINARY_ADD
     binary_add(f: frameObj.Py_FrameObject) {
         var a = this.pop();

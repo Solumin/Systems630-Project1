@@ -54,8 +54,17 @@ var Interpreter = (function () {
                 case 0x0f:
                     this.unary_invert(frame);
                     break;
+                case 0x13:
+                    this.binary_power(frame);
+                    break;
                 case 0x14:
                     this.binary_mult(frame);
+                    break;
+                case 0x015:
+                    this.binary_divide(frame);
+                    break;
+                case 0x16:
+                    this.binary_modulo(frame);
                     break;
                 case 0x17:
                     this.binary_add(frame);
@@ -120,11 +129,6 @@ var Interpreter = (function () {
         return this.stack.pop();
     };
 
-    // def_op('BINARY_POWER', 19)
-    // def_op('BINARY_MULTIPLY', 20)
-    // def_op('BINARY_DIVIDE', 21)
-    // def_op('BINARY_MODULO', 22)
-    // def_op('BINARY_ADD', 23)
     //TODO: From here down to Opcodes: Checke if this is the correct implementation
     // 4: DUP_TOP
     Interpreter.prototype.dup_top = function (f) {
@@ -137,12 +141,6 @@ var Interpreter = (function () {
     Interpreter.prototype.nop = function (f) {
     };
 
-    // 12: UNARY_NOT
-    Interpreter.prototype.unary_not = function (f) {
-        var a = this.pop();
-        this.push(!a);
-    };
-
     // 13: UNARY_CONVERT
     Interpreter.prototype.unary_convert = function (f) {
         var a = this.pop();
@@ -151,10 +149,26 @@ var Interpreter = (function () {
         this.push(a.toString());
     };
 
-    // 15: UNARY_INVERT
-    Interpreter.prototype.unary_invert = function (f) {
+    // 19: BINARY_POWER
+    Interpreter.prototype.binary_power = function (f) {
         var a = this.pop();
-        this.push(-a - 1);
+        var b = this.pop();
+        this.push(b ^ a);
+    };
+
+    // 21: BINARY_DIVIDE
+    //TODO: check about from __future__ import division flag
+    Interpreter.prototype.binary_divide = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b / a);
+    };
+
+    // 22: BINARY_MODULO
+    Interpreter.prototype.binary_modulo = function (f) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(b % a);
     };
 
     // 105: BUILD_MAP
@@ -213,6 +227,18 @@ var Interpreter = (function () {
     Interpreter.prototype.unary_negative = function (f) {
         var a = this.pop();
         this.push(-1 * a);
+    };
+
+    // 12: UNARY_NOT
+    Interpreter.prototype.unary_not = function (f) {
+        var a = this.pop();
+        this.push(!a);
+    };
+
+    // 15: UNARY_INVERT
+    Interpreter.prototype.unary_invert = function (f) {
+        var a = this.pop();
+        this.push(-a - 1);
     };
 
     // 20: BINARY_MULTIPLY
