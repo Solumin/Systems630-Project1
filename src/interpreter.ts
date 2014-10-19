@@ -235,13 +235,14 @@ export class Interpreter {
         return this.stack.pop();
     }
 
+    peek() {
+        return this.stack[this.stack.length-1];
+    }
 
     //TODO: From here down to Opcodes: Check if this is the correct implementation
     // 4: DUP_TOP
     dup_top(f: frameObj.Py_FrameObject) {
-        var a = this.pop();
-        this.push(a);
-        this.push(a);
+        this.push(this.peek());
     }
 
     // 9: NOP
