@@ -66,6 +66,29 @@ export class Interpreter {
         } // No need for case where a is a gLong, since b would also be a gLong
     }
 
+    // toBool returns false if the argument would be considered False in Python
+    // Similarly, returns true if it would be considered true.
+    toBool(a: any): boolean {
+        if (typeof a == 'boolean') {
+            return a
+        }
+        switch(a) {
+            case support.None:
+            case gLong.ZERO:
+            case Decimal.fromNumber(0):
+            case new support.Complex64(0,0):
+            case 0:
+            case 0.0:
+            case '':
+            case []:
+            case {}:
+                return false;
+                break;
+            default:
+                return true;
+        }
+    }
+
     interpret(code: codeObj.Py_CodeObject) {
         return this.exec(
             new frameObj.Py_FrameObject(null, {}, code, {}, -1,
@@ -193,6 +216,27 @@ export class Interpreter {
                     break;
                 case opcodes.BUILD_MAP:
                     this.build_map(frame);
+                    break;
+                case opcodes.COMPARE_OP:
+                    this.compare_op(frame);
+                    break;
+                case opcodes.JUMP_FORWARD:
+                    this.jump_forward(frame);
+                    break;
+                case opcodes.JUMP_IF_FALSE_OR_POP:
+                    this.jump_if_false_or_pop(frame);
+                    break;
+                case opcodes.JUMP_IF_TRUE_OR_POP:
+                    this.jump_if_true_or_pop(frame);
+                    break;
+                case opcodes.JUMP_ABSOLUTE:
+                    this.jump_absolute(frame);
+                    break;
+                case opcodes.POP_JUMP_IF_FALSE:
+                    this.pop_jump_if_false(frame);
+                    break;
+                case opcodes.POP_JUMP_IF_TRUE:
+                    this.pop_jump_if_true(frame);
                     break;
                 case opcodes.LOAD_FAST:
                     this.load_fast(frame);
@@ -528,6 +572,100 @@ export class Interpreter {
         var i = this.readArg(f);
         var name = f.codeObj.names[i];
         this.push(f.locals[name]);
+    }
+
+    // 107: COMPARE_OP
+    compare_op(f: frameObj.Py_FrameObject) {
+        var comp_ops = ['<', '<=', '==', '>', '>=', 'in', 'not in',
+                        'is', 'is not', 'exception match'];
+        var opidx = this.readArg(f);
+        var op = comp_ops[opidx];
+        var b = this.pop();
+        var a = this.pop();
+
+        switch(op) {
+            case '<':
+                return a < b;
+                break;
+            case '<=':
+                return a <= b;
+                break;
+            case '==':
+                return a == b;
+                break;
+            case '>':
+                return a > b;
+                break;
+            case '>=':
+                return a >= b;
+                break;
+            case 'in':
+                return b.some( function(elem, idx, arr) {
+                    return elem == a;
+                });
+                break;
+            case 'not in':
+                return b.every( function(elem, idx, arr) {
+                    return elem != a;
+                });
+                break;
+            case 'is':
+                return a == b;
+                break;
+            case 'is not':
+                return a != b;
+                break;
+            case 'exception match':
+                throw new Error("Python Exceptions are not supported");
+            default:
+                throw new Error("Unknown comparison operator");
+        }
+    }
+
+    // 110: JUMP_FORWARD
+    jump_forward(f: frameObj.Py_FrameObject) {
+        var delta = this.readArg(f);
+        f.lastInst += delta
+    }
+
+    // 111: JUMP_IF_FALSE_OR_POP
+    jump_if_false_or_pop(f: frameObj.Py_FrameObject) {
+        var target = this.readArg(f);
+        if (this.toBool(this.peek())) {
+            this.pop();
+        } else {
+            f.lastInst = target;
+        }
+    }
+
+    // 112: JUMP_IF_TRUE_OR_POP
+    jump_if_true_or_pop(f: frameObj.Py_FrameObject) {
+        var target = this.readArg(f);
+        if (this.toBool(this.peek())) {
+            f.lastInst = target;
+        } else {
+            this.pop();
+        }
+    }
+
+    // 113: JUMP_ABSOLUTE
+    jump_absolute(f: frameObj.Py_FrameObject) {
+        var target = this.readArg(f);
+        f.lastInst = target;
+    }
+
+    // 114: POP_JUMP_IF_FALSE
+    pop_jump_if_false(f: frameObj.Py_FrameObject) {
+        var target = this.readArg(f);
+        if (this.toBool(this.pop()))
+            f.lastInst = target;
+    }
+
+    // 115: POP_JUMP_IF_TRUE
+    pop_jump_if_true(f: frameObj.Py_FrameObject) {
+        var target = this.readArg(f);
+        if (!this.toBool(this.pop()))
+            f.lastInst = target;
     }
 
     // 124: LOAD_FAST
