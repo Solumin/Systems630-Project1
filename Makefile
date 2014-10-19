@@ -18,10 +18,13 @@ TESTJS=test.js
 
 # all: $(TSSOURCES) $(JSFILE)
 	
-test: $(TESTJS)
+test: $(TESTJS) $(EXSOURCES)
 
-$(TESTJS): $(TEST) $(TSSOURCES) $(EXSOURCES)
+$(TESTJS): $(TEST) $(TSSOURCES)
 	$(TSC) $(TSCFLAGS) $(TEST)
+
+$(JSSOURCES): $(TSSOURCES)
+	$(TSC) $(TSCFLAGS) $^
 
 %.js: %.ts
 	$(TSC) $(TSCFLAGS) $^
@@ -32,7 +35,7 @@ $(EXSOURCES): $(PYSOURCES)
 %.pyc: %.py
 	$(PYC) $^
 
-.PHONY: clean
+.PHONY: clean clean-src clean-ex clean-test
 
 clean-src:
 	$(RM) $(JSFILE) $(JSSOURCES)
@@ -40,10 +43,8 @@ clean-src:
 clean-ex:
 	$(RM) $(EXSOURCES)
 
-clean: clean-src clean-ex
+clean-test: clean-ex
+	$(RM) $(TESTJS)
 
-# The main application file, $(BASE).js, depends on $(BASE).ts, which in turn
-# depends upon all of the other .ts files in the source. Those all need to be
-# compiled into .js files, too. However, TSC automatically does that for us.
-# I think that means we just need to make $(BASE).js depend upon $(BASE).ts and
-# all of the source .js files, then have a rule for those.
+clean: clean-test clean-src clean-ex
+
