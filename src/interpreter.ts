@@ -28,6 +28,42 @@ export class Interpreter {
         for (var op = this.readOp(frame); op != undefined;
                 op = this.readOp(frame)) {
             switch(op) {
+                case 0x00:
+                    this.stop_code(frame);            
+                    break;
+                case 0x01:
+                    this.pop_top(frame);            
+                    break;
+                case 0x02:
+                    this.rot_two(frame);            
+                    break;
+                case 0x03:
+                    this.rot_three(frame);            
+                    break;
+                case 0x04:
+                    this.dup_top(frame);            
+                    break;
+                case 0x05:
+                    this.rot_four(frame);            
+                    break;
+                case 0x09:
+                    this.nop(frame);            
+                    break;
+                case 0x0a:
+                    this.unary_positive(frame);            
+                    break;
+                case 0x0b:
+                    this.unary_negative(frame);            
+                    break;
+                case 0x0c:
+                    this.unary_not(frame);            
+                    break;
+                case 0x0d:
+                    this.unary_convert(frame);            
+                    break;
+                case 0x0f:
+                    this.unary_invert(frame);            
+                    break;
                 case 0x14:
                     this.binary_mult(frame);
                     break;
@@ -51,6 +87,9 @@ export class Interpreter {
                     break;
                 case 0x65:
                     this.load_name(frame);
+                    break;
+                case 0x69:
+                    this.build_map(frame);
                     break;
                 case 0x7c:
                     this.load_fast(frame);
@@ -91,7 +130,92 @@ export class Interpreter {
         return this.stack.pop();
     }
 
+  
+
+// def_op('BINARY_POWER', 19)
+// def_op('BINARY_MULTIPLY', 20)
+// def_op('BINARY_DIVIDE', 21)
+// def_op('BINARY_MODULO', 22)
+// def_op('BINARY_ADD', 23)
+    
+    //TODO: From here down to Opcodes: Checke if this is the correct implementation
+    // 4: DUP_TOP
+    dup_top(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        this.push(a);
+        this.push(a);
+    }
+    // 9: NOP
+    nop(f: frameObj.Py_FrameObject) {
+
+    }
+    // 13: UNARY_CONVERT
+    unary_convert(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        // TODO: convert to string. need to test which type to know how to convert?
+        this.push(a.toString());
+    }
+    // 105: BUILD_MAP
+    build_map(f: frameObj.Py_FrameObject) {
+        throw new Error("Not implemented yet");
+    }
+
     // Opcodes
+    // 0: STOP_CODE
+    stop_code(f: frameObj.Py_FrameObject) {
+        throw new Error("Indicates end-of-code to the compiler, not used by the interpreter.");
+    }
+    // 1: POP_TOP
+    pop_top(f: frameObj.Py_FrameObject) {
+        this.pop();
+    }
+    // 2: ROT_TWO
+    rot_two(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        this.push(a);
+        this.push(b);
+    }
+    // 3: ROT_THREE
+    rot_three(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        var c = this.pop();
+        this.push(a);
+        this.push(c);
+        this.push(b);
+    }
+    // 5: ROT_FOUR
+    rot_four(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        var b = this.pop();
+        var c = this.pop();
+        var d = this.pop();
+        this.push(a);
+        this.push(d);
+        this.push(c);
+        this.push(b);
+    }
+    // 10: UNARY_POSITIVE
+    unary_positive(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        this.push(a);
+    }
+    // 11: UNARY_NEGATIVE
+    unary_negative(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        this.push(-1 * a);
+    }
+    // 12: UNARY_NOT
+    unary_not(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        this.push(!a);
+    }
+    // 15: UNARY_INVERT
+    unary_invert(f: frameObj.Py_FrameObject) {
+        var a = this.pop();
+        this.push(-a-1);
+    }
     // 20: BINARY_MULTIPLY
     binary_mult(f: frameObj.Py_FrameObject) {
         var a = this.pop();

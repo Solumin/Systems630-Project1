@@ -6,14 +6,14 @@ import interpreter = require('./interpreter');
 import codeObj = require('./codeobject');
 
 console.log("Running unmarshal test...");
-var u = new unmarshal.Unmarshaller("../examples/simpleadd.pyc");
+var u = new unmarshal.Unmarshaller("../examples/play.pyc");
 var code: codeObj.Py_CodeObject = u.value();
 console.log(code);
 
 console.log("\nRunning interpreter test:");
 var i = new interpreter.Interpreter();
 
-console.log("Simple addition function:");
+console.log("Playground:");
 i.interpret(code);
 
 console.log("Multiple function arguments code:");

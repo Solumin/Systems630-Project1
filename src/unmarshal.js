@@ -5,25 +5,31 @@ var codeObj = require('./codeobject');
 var support = require('./supportobjects');
 var fs = require('fs');
 var gLong = require("../lib/gLong");
+
 // TODO: Write declaration file for decimal.js
 var Decimal = require('../lib/decimal');
+
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX")
 // and converts into a Python code object.
 var Unmarshaller = (function () {
     function Unmarshaller(inputFilePath) {
         // Initialize values
         this.internedStrs = [];
+
         // For testing purposes, this is synchronous
         // TODO: Replace with BrowserFS call
         this.input = fs.readFileSync(inputFilePath);
         this.magicNumber = this.input.readUInt16LE(0);
+
         if (this.magicNumber != Unmarshaller.PYTHON_2_7_8_MAGIC) {
             throw new Error("Unsupported Python version.");
         }
+
         // Python marshals the date in seconds -- see time.localtime in the
         // Python stdlib.
         // Javascript takes the date in milliseconds. Thus, 1000*time.
         this.date = new Date(1000 * this.input.readUInt32LE(4));
+
         // We read the first 8 bytes to get the magic number and the date
         this.index = 8;
     }
@@ -34,12 +40,14 @@ var Unmarshaller = (function () {
         }
         return this.output;
     };
+
     // Reads a single character (1 byte, as string) from the input
     Unmarshaller.prototype.readChar = function () {
         var c = this.input.toString('ascii', this.index, this.index + 1);
         this.index += 1;
         return c;
     };
+
     // Reads a single byte from the input
     // (Equivalent to readChar().charCodeAt(0))
     Unmarshaller.prototype.readByte = function () {
@@ -47,24 +55,28 @@ var Unmarshaller = (function () {
         this.index += 1;
         return b;
     };
+
     // Read an unsigned short (used for grokking longs)
     Unmarshaller.prototype.readUInt16 = function () {
         var s = this.input.readUInt16LE(this.index);
         this.index += 2;
         return s;
     };
+
     // // Reads a 4-byte integer from the input
     Unmarshaller.prototype.readInt32 = function () {
         var i = this.input.readInt32LE(this.index);
         this.index += 4;
         return i;
     };
+
     // Reads a 64 bit integer
     Unmarshaller.prototype.readInt64 = function () {
         var low = this.readInt32();
         var high = this.readInt32();
         return gLong.fromBits(low, high);
     };
+
     // Reads a 64-bit floating-pount number
     // WARNING: Javascript only supports double-precision floats.
     // Any numbers greater than 2**52 will be approximate at best
@@ -74,21 +86,25 @@ var Unmarshaller = (function () {
         this.index += 8;
         return f;
     };
+
     Unmarshaller.prototype.readString = function (length, encoding) {
-        if (encoding === void 0) { encoding = "ascii"; }
+        if (typeof encoding === "undefined") { encoding = "ascii"; }
         var s = this.input.toString(encoding, this.index, this.index + length);
         this.index += length;
         return s;
     };
+
     Unmarshaller.prototype.readUnicodeString = function (length) {
         return this.readString(length, "utf8");
     };
+
     Unmarshaller.prototype.readBinaryString = function (length) {
         var buf = new Buffer(length);
         this.input.copy(buf, 0, this.index, this.index + length);
         this.index += length;
         return buf;
     };
+
     // Code strings are a special case: They're raw binary
     // nodeJS buffers COULD handle this by using the 'ascii' encoding, except
     // ONLY handles 7-bit chars. So something like "\x84", which is the
@@ -102,6 +118,7 @@ var Unmarshaller = (function () {
         var length = this.readInt32();
         return this.readBinaryString(length);
     };
+
     // Unmarshals the input string
     Unmarshaller.prototype.unmarshal = function () {
         var unit = this.readChar();
@@ -121,6 +138,7 @@ var Unmarshaller = (function () {
             case ".":
                 throw new Error("Ellipsis is not yet implemented");
                 break;
+
             case "g":
                 res = this.readFloat64();
                 break;
@@ -149,6 +167,7 @@ var Unmarshaller = (function () {
             case "y":
                 res = new support.Complex64(this.readFloat64(), this.readFloat64());
                 break;
+
             case "R":
                 var index = this.readInt32();
                 res = this.internedStrs[index];
@@ -166,6 +185,7 @@ var Unmarshaller = (function () {
                 var length = this.readInt32();
                 res = this.readUnicodeString(length);
                 break;
+
             case "(":
             case "[":
                 var length = this.readInt32();
@@ -174,6 +194,7 @@ var Unmarshaller = (function () {
                     res.push(this.unmarshal());
                 }
                 break;
+
             case "c":
                 var argc = this.readInt32();
                 var nlocals = this.readInt32();
@@ -191,6 +212,7 @@ var Unmarshaller = (function () {
                 var lnotab = this.unmarshal();
                 res = new codeObj.Py_CodeObject(argc, nlocals, stacksize, flags, codestr, consts, names, varnames, freevars, cellvars, filename, name, firstlineno, lnotab);
                 break;
+
             default:
                 console.log("Unsupported marshal format: " + unit + " @" + this.index);
                 throw new Error("Unsupported marshal format: " + unit);
