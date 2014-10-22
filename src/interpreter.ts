@@ -76,7 +76,7 @@ class Interpreter {
         switch(a) {
             case None:
             case gLong.ZERO:
-            case Decimal.fromNumber(0):
+            case new Decimal(0):
             case new Complex64(0,0):
             case 0:
             case 0.0:
@@ -607,7 +607,11 @@ class Interpreter {
 
     // 83: RETURN_VALUE
     return_value(f: Py_FrameObject) {
-        // NOP -- clear stack?
+        var r = f.pop();
+        if (f.back) {
+            f.back.push(r);
+        }
+        return r;
     }
 
     // 90: STORE_NAME
@@ -714,14 +718,14 @@ class Interpreter {
     // 114: POP_JUMP_IF_FALSE
     pop_jump_if_false(f: Py_FrameObject) {
         var target = f.readArg();
-        if (this.toBool(f.pop()))
+        if (!this.toBool(f.pop()))
             f.lastInst = target;
     }
 
     // 115: POP_JUMP_IF_TRUE
     pop_jump_if_true(f: Py_FrameObject) {
         var target = f.readArg();
-        if (!this.toBool(f.pop()))
+        if (this.toBool(f.pop()))
             f.lastInst = target;
     }
 
