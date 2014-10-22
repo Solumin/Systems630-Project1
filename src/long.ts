@@ -1,13 +1,10 @@
-/// <reference path="../lib/node.d.ts" />
+///<reference path="../lib/node.d.ts" />
 var Decimal = require('../lib/decimal');
 import NIError = require('./notimplementederror');
 
 class Py_Long {
 
-    value: Decimal;
-    constructor(v: Decimal) {
-        this.value = v;
-    }
+    constructor(public value: Decimal) {}
 
     static fromInt(n: number) {
         var d = new Decimal(n);
