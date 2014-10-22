@@ -3,6 +3,7 @@
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
 import Py_CodeObject = require('./codeobject');
+import Py_Int = require('./integer');
 import Complex64 = require('./complex');
 import None = require('./none');
 import fs = require('fs');
@@ -158,10 +159,10 @@ class Unmarshaller {
                 res = this.readFloat64();
                 break;
             case "i": // 32-bit integer (signed)
-                res = this.readInt32();
+                res = Py_Int.fromInt(this.readInt32());
                 break;
             case "I": // 64-bit integer (signed)
-                res = this.readInt64();
+                res = new Py_Int(this.readInt64());
                 break;
             case "l": // arbitrary precision integer
                 // Stored as a 32-bit integer of length, then $length 16-bit

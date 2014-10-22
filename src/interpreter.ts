@@ -1,10 +1,14 @@
+/// <reference path="../lib/node.d.ts" />
 import Py_FrameObject = require('./frameobject');
 import Py_CodeObject = require('./codeobject');
 import Complex64 = require('./complex');
+import Py_Int = require('./integer');
+import Py_Long = require('./long');
 import None = require('./none');
 import unmarshal = require('./unmarshal');
 import Py_FuncObject = require('./funcobject');
 import opcodes = require('./opcodes');
+import NotImplementedError = require('./notimplementederror');
 
 import gLong = require("../lib/gLong");
 var Decimal = require('../lib/decimal');
@@ -26,46 +30,46 @@ class Interpreter {
     // int64 < long < number < complex is the hierarchy.
     // wider returns <0 if a '<' b, 0 if a '==' b, and >0 if a '>' b
     // or NaN if a or b is not numeric
-    wider(a: any, b: any): number {
-        return this.numericIndex(a) - this.numericIndex(b);
-    }
+    // wider(a: any, b: any): number {
+    //     return this.numericIndex(a) - this.numericIndex(b);
+    // }
 
-    private numericIndex(x: any): number {
-        if (x instanceof gLong) {
-            return 0;
-        } else if (x instanceof Decimal) {
-            return 1;
-        } else if (typeof x == 'number') {
-            return 2;
-        } else if (x instanceof Complex64) {
-            return 3;
-        } else {
-            return NaN;
-        }
-    }
+    // private numericIndex(x: any): number {
+    //     if (x instanceof gLong) {
+    //         return 0;
+    //     } else if (x instanceof Decimal) {
+    //         return 1;
+    //     } else if (typeof x == 'number') {
+    //         return 2;
+    //     } else if (x instanceof Complex64) {
+    //         return 3;
+    //     } else {
+    //         return NaN;
+    //     }
+    // }
 
     private isNumeric(x: any): boolean {
-        return ((x instanceof gLong) || (x instanceof Decimal) ||
+        return ((x instanceof Py_Int) || (x instanceof Py_Long) ||
                 (typeof x == 'number') || (x instanceof Complex64));
     }
 
     // Assuming a is wider than b, this widens b to have the same type as a
     // int64 < long < number < complex is the hierarchy.
     // gLong < Decimal < number < Complex64
-    widen(a: any, b: any): any {
-        if (a instanceof Complex64) {
-            if (typeof b == 'number') {
-                return new Complex64(b, 0);
-            } else { // Decimal and gLong both use 'toNumber'
-                // May (will?) cause loss of precision
-                return new Complex64(b.toNumber(), 0);
-            }
-        } else if (typeof a == 'number') {
-            return b.toNumber(); // Decimal and gLong both use 'toNumber'
-        } else { // a is a Decimal, b is a gLong
-            return Decimal.fromString(b.toString())
-        } // No need for case where a is a gLong, since b would also be a gLong
-    }
+    // widen(a: any, b: any): any {
+    //     if (a instanceof Complex64) {
+    //         if (typeof b == 'number') {
+    //             return new Complex64(b, 0);
+    //         } else { // Decimal and gLong both use 'toNumber'
+    //             // May (will?) cause loss of precision
+    //             return new Complex64(b.toNumber(), 0);
+    //         }
+    //     } else if (typeof a == 'number') {
+    //         return b.toNumber(); // Decimal and gLong both use 'toNumber'
+    //     } else { // a is a Decimal, b is a gLong
+    //         return Decimal.fromString(b.toString())
+    //     } // No need for case where a is a gLong, since b would also be a gLong
+    // }
 
     // toBool returns false if the argument would be considered False in Python
     // Similarly, returns true if it would be considered true.
@@ -75,8 +79,8 @@ class Interpreter {
         }
         switch(a) {
             case None:
-            case gLong.ZERO:
-            case new Decimal(0):
+            case Py_Int.ZERO:
+            case Py_Long.ZERO:
             case new Complex64(0,0):
             case 0:
             case 0.0:
@@ -522,26 +526,16 @@ class Interpreter {
         var a = f.pop();
         if (typeof a == 'string' && typeof b == 'string') {
             f.push(a + b);
-        } else if (typeof a == 'number' && typeof b == 'number') {
-            f.push(a + b);
-        } else if (this.isNumeric(a) && this.isNumeric(b)) {
-            if (this.wider(a,b) > 0) {
-                var wb = this.widen(a,b);
-                if (a.add)
-                    f.push(a.add(wb));
+        }
+        if (a.add) {
+            var res = a.add(b);
+            if (res instanceof NotImplementedError) {
+                if (b.radd)
+                    res = b.radd(a);
                 else
-                    f.push(a + wb);
-            } else if (this.wider(a,b) < 0) {
-                var wa = this.widen(b,a);
-                if (wa.add)
-                    f.push(wa.add(b));
-                else
-                    f.push(wa + b);
-            } else {
-                f.push(a.add(b));
+                    throw new Error("No method exists to add " + a + " and " + b);
             }
-        } else { // Let a's add function handle b. It should handle types.
-            f.push(a.add(b));
+            f.push(res);
         }
     }
 

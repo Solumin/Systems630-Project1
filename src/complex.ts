@@ -1,3 +1,5 @@
+import NIError = require('./notimplementederror');
+
 class Complex64 {
     real: number;
     imag: number;
@@ -7,8 +9,12 @@ class Complex64 {
         this.imag = j;
     }
 
-    add(other: Complex64): Complex64 {
-        return new Complex64(this.real + other.real, this.imag + other.imag)
+    add(other: any): any {
+        if (other instanceof Complex64)
+            return new Complex64(this.real + other.real, this.imag +
+                    other.imag);
+        else
+            return NIError;
     }
 
     toString(): string {
