@@ -3,7 +3,8 @@
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
 import codeObj = require('./codeobject');
-import support = require('./supportobjects');
+import Complex64 = require('./complex');
+import None = require('./none');
 import fs = require('fs');
 import gLong = require("../lib/gLong");
 // TODO: Write declaration file for decimal.js
@@ -139,7 +140,7 @@ export class Unmarshaller {
         switch (unit) {
             // Constants
             case "N": // None
-                res = support.None;
+                res = None;
                 break;
             case "F": // False
                 res = false;
@@ -180,7 +181,7 @@ export class Unmarshaller {
                 }
                 break;
             case "y": // complex number
-                res = new support.Complex64(this.readFloat64(),
+                res = new Complex64(this.readFloat64(),
                         this.readFloat64());
                 break;
             // Strings

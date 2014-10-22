@@ -1,6 +1,7 @@
 import frameObj = require('./frameobject');
 import codeObj = require('./codeobject');
-import support = require('./supportobjects');
+import Complex64 = require('./complex');
+import None = require('./none');
 import unmarshal = require('./unmarshal');
 import funcObj = require('./funcobject');
 import opcodes = require('./opcodes');
@@ -36,7 +37,7 @@ export class Interpreter {
             return 1;
         } else if (typeof x == 'number') {
             return 2;
-        } else if (x instanceof support.Complex64) {
+        } else if (x instanceof Complex64) {
             return 3;
         } else {
             return NaN;
@@ -45,19 +46,19 @@ export class Interpreter {
 
     private isNumeric(x: any): boolean {
         return ((x instanceof gLong) || (x instanceof Decimal) ||
-                (typeof x == 'number') || (x instanceof support.Complex64));
+                (typeof x == 'number') || (x instanceof Complex64));
     }
 
     // Assuming a is wider than b, this widens b to have the same type as a
     // int64 < long < number < complex is the hierarchy.
-    // gLong < Decimal < number < support.Complex64
+    // gLong < Decimal < number < Complex64
     widen(a: any, b: any): any {
-        if (a instanceof support.Complex64) {
+        if (a instanceof Complex64) {
             if (typeof b == 'number') {
-                return new support.Complex64(b, 0);
+                return new Complex64(b, 0);
             } else { // Decimal and gLong both use 'toNumber'
                 // May (will?) cause loss of precision
-                return new support.Complex64(b.toNumber(), 0);
+                return new Complex64(b.toNumber(), 0);
             }
         } else if (typeof a == 'number') {
             return b.toNumber(); // Decimal and gLong both use 'toNumber'
@@ -73,10 +74,10 @@ export class Interpreter {
             return a
         }
         switch(a) {
-            case support.None:
+            case None:
             case gLong.ZERO:
             case Decimal.fromNumber(0):
-            case new support.Complex64(0,0):
+            case new Complex64(0,0):
             case 0:
             case 0.0:
             case '':

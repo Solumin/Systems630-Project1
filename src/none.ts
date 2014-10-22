@@ -1,6 +1,6 @@
 // Null is an empty value. Mostly used in the interpreter for dictionaries.
 // Python has a single null object called "None".
-export class NullSingleton {
+class NullSingleton {
     private static _instance: NullSingleton;
 
     constructor() {
@@ -21,22 +21,5 @@ export class NullSingleton {
         return "None";
     }
 }
-export var None = NullSingleton.get();
-
-export class Complex64 {
-    real: number;
-    imag: number;
-
-    constructor(r: number, j: number) {
-        this.real = r;
-        this.imag = j;
-    }
-
-    add(other: Complex64): Complex64 {
-        return new Complex64(this.real + other.real, this.imag + other.imag)
-    }
-
-    toString(): string {
-        return "(" + this.real + " + " + this.imag + "j)";
-    }
-}
+var None = NullSingleton.get();
+export = None;
