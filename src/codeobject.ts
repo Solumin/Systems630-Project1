@@ -1,4 +1,4 @@
-export class Py_CodeObject {
+class Py_CodeObject {
     argcount: number;
     cellvars: string[];
     code: Buffer;
@@ -45,3 +45,4 @@ export class Py_CodeObject {
         this.varnames = varnames;
     }
 }
+export = Py_CodeObject;

@@ -2,7 +2,7 @@
 
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
-import codeObj = require('./codeobject');
+import Py_CodeObject = require('./codeobject');
 import Complex64 = require('./complex');
 import None = require('./none');
 import fs = require('fs');
@@ -12,7 +12,7 @@ var Decimal = require('../lib/decimal');
 
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX")
 // and converts into a Python code object.
-export class Unmarshaller {
+class Unmarshaller {
     // How far we are into the buffer
     index: number;
     // The input from reading the file
@@ -26,7 +26,7 @@ export class Unmarshaller {
     // The list of "interalized" strings
     internedStrs: string[];
     // The output of unmarshalling the .pyc file
-    output: codeObj.Py_CodeObject;
+    output: Py_CodeObject;
 
     constructor(inputFilePath: string) {
         // Initialize values
@@ -49,7 +49,7 @@ export class Unmarshaller {
     }
 
     // Processes the input string
-    value(): codeObj.Py_CodeObject {
+    value(): Py_CodeObject {
         if (this.output == null) {
             this.output = this.unmarshal();
         }
@@ -227,7 +227,7 @@ export class Unmarshaller {
                 var name: string = this.unmarshal();
                 var firstlineno = this.readInt32();
                 var lnotab: string = this.unmarshal();
-                res = new codeObj.Py_CodeObject(
+                res = new Py_CodeObject(
                     argc, nlocals, stacksize, flags, codestr, consts,
                     names, varnames, freevars, cellvars, filename,
                     name, firstlineno, lnotab);
@@ -241,3 +241,4 @@ export class Unmarshaller {
         return res;
     }
 }
+export = Unmarshaller;

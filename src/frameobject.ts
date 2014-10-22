@@ -1,12 +1,12 @@
-import codeObj = require('./codeobject');
+import Py_CodeObject = require('./codeobject');
 
-export class Py_FrameObject {
+class Py_FrameObject {
     // Previous stack frame (this frame's caller, may be None)
     back: Py_FrameObject;
     // Built-in namespace -- TODO: Evaluate for this project?
     builtins: { [name: string]: any; };
     // Code object executed in this frame
-    codeObj: codeObj.Py_CodeObject;
+    codeObj: Py_CodeObject;
     // traceback for debugging -- TODO: Implement
     // traceback: any;
     // Exception type, if raised in this frame
@@ -28,7 +28,7 @@ export class Py_FrameObject {
 
     constructor(back: Py_FrameObject,
                 builtins: { [name: string]: any; },
-                code: codeObj.Py_CodeObject,
+                code: Py_CodeObject,
                 globals: { [name: string]: any },
                 lastInst: number,
                 lineNum: number,
@@ -44,3 +44,4 @@ export class Py_FrameObject {
         this.restricted = restricted;
     }
 }
+export = Py_FrameObject;

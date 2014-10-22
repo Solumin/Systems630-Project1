@@ -7,16 +7,16 @@
 // name: Name of the function
 // dict: __dict__, can be NULL
 
-import codeObj = require('./codeobject');
+import Py_CodeObject = require('./codeobject');
 
-export class Py_FuncObject {
-    code: codeObj.Py_CodeObject;
+class Py_FuncObject {
+    code: Py_CodeObject;
     globals: { [name: string]: any };
     defaults: { [name: string]: any};
     //closure: ???
     name: string;
 
-    constructor(code: codeObj.Py_CodeObject,
+    constructor(code: Py_CodeObject,
                 globals: { [name: string]: any },
                 defaults: { [name: string]: any},
                 name: string) {
@@ -26,3 +26,4 @@ export class Py_FuncObject {
         this.name = name
     }
 }
+export = Py_FuncObject;
