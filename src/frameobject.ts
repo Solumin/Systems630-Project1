@@ -23,6 +23,8 @@ class Py_FrameObject {
     locals: { [name: string]: any };
     // Flag: 1 if running in restricted mode (TODO: What?)
     restricted: boolean;
+    // This frame's stack
+    stack: any[];
     // Tracing function for this frame
     // trace:
 
@@ -42,6 +44,34 @@ class Py_FrameObject {
         this.lineNum = lineNum;
         this.locals = locals;
         this.restricted = restricted;
+        this.stack = [];
     }
+
+    push(v) {
+        return this.stack.push(v);
+    }
+
+    pop() {
+        return this.stack.pop();
+    }
+
+    peek() {
+        return this.stack[this.stack.length-1];
+    }
+
+    readOp(): number {
+        this.lastInst += 1;
+        return this.codeObj.code[this.lastInst];
+    }
+
+    readArg(): number {
+        this.lastInst += 1;
+        var low = this.codeObj.code[this.lastInst];
+        this.lastInst += 1;
+        var high = this.codeObj.code[this.lastInst];
+        return (high << 8) + low;
+    }
+
+
 }
 export = Py_FrameObject;

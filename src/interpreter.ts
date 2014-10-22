@@ -98,8 +98,7 @@ class Interpreter {
 
     exec(frame: Py_FrameObject) {
         var code: Py_CodeObject = frame.codeObj;
-        for (var op = this.readOp(frame); op != undefined;
-                op = this.readOp(frame)) {
+        for (var op = frame.readOp(); op != undefined; op = frame.readOp()) {
             switch(op) {
                 case opcodes.STOP_CODE:
                     this.stop_code(frame);
@@ -282,35 +281,10 @@ class Interpreter {
         }
     }
 
-    readOp(f: Py_FrameObject): number {
-        f.lastInst += 1;
-        return f.codeObj.code[f.lastInst];
-    }
-
-    readArg(f: Py_FrameObject): number {
-        f.lastInst += 1;
-        var low = f.codeObj.code[f.lastInst];
-        f.lastInst += 1;
-        var high = f.codeObj.code[f.lastInst];
-        return (high << 8) + low;
-    }
-
-    push(v) {
-        return this.stack.push(v);
-    }
-
-    pop() {
-        return this.stack.pop();
-    }
-
-    peek() {
-        return this.stack[this.stack.length-1];
-    }
-
     //TODO: From here down to Opcodes: Check if this is the correct implementation
     // 4: DUP_TOP
     dup_top(f: Py_FrameObject) {
-        this.push(this.peek());
+        f.push(f.peek());
     }
 
     // 9: NOP
@@ -321,26 +295,26 @@ class Interpreter {
     // 13: UNARY_CONVERT
     // TODO: convert to string. need to test which type to know how to convert?
     unary_convert(f: Py_FrameObject) {
-        var a = this.pop();
+        var a = f.pop();
         var b = a.toString();
-        this.push(b);
+        f.push(b);
     }
 
     // 26: BINARY_FLOOR_DIVIDE
     // Math.floor returns an integer. Should we change to float to be consistent with python?
     binary_floor_divide(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(Math.floor(b / a));
+        var a = f.pop();
+        var b = f.pop();
+        f.push(Math.floor(b / a));
     }
 
     // 27: BINARY_TRUE_DIVIDE
     // used when from __future__ import division is in effect
     //TODO: do not know how it is different from BINARY_DIVIDE
     binary_true_divide(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(b / a);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b / a);
     }
 
     //TODO: inplace operations
@@ -354,76 +328,76 @@ class Interpreter {
     }
     // 30: SLICE+0
     slice_0(f: Py_FrameObject) {
-        var a = this.pop();
+        var a = f.pop();
         var b = a.slice(0);
-        this.push(b);
+        f.push(b);
     }
     // 31: SLICE+1
     slice_1(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(b.slice(a));
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b.slice(a));
     }
     // 32: SLICE+2
     slice_2(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(b.slice(0,a));
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b.slice(0,a));
     }
     // 33: SLICE+3
     slice_3(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        var c = this.pop();
-        this.push(c.slice(b,a));
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
+        f.push(c.slice(b,a));
     }
     //TODO: store_slice is not working yet
     // 40: STORE_SLICE+0
     store_slice_0(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
+        var a = f.pop();
+        var b = f.pop();
         var aux = a.slice(0);
         aux = b;
     }
     // 41: STORE_SLICE+1
     store_slice_1(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        var c = this.pop();
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
         var aux = b.slice(a);
         aux = c;
     }
     // 42: STORE_SLICE+2
     store_slice_2(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        var c = this.pop();
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
         var aux = b.slice(0,a);
         aux = c;
     }
     // 43: STORE_SLICE+3
     store_slice_3(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        var c = this.pop();
-        var d = this.pop();
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
+        var d = f.pop();
         var aux = c.slice(b,a);
         aux = d;
     }
     // 60: STORE_SUBSCR
     // TODO: more testing
     store_subscr(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        var c = this.pop();
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
         b[a] = c;
     }
     // 61: DELETE_SUBSCR
     // TODO: more testing
     delete_subscr(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(b.splice(a,1));
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b.splice(a,1));
     }
 
     // 102: BUILD_TUPLE
@@ -435,12 +409,12 @@ class Interpreter {
     // 103: BUILD_LIST
     //TODO: seems to work but need more testing
     build_list(f: Py_FrameObject) {
-        var count = this.readArg(f);
+        var count = f.readArg();
         var l = [];
         for (var i = count-1; i >= 0; i--){
-            l[i] = this.pop();
+            l[i] = f.pop();
         }
-        this.push(l);
+        f.push(l);
     }
 
     // 105: BUILD_MAP
@@ -456,173 +430,173 @@ class Interpreter {
 
     // 1: POP_TOP
     pop_top(f: Py_FrameObject) {
-        this.pop();
+        f.pop();
     }
 
     // 2: ROT_TWO
     rot_two(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(a);
-        this.push(b);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(a);
+        f.push(b);
     }
 
     // 3: ROT_THREE
     rot_three(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        var c = this.pop();
-        this.push(a);
-        this.push(c);
-        this.push(b);
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
+        f.push(a);
+        f.push(c);
+        f.push(b);
     }
 
     // 5: ROT_FOUR
     rot_four(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        var c = this.pop();
-        var d = this.pop();
-        this.push(a);
-        this.push(d);
-        this.push(c);
-        this.push(b);
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
+        var d = f.pop();
+        f.push(a);
+        f.push(d);
+        f.push(c);
+        f.push(b);
     }
 
     // 10: UNARY_POSITIVE
     unary_positive(f: Py_FrameObject) {
-        var a = this.pop();
-        this.push(a);
+        var a = f.pop();
+        f.push(a);
     }
 
     // 11: UNARY_NEGATIVE
     unary_negative(f: Py_FrameObject) {
-        var a = this.pop();
-        this.push(-1 * a);
+        var a = f.pop();
+        f.push(-1 * a);
     }
 
     // 12: UNARY_NOT
     unary_not(f: Py_FrameObject) {
-        var a = this.pop();
-        this.push(!a);
+        var a = f.pop();
+        f.push(!a);
     }
 
     // 15: UNARY_INVERT
     unary_invert(f: Py_FrameObject) {
-        var a = this.pop();
-        this.push(-a-1);
+        var a = f.pop();
+        f.push(-a-1);
     }
 
     // 19: BINARY_POWER
     binary_power(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(Math.pow(b, a));
+        var a = f.pop();
+        var b = f.pop();
+        f.push(Math.pow(b, a));
     }
 
     // 20: BINARY_MULTIPLY
     binary_mult(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(a * b);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(a * b);
     }
 
     // 21: BINARY_DIVIDE
     //used when from __future__ import division is not in effect
     binary_divide(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(b / a);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b / a);
     }
 
     // 22: BINARY_MODULO
     binary_modulo(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(b % a);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b % a);
     }
 
     // 23: BINARY_ADD
     binary_add(f: Py_FrameObject) {
-        var b = this.pop();
-        var a = this.pop();
+        var b = f.pop();
+        var a = f.pop();
         if (typeof a == 'string' && typeof b == 'string') {
-            this.push(a + b);
+            f.push(a + b);
         } else if (typeof a == 'number' && typeof b == 'number') {
-            this.push(a + b);
+            f.push(a + b);
         } else if (this.isNumeric(a) && this.isNumeric(b)) {
             if (this.wider(a,b) > 0) {
                 var wb = this.widen(a,b);
                 if (a.add)
-                    this.push(a.add(wb));
+                    f.push(a.add(wb));
                 else
-                    this.push(a + wb);
+                    f.push(a + wb);
             } else if (this.wider(a,b) < 0) {
                 var wa = this.widen(b,a);
                 if (wa.add)
-                    this.push(wa.add(b));
+                    f.push(wa.add(b));
                 else
-                    this.push(wa + b);
+                    f.push(wa + b);
             } else {
-                this.push(a.add(b));
+                f.push(a.add(b));
             }
         } else { // Let a's add function handle b. It should handle types.
-            this.push(a.add(b));
+            f.push(a.add(b));
         }
     }
 
     // 24: BINARY_SUBTRACT
     binary_subtract(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(b - a);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b - a);
     }
 
     // 25: BINARY_SUBSCR
     binary_subscr(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(b[a]);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b[a]);
     }
 
     // 62: BINARY_LSHIFT
     binary_lshift(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(b << a);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b << a);
     }
 
     // 63: BINARY_RSHIFT
     binary_rshift(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(b >> a);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b >> a);
     }
 
     // 64: BINARY_AND
     binary_and(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(a & b);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(a & b);
     }
 
     // 65: BINARY_XOR
     binary_xor(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(a ^ b);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(a ^ b);
     }
 
     // 66: BINARY_OR
     binary_or(f: Py_FrameObject) {
-        var a = this.pop();
-        var b = this.pop();
-        this.push(a | b);
+        var a = f.pop();
+        var b = f.pop();
+        f.push(a | b);
     }
 
     // 71: PRINT_ITEM
     print_item(f: Py_FrameObject) {
-        var a = this.pop();
+        var a = f.pop();
         process.stdout.write(a.toString());
     }
 
@@ -638,33 +612,33 @@ class Interpreter {
 
     // 90: STORE_NAME
     store_name(f: Py_FrameObject) {
-        var i = this.readArg(f);
-        var val = this.pop();
+        var i = f.readArg();
+        var val = f.pop();
         var name = f.codeObj.names[i];
         f.locals[name] = val;
     }
 
     // 100: LOAD_CONST
     load_const(f: Py_FrameObject) {
-        var i = this.readArg(f);
-        this.push(f.codeObj.consts[i]);
+        var i = f.readArg();
+        f.push(f.codeObj.consts[i]);
     }
 
     // 101: LOAD_NAME
     load_name(f: Py_FrameObject) {
-        var i = this.readArg(f);
+        var i = f.readArg();
         var name = f.codeObj.names[i];
-        this.push(f.locals[name]);
+        f.push(f.locals[name]);
     }
 
     // 107: COMPARE_OP
     compare_op(f: Py_FrameObject) {
         var comp_ops = ['<', '<=', '==', '>', '>=', 'in', 'not in',
                         'is', 'is not', 'exception match'];
-        var opidx = this.readArg(f);
+        var opidx = f.readArg();
         var op = comp_ops[opidx];
-        var b = this.pop();
-        var a = this.pop();
+        var b = f.pop();
+        var a = f.pop();
 
         switch(op) {
             case '<':
@@ -707,15 +681,15 @@ class Interpreter {
 
     // 110: JUMP_FORWARD
     jump_forward(f: Py_FrameObject) {
-        var delta = this.readArg(f);
+        var delta = f.readArg();
         f.lastInst += delta
     }
 
     // 111: JUMP_IF_FALSE_OR_POP
     jump_if_false_or_pop(f: Py_FrameObject) {
-        var target = this.readArg(f);
-        if (this.toBool(this.peek())) {
-            this.pop();
+        var target = f.readArg();
+        if (this.toBool(f.peek())) {
+            f.pop();
         } else {
             f.lastInst = target;
         }
@@ -723,51 +697,51 @@ class Interpreter {
 
     // 112: JUMP_IF_TRUE_OR_POP
     jump_if_true_or_pop(f: Py_FrameObject) {
-        var target = this.readArg(f);
-        if (this.toBool(this.peek())) {
+        var target = f.readArg();
+        if (this.toBool(f.peek())) {
             f.lastInst = target;
         } else {
-            this.pop();
+            f.pop();
         }
     }
 
     // 113: JUMP_ABSOLUTE
     jump_absolute(f: Py_FrameObject) {
-        var target = this.readArg(f);
+        var target = f.readArg();
         f.lastInst = target;
     }
 
     // 114: POP_JUMP_IF_FALSE
     pop_jump_if_false(f: Py_FrameObject) {
-        var target = this.readArg(f);
-        if (this.toBool(this.pop()))
+        var target = f.readArg();
+        if (this.toBool(f.pop()))
             f.lastInst = target;
     }
 
     // 115: POP_JUMP_IF_TRUE
     pop_jump_if_true(f: Py_FrameObject) {
-        var target = this.readArg(f);
-        if (!this.toBool(this.pop()))
+        var target = f.readArg();
+        if (!this.toBool(f.pop()))
             f.lastInst = target;
     }
 
     // 124: LOAD_FAST
     load_fast(f: Py_FrameObject) {
-        var i = this.readArg(f);
+        var i = f.readArg();
         var name = f.codeObj.varnames[i];
-        this.push(f.locals[name]);
+        f.push(f.locals[name]);
     }
 
     // 125: STORE_FAST
     store_fast(f: Py_FrameObject) {
-        var i = this.readArg(f);
-        var val = this.pop();
+        var i = f.readArg();
+        var val = f.pop();
         f.locals[f.codeObj.varnames[i]] = val;
     }
 
     // 131: CALL_FUNCTION
     call_function(f: Py_FrameObject) {
-        var i = this.readArg(f);
+        var i = f.readArg();
         // number of positional parameters
         var posNum = i & 0xff;
         // number of keyword arguments
@@ -778,15 +752,15 @@ class Interpreter {
         var locals: { [name: string]: any } = {};
 
         for (var x = 0; x < keyNum; x++) {
-            keyVals.push(this.pop());
-            keyNames.push(this.pop());
+            keyVals.push(f.pop());
+            keyNames.push(f.pop());
         }
 
         for (var x = 0; x < posNum; x++) {
-            posVals.push(this.pop());
+            posVals.push(f.pop());
         }
 
-        var func: Py_FuncObject = this.pop();
+        var func: Py_FuncObject = f.pop();
 
         for (var x = 0; x < keyNames.length; x++) {
             locals[keyNames[x]] = keyVals[x];
@@ -804,17 +778,17 @@ class Interpreter {
 
     // 132: MAKE_FUNCTION
     make_function(f: Py_FrameObject) {
-        var numDefault = this.readArg(f);
+        var numDefault = f.readArg();
         var defaults: { [name: string]: any } = {};
 
-        var code = this.pop();
+        var code = f.pop();
 
         for (var i = code.varnames.length-1; i >= 0; i--) {
-            defaults[code.varnames[i]] = this.pop();
+            defaults[code.varnames[i]] = f.pop();
         }
 
         var func = new Py_FuncObject(code, f.globals, defaults, code.name);
-        this.push(func);
+        f.push(func);
     }
 }
 export = Interpreter;
