@@ -76,14 +76,15 @@ class Interpreter {
     toBool(a: any): boolean {
         if (typeof a == 'boolean') {
             return a
+        } else if (a instanceof Py_Long || a instanceof Py_Int) {
+            return a.value.toNumber() == 0;
+        } else if (a instanceof Complex64) {
+            return a.real == 0 && a.imag == 0;
         }
+
         switch(a) {
             case None:
-            case Py_Int.ZERO:
-            case Py_Long.ZERO:
-            case new Complex64(0,0):
             case 0:
-            case 0.0:
             case '':
             case []:
             case {}:
@@ -502,7 +503,7 @@ class Interpreter {
     binary_mult(f: Py_FrameObject) {
         var a = f.pop();
         var b = f.pop();
-        f.push(a * b);
+        f.push(a.mult(b));
     }
 
     // 21: BINARY_DIVIDE
