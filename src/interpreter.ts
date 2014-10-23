@@ -11,7 +11,6 @@ import opcodes = require('./opcodes');
 import NotImplementedError = require('./notimplementederror');
 
 import gLong = require("../lib/gLong");
-var Decimal = require('../lib/decimal');
 
 class Interpreter {
     // The interpreter stack

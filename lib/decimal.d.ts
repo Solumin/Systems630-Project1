@@ -1,40 +1,40 @@
-declare module DecimalJSLibrary {
 
-    interface DecimalJS_Constructor {
-        new (value: number, base?: number): DecimalJS_Constructor;
-        new (value: string, base?: number): DecimalJS_Constructor;
-        new (value: DecimalJS, base?: number): DecimalJS_Constructor;
+interface Decimal {
+    plus(n: number, base?: number): Decimal;
+    plus(n: string, base?: number): Decimal;
+    plus(n: Decimal, base?: number): Decimal;
 
-        // (value: number, base?: number): DecimalJS;
-        // (value: string, base?: number): DecimalJS;
-        // (value: DecimalJS, base?: number): DecimalJS;
-    }
+    times(n: number, base?: number): Decimal;
+    times(n: string, base?: number): Decimal;
+    times(n: Decimal, base?: number): Decimal;
 
-    // Decimal class (static) methods
-    function config(object: { [name: string]: any }): DecimalJS_Constructor;
-    function constructor(object: { [name: string]: any }):
-        DecimalJS_Constructor;
-    function exp(n: number): DecimalJS;
-    function ln(n: number, base?: number): DecimalJS;
-    function ln(n: string, base?: number): DecimalJS;
-    function ln(n: DecimalJS, base?: number): DecimalJS;
-    function log(n: number): DecimalJS;
-    // this should be continued later
-    function pow(base: number, exponent: any): DecimalJS;
-    function pow(base: string, exponent: string): DecimalJS;
-    function pow(base: DecimalJS, exponent: string): DecimalJS;
-
-    interface DecimalJS extends DecimalJS_Constructor {
-        plus(n: number, base?: number): DecimalJS;
-        plus(n: string, base?: number): DecimalJS;
-        plus(n: DecimalJS, base?: number): DecimalJS;
-
-        times(n: number, base?: number): DecimalJS;
-        times(n: string, base?: number): DecimalJS;
-        times(n: DecimalJS, base?: number): DecimalJS;
-
-        toNumber(): number;
-    }
+    toNumber(): number;
 }
 
-declare var Decimal: DecimalJSLibrary.DecimalJS;
+interface DecimalStatic {
+
+    // new (value: number, base?: number): Decimal_Constructor;
+    // new (value: string, base?: number): Decimal_Constructor;
+    // new (value: Decimal, base?: number): Decimal_Constructor;
+
+    (value: number, base?: number): Decimal;
+    (value: string, base?: number): Decimal;
+    (value: Decimal, base?: number): Decimal;
+
+    // function config(object: { [name: string]: any }): 
+    // function constructor(object: { [name: string]: any }):
+     exp(n: number): Decimal;
+     ln(n: number, base?: number): Decimal;
+     ln(n: string, base?: number): Decimal;
+     ln(n: Decimal, base?: number): Decimal;
+     log(n: number): Decimal;
+    // this should be continued later
+     pow(base: number, exponent: any): Decimal;
+     pow(base: string, exponent: string): Decimal;
+     pow(base: Decimal, exponent: string): Decimal;
+}
+
+declare var Decimal: DecimalStatic;
+declare module "Decimal" {
+    export = Decimal;
+}
