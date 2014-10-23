@@ -4,9 +4,7 @@
 import NIError = require('./notimplementederror');
 
 class Py_Long {
-    value: Decimal;
-
-    constructor(value: Decimal) {}
+    constructor(public value: Decimal) {}
 
     static fromInt(n: number) {
         var d = Decimal(n);
@@ -27,6 +25,10 @@ class Py_Long {
 
     toString(): string {
         return this.value.toString();
+    }
+
+    toNumber(): number {
+        return this.value.toNumber();
     }
 }
 export = Py_Long;

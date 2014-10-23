@@ -25,5 +25,9 @@ class Py_Int {
     toString(): string {
         return this.value.toString();
     }
+
+    toNumber(): number {
+        return this.value.toNumber();
+    }
 }
 export = Py_Int;

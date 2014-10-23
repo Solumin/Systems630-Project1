@@ -76,7 +76,7 @@ class Interpreter {
         if (typeof a == 'boolean') {
             return a
         } else if (a instanceof Py_Long || a instanceof Py_Int) {
-            return a.value.toNumber() == 0;
+            return a.toNumber() == 0;
         } else if (a instanceof Complex64) {
             return a.real == 0 && a.imag == 0;
         }
@@ -524,11 +524,15 @@ class Interpreter {
     binary_add(f: Py_FrameObject) {
         var b = f.pop();
         var a = f.pop();
+
         if (typeof a == 'string' && typeof b == 'string') {
             f.push(a + b);
+            return;
         }
+
         if (a.add) {
             var res = a.add(b);
+
             if (res instanceof NotImplementedError) {
                 if (b.radd)
                     res = b.radd(a);
@@ -536,6 +540,8 @@ class Interpreter {
                     throw new Error("No method exists to add " + a + " and " + b);
             }
             f.push(res);
+        } else {
+            throw new Error("There's no way to add " + a + " and " + b);
         }
     }
 

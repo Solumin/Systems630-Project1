@@ -41,6 +41,10 @@ console.log("\nExample: Mixed arithmetic: Int64 + Int32");
 var u = new Unmarshaller("examples/mixedarim1.pyc");
 i.interpret(u.value());
 
+console.log("\nExample: Long integer arithmetic");
+var u = new Unmarshaller("examples/longmath.pyc");
+i.interpret(u.value());
+
 console.log("\nExample: Keyword arguments in functions");
 var u = new Unmarshaller("examples/keywordargs.pyc");
 i.interpret(u.value());

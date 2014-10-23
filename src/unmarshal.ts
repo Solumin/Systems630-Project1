@@ -4,6 +4,7 @@
 // converts into a Python code object.
 import Py_CodeObject = require('./codeobject');
 import Py_Int = require('./integer');
+import Py_Long = require('./long');
 import Complex64 = require('./complex');
 import None = require('./none');
 import fs = require('fs');
@@ -168,18 +169,19 @@ class Unmarshaller {
                 // Stored as a 32-bit integer of length, then $length 16-bit
                 // digits.
                 var length = this.readInt32();
-                res = new Decimal(0);
+                var num = new Decimal(0);
                 if (length != 0) {
                     var shift = new Decimal(15);
                     for(var i = 0; i < Math.abs(length); i++) {
                         var digit = new Decimal(this.readUInt16());
-                        res = res.plus(digit.times(
+                        num = num.plus(digit.times(
                                     Decimal.pow(2, shift.times(i))));
                     }
                 }
                 if (length < 0) {
-                    res = res.times(-1);
+                    num = num.times(-1);
                 }
+                res = new Py_Long(num);
                 break;
             case "y": // complex number
                 res = new Complex64(this.readFloat64(),
