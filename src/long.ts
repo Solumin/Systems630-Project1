@@ -2,6 +2,7 @@
 ///<reference path="../lib/decimal.d.ts" />
 
 import NIError = require('./notimplementederror');
+import Py_Int = require('./integer');
 
 class Py_Long {
     constructor(public value: Decimal) {}
@@ -9,6 +10,10 @@ class Py_Long {
     static fromInt(n: number) {
         var d = Decimal(n);
         return new Py_Long(d);
+    }
+
+    static fromPy_Int(n: Py_Int): Py_Long {
+        return Py_Long.fromString(n.toString());
     }
 
     static fromString(s: string) {
