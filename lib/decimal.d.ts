@@ -31,17 +31,17 @@ interface DecimalStatic {
     ln(n: string, base?: number): Decimal;
     ln(n: Decimal, base?: number): Decimal;
 
-    log(n: number base?: any): Decimal;
-    log(n: string base?: any): Decimal;
-    log(n: Decimal base?: any): Decimal;
+    log(n: number, base?: any): Decimal;
+    log(n: string, base?: any): Decimal;
+    log(n: Decimal, base?: any): Decimal;
 
-    max(n: ...number[]): Decimal;
-    max(n: ...string[]): Decimal;
-    max(n: ...Decimal[]): Decimal;
+    max(...n: number[]): Decimal;
+    max(...n: string[]): Decimal;
+    max(...n: Decimal[]): Decimal;
 
-    min(n: ...number[]): Decimal;
-    min(n: ...string[]): Decimal;
-    min(n: ...Decimal[]): Decimal;
+    min(...n: number[]): Decimal;
+    min(...n: string[]): Decimal;
+    min(...n: Decimal[]): Decimal;
 
     noConflict(): DecimalStatic;
 
