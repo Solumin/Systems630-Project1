@@ -54,6 +54,43 @@ interface DecimalStatic {
     sqrt(n: number): Decimal;
     sqrt(n: string): Decimal;
     sqrt(n: Decimal): Decimal;
+
+    ONE: Decimal;
+    precision: number;
+    rounding: number;
+    minE: number;
+    maxE: number;
+    toExpNeg: number;
+    toExpPos: number;
+    errors: boolean;
+    modulo: number;
+    crypto: boolean;
+
+    ROUND_UP: number;
+    ROUND_DOWN: number;
+    ROUND_CEIL: number;
+    ROUND_FLOOR: number;
+    ROUND_HALF_UP: number;
+    ROUND_HALF_DOWN: number;
+    ROUND_HALF_EVEN: number;
+    ROUND_HALF_CEIL: number;
+    ROUND_HALF_FLOOR: number;
+    EUCLID: number;
+}
+
+declare module DecimalRound {
+    export enum Modes {
+        ROUND_UP,
+        ROUND_DOWN,
+        ROUND_CEIL,
+        ROUND_FLOOR,
+        ROUND_HALF_UP,
+        ROUND_HALF_DOWN,
+        ROUND_HALF_EVEN,
+        ROUND_HALF_CEIL,
+        ROUND_HALF_FLOOR,
+        EUCLID,
+    }
 }
 
 declare var Decimal: DecimalStatic;
