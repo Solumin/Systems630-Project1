@@ -2,7 +2,7 @@
 
 import NIError = require('./notimplementederror');
 import Py_Int = require('./integer');
-import Py_Float = require('./float');
+var Decimal = require('../lib/decimal');
 
 class Py_Long {
     constructor(public value: Decimal) {}
@@ -12,12 +12,12 @@ class Py_Long {
         return new Py_Long(d);
     }
 
-    static fromPy_Int(n: Py_Long): Py_Long {
+    static fromPy_Int(n: Py_Int): Py_Long {
         return Py_Long.fromString(n.toString());
     }
 
     static fromString(s: string) {
-        var d = Decimal(s);
+        var d = new Decimal(s);
         return new Py_Long(d);
     }
 
