@@ -3,6 +3,7 @@
 import NIError = require('./notimplementederror');
 import Py_Int = require('./integer');
 var Decimal = require('../lib/decimal');
+import Py_Float = require('./float');
 
 class Py_Long {
     constructor(public value: Decimal) {}
@@ -22,7 +23,7 @@ class Py_Long {
     }
 
     private mathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
-        if (other instanceof Py_Int)
+        if (other instanceof Py_Int.constructor)
             return op(this.value, Py_Long.fromPy_Int(other).value);
         else if (other instanceof Py_Long)
             return op(this.value, other.value);
