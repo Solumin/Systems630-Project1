@@ -76,31 +76,31 @@ class Py_Float {
         return this.mathOp(other, function(a, b) { return Math.pow(a,b); });
     }
 
-    lshift(other: any): any {
-        return NIError
-        // return this.mathOp(other, function(a, b) {
-        //     return a.times(Decimal.pow(2, b));
-        // ; });
-    }
+    // lshift(other: any): any {
+    //     return NIError
+    //     // return this.mathOp(other, function(a, b) {
+    //     //     return a.times(Decimal.pow(2, b));
+    //     // ; });
+    // }
 
-    rshift(other: any): any {
-        return NIError
-        // return this.mathOp(other, function(a, b) {
-        //     return a.divToInt(Decimal.pow(2, b));
-        // ; });
-    }
+    // rshift(other: any): any {
+    //     return NIError
+    //     // return this.mathOp(other, function(a, b) {
+    //     //     return a.divToInt(Decimal.pow(2, b));
+    //     // ; });
+    // }
 
-    and(other: any): any {
-       return this.mathOp(other, function(a, b) { return a & b; });
-    }
+    // and(other: any): any {
+    //    return this.mathOp(other, function(a, b) { return a & b; });
+    // }
 
-    xor(other: any): any {
-       return this.mathOp(other, function(a, b) { return a ^ b; });
-    }
+    // xor(other: any): any {
+    //    return this.mathOp(other, function(a, b) { return a ^ b; });
+    // }
 
-    or(other: any): any {
-       return this.mathOp(other, function(a, b) { return a | b; });
-    }
+    // or(other: any): any {
+    //    return this.mathOp(other, function(a, b) { return a | b; });
+    // }
 
     radd(other: any): any {
         return this.mathOp(other, function(a, b) { return a + b; });
@@ -140,31 +140,31 @@ class Py_Float {
         return this.mathOp(other, function(a, b) { return Math.pow(a,b); });
     }
 
-    rlshift(other: any): any {
-        return NIError
-        // return this.mathOp(other, function(a, b) {
-        //     return a.times(Decimal.pow(2, b));
-        // ; });
-    }
+    // rlshift(other: any): any {
+    //     return NIError
+    //     // return this.mathOp(other, function(a, b) {
+    //     //     return a.times(Decimal.pow(2, b));
+    //     // ; });
+    // }
 
-    rrshift(other: any): any {
-        return NIError
-        // return this.mathOp(other, function(a, b) {
-        //     return a.divToInt(Decimal.pow(2, b));
-        // ; });
-    }
+    // rrshift(other: any): any {
+    //     return NIError
+    //     // return this.mathOp(other, function(a, b) {
+    //     //     return a.divToInt(Decimal.pow(2, b));
+    //     // ; });
+    // }
 
-    rand(other: any): any {
-       return this.mathOp(other, function(a, b) { return a & b; });
-    }
+    // rand(other: any): any {
+    //    return this.mathOp(other, function(a, b) { return a & b; });
+    // }
 
-    rxor(other: any): any {
-       return this.mathOp(other, function(a, b) { return a ^ b; });
-    }
+    // rxor(other: any): any {
+    //    return this.mathOp(other, function(a, b) { return a ^ b; });
+    // }
 
-    ror(other: any): any {
-       return this.mathOp(other, function(a, b) { return a | b; });
-    }
+    // ror(other: any): any {
+    //    return this.mathOp(other, function(a, b) { return a | b; });
+    // }
 
     neg(): Py_Float {
         return this.mult(-1);
@@ -182,9 +182,9 @@ class Py_Float {
     }
 
     // This isn't implemented for floats in Python, apparently?
-    invert(): any {
-        return NIError
-    }
+    // invert(): any {
+    //     return NIError
+    // }
 
     toString(): string {
         return this.value.toString();
