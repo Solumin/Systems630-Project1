@@ -5,7 +5,8 @@
 import Py_CodeObject = require('./codeobject');
 import Py_Int = require('./integer');
 import Py_Long = require('./long');
-import Complex64 = require('./complex');
+import Py_Float = require('./float');
+import Py_Complex = require('./complex');
 import None = require('./none');
 import fs = require('fs');
 import gLong = require("../lib/gLong");
@@ -157,7 +158,7 @@ class Unmarshaller {
                 break;
             // Numbers
             case "g": // double-precision floating-point number
-                res = this.readFloat64();
+                res = new Py_Float(this.readFloat64());
                 break;
             case "i": // 32-bit integer (signed)
                 res = Py_Int.fromInt(this.readInt32());
@@ -184,7 +185,7 @@ class Unmarshaller {
                 res = new Py_Long(num);
                 break;
             case "y": // complex number
-                res = new Complex64(this.readFloat64(),
+                res = Py_Complex.fromNumber(this.readFloat64(),
                         this.readFloat64());
                 break;
             // Strings

@@ -1,7 +1,7 @@
 /// <reference path="../lib/node.d.ts" />
 import Py_FrameObject = require('./frameobject');
 import Py_CodeObject = require('./codeobject');
-import Complex64 = require('./complex');
+import Py_Complex = require('./complex');
 import Py_Int = require('./integer');
 import Py_Long = require('./long');
 import None = require('./none');
@@ -40,7 +40,7 @@ class Interpreter {
     //         return 1;
     //     } else if (typeof x == 'number') {
     //         return 2;
-    //     } else if (x instanceof Complex64) {
+    //     } else if (x instanceof Py_Complex) {
     //         return 3;
     //     } else {
     //         return NaN;
@@ -49,19 +49,19 @@ class Interpreter {
 
     private isNumeric(x: any): boolean {
         return ((x instanceof Py_Int) || (x instanceof Py_Long) ||
-                (typeof x == 'number') || (x instanceof Complex64));
+                (typeof x == 'number') || (x instanceof Py_Complex));
     }
 
     // Assuming a is wider than b, this widens b to have the same type as a
     // int64 < long < number < complex is the hierarchy.
-    // gLong < Decimal < number < Complex64
+    // gLong < Decimal < number < Py_Complex
     // widen(a: any, b: any): any {
-    //     if (a instanceof Complex64) {
+    //     if (a instanceof Py_Complex) {
     //         if (typeof b == 'number') {
-    //             return new Complex64(b, 0);
+    //             return new Py_Complex(b, 0);
     //         } else { // Decimal and gLong both use 'toNumber'
     //             // May (will?) cause loss of precision
-    //             return new Complex64(b.toNumber(), 0);
+    //             return new Py_Complex(b.toNumber(), 0);
     //         }
     //     } else if (typeof a == 'number') {
     //         return b.toNumber(); // Decimal and gLong both use 'toNumber'
@@ -77,7 +77,7 @@ class Interpreter {
             return a
         } else if (a instanceof Py_Long || a instanceof Py_Int) {
             return a.toNumber() == 0;
-        } else if (a instanceof Complex64) {
+        } else if (a instanceof Py_Complex) {
             return a.real == 0 && a.imag == 0;
         }
 
