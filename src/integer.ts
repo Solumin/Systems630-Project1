@@ -12,7 +12,7 @@ class Py_Int {
 
     private mathOp(other: any, op: (a: gLong, b: gLong) => any): any {
         if (other.isInt)
-            return op(this.value, other.value);
+            return new Py_Int(op(this.value, other.value));
         else
             return NIError;
     }
@@ -21,7 +21,7 @@ class Py_Int {
     // type b. For Ints, this rarely happens.
     private revMathOp(other: any, op: (a: gLong, b: gLong) => any): any {
         if (other.isInt)
-            return op(other.value, this.value);
+            return new Py_Int(op(other.value, this.value));
         else
             return NIError;
     }

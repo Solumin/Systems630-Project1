@@ -24,9 +24,9 @@ class Py_Long {
 
     private mathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
         if (other.isInt)
-            return op(this.value, Py_Long.fromPy_Int(other).value);
+            return new Py_Long(op(this.value, Py_Long.fromPy_Int(other).value));
         else if (other.isLong)
-            return op(this.value, other.value);
+            return new Py_Long(op(this.value, other.value));
         else
             return NIError;
     }
@@ -36,9 +36,9 @@ class Py_Long {
     // Therefore, these should do c: Py_Long = Py_Long(a), c `op` b
     private revMathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
         if (other.isInt)
-            return op(Py_Long.fromPy_Int(other).value, this.value);
+            return new Py_Long(op(Py_Long.fromPy_Int(other).value, this.value));
         else if (other.isLong)
-            return op(other.value, this.value);
+            return new Py_Long(op(other.value, this.value));
         else
             return NIError;
     }

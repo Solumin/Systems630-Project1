@@ -16,11 +16,13 @@ class Py_Float {
 
     private mathOp(other: any, op: (a: number, b: number) => any): any {
         if (other.isInt)
-            return op(this.value, Py_Float.fromPy_Int(other).value);
+            return new Py_Float(op(this.value,
+                                   Py_Float.fromPy_Int(other).value));
         else if (other.isLong)
-            return op(this.value, Py_Float.fromPy_Long(other).value);
+            return new Py_Float(op(this.value,
+                                   Py_Float.fromPy_Long(other).value));
         else if (other.isFloat)
-            return op(this.value, other.value);
+            return new Py_Float(op(this.value, other.value));
         else
             return NIError;
     }
@@ -30,11 +32,13 @@ class Py_Float {
     // Therefore, these should do c: Py_Float = Py_Float(a), c `op` b
     private revMathOp(other: any, op: (a: number, b: number) => any): any {
         if (other.isInt)
-            return op(Py_Float.fromPy_Int(other).value, this.value);
+            return new Py_Float(op(Py_Float.fromPy_Int(other).value,
+                                   this.value));
         if (other.isLong)
-            return op(Py_Float.fromPy_Long(other).value, this.value);
+            return new Py_Float(op(Py_Float.fromPy_Long(other).value,
+                                   this.value));
         else if (other.isFloat)
-            return op(other.value, this.value);
+            return new Py_Float(op(other.value, this.value));
         else
             return NIError;
     }
