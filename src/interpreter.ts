@@ -330,17 +330,21 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.pow)
-            res = a.pow(b);
-        else if (b.rpow)
-            res = b.rpow(a);
-        else
-            throw new Error("No method exists to raise " + a + " to " + b);
+        var mess = "You cannot raise " + a + " to the power of " + b;
 
-        if ((a.pow || b.rpow) && res == NotImplementedError)
-            throw new Error("No method exists to raise " + a + " to " + b);
-        else
-            f.push(res);
+        if (typeof a.pow == 'undefined')
+            throw new Error(mess);
+
+        res = a.pow(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rpow == 'undefined')
+                throw new Error(mess);
+            res = b.rpow(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
     }
 
     // 20: BINARY_MULTIPLY
@@ -349,17 +353,21 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.mult)
-            res = a.mult(b);
-        else if (b.rmult)
-            res = b.rmult(a);
-        else
-            throw new Error("No method exists to multiply " + a + " and " + b);
+        var mess = "You cannot multiply " + a + " and " + b;
 
-        if ((a.mult || b.rmult) && res == NotImplementedError)
-            throw new Error("No method exists to multiply " + a + " and " + b);
-        else
-            f.push(res);
+        if (typeof a.mult == 'undefined')
+            throw new Error(mess);
+
+        res = a.mult(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rmult == 'undefined')
+                throw new Error(mess);
+            res = b.rmult(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
     }
 
     // 21: BINARY_DIVIDE
@@ -369,17 +377,21 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.div)
-            res = a.div(b);
-        else if (b.rdiv)
-            res = b.rdiv(a);
-        else
-            throw new Error("No method exists to diviply " + a + " and " + b);
+        var mess = "You cannot divide " + a + " by " + b;
 
-        if ((a.div || b.rdiv) && res == NotImplementedError)
-            throw new Error("No method exists to diviply " + a + " and " + b);
-        else
-            f.push(res);
+        if (typeof a.div == 'undefined')
+            throw new Error(mess);
+
+        res = a.div(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rdiv == 'undefined')
+                throw new Error(mess);
+            res = b.rdiv(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
     }
 
     // 22: BINARY_MODULO
@@ -388,17 +400,21 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.mod)
-            res = a.mod(b);
-        else if (b.rmod)
-            res = b.rmod(a);
-        else
-            throw new Error("No method exists to modulo " + a + " and " + b);
+        var mess = "You cannot modulo " + a + " by " + b;
 
-        if ((a.mod || b.rmod) && res == NotImplementedError)
-            throw new Error("No method exists to modulo " + a + " and " + b);
-        else
-            f.push(res);
+        if (typeof a.mod == 'undefined')
+            throw new Error(mess);
+
+        res = a.mod(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rmod == 'undefined')
+                throw new Error(mess);
+            res = b.rmod(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
     }
 
     // 23: BINARY_ADD
@@ -435,17 +451,22 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.sub)
-            res = a.sub(b);
-        else if (b.rsub)
-            res = b.rsub(a);
-        else
-            throw new Error("No method exists to subtract " + a + " and " + b);
+        var mess = "You cannot subtract " + a + " and " + b;
 
-        if ((a.sub || b.rsub) && res == NotImplementedError)
-            throw new Error("No method exists to subtract " + a + " and " + b);
-        else
-            f.push(res);
+        if (typeof a.sub == 'undefined')
+            throw new Error(mess);
+
+        res = a.sub(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rsub == 'undefined')
+                throw new Error(mess);
+            res = b.rsub(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
+
     }
 
     // 25: BINARY_SUBSCR
@@ -461,17 +482,21 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.floordiv)
-            res = a.floordiv(b);
-        else if (b.rfloordiv)
-            res = b.rfloordiv(a);
-        else
-            throw new Error("No method exists to divide " + a + " by " + b);
+        var mess = "You cannot divide " + a + " by " + b;
 
-        if ((a.floordiv || b.rfloordiv) && res == NotImplementedError)
-            throw new Error("No method exists to divide " + a + " by " + b);
-        else
-            f.push(res);
+        if (typeof a.floordiv == 'undefined')
+            throw new Error(mess);
+
+        res = a.floordiv(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rfloordiv == 'undefined')
+                throw new Error(mess);
+            res = b.rfloordiv(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
     }
 
     // 27: BINARY_TRUE_DIVIDE
@@ -482,17 +507,21 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.truediv)
-            res = a.truediv(b);
-        else if (b.rtruediv)
-            res = b.rtruediv(a);
-        else
-            throw new Error("No method exists to divide " + a + " by " + b);
+        var mess = "You cannot divide " + a + " and " + b;
 
-        if ((a.truediv || b.rtruediv) && res == NotImplementedError)
-            throw new Error("No method exists to divide " + a + " by " + b);
-        else
-            f.push(res);
+        if (typeof a.truediv == 'undefined')
+            throw new Error(mess);
+
+        res = a.truediv(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rtruediv == 'undefined')
+                throw new Error(mess);
+            res = b.rtruediv(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
     }
 
 
@@ -502,17 +531,21 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.lshift)
-            res = a.lshift(b);
-        else if (b.rlshift)
-            res = b.rlshift(a);
-        else
-            throw new Error("No method exists to shift " + a + " by " + b);
+        var mess = "You cannot left-shift " + a + " by " + b;
 
-        if ((a.lshift || b.rlshift) && res == NotImplementedError)
-            throw new Error("No method exists to shift " + a + " by " + b);
-        else
-            f.push(res);
+        if (typeof a.lshift == 'undefined')
+            throw new Error(mess);
+
+        res = a.lshift(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rlshift == 'undefined')
+                throw new Error(mess);
+            res = b.rlshift(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
     }
 
     // 63: BINARY_RSHIFT
@@ -521,17 +554,21 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.sub)
-            res = a.sub(b);
-        else if (b.rsub)
-            res = b.rsub(a);
-        else
-            throw new Error("No method exists to shift " + a + " by " + b);
+        var mess = "You cannot right-shift " + a + " by " + b;
 
-        if ((a.sub || b.rsub) && res == NotImplementedError)
-            throw new Error("No method exists to shift " + a + " by " + b);
-        else
-            f.push(res);
+        if (typeof a.rshift == 'undefined')
+            throw new Error(mess);
+
+        res = a.rshift(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rrshift == 'undefined')
+                throw new Error(mess);
+            res = b.rrshift(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
     }
 
     // 64: BINARY_AND
@@ -540,17 +577,22 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.and)
-            res = a.and(b);
-        else if (b.rand)
-            res = b.rand(a);
-        else
-            throw new Error("No method exists for " + a + " and " + b);
+        var mess = "You cannot bitwise AND " + a + " and " + b;
 
-        if ((a.and || b.rand) && res == NotImplementedError)
-            throw new Error("No method exists for " + a + " and " + b);
-        else
-            f.push(res);
+        if (typeof a.and == 'undefined')
+            throw new Error(mess);
+
+        res = a.and(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rand == 'undefined')
+                throw new Error(mess);
+            res = b.rand(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
+
     }
 
     // 65: BINARY_XOR
@@ -559,17 +601,22 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.xor)
-            res = a.xor(b);
-        else if (b.rxor)
-            res = b.rxor(a);
-        else
-            throw new Error("No method exists for " + a + " xor " + b);
+        var mess = "You cannot bitwise XOR " + a + " and " + b;
 
-        if ((a.xor || b.rxor) && res == NotImplementedError)
-            throw new Error("No method exists for " + a + " xor " + b);
-        else
-            f.push(res);
+        if (typeof a.xor == 'undefined')
+            throw new Error(mess);
+
+        res = a.xor(b);
+        if (res == NotImplementedError) {
+            if(typeof b.rxor == 'undefined')
+                throw new Error(mess);
+            res = b.rxor(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
+
     }
 
     // 66: BINARY_OR
@@ -578,17 +625,22 @@ class Interpreter {
         var a = f.pop();
 
         var res;
-        if (a.or)
-            res = a.or(b);
-        else if (b.ror)
-            res = b.ror(a);
-        else
-            throw new Error("No method exists for " + a + " or " + b);
+        var mess = "You cannot bitwise OR " + a + " and " + b;
 
-        if ((a.or || b.ror) && res == NotImplementedError)
-            throw new Error("No method exists for " + a + " or " + b);
-        else
-            f.push(res);
+        if (typeof a.or == 'undefined')
+            throw new Error(mess);
+
+        res = a.or(b);
+        if (res == NotImplementedError) {
+            if(typeof b.ror == 'undefined')
+                throw new Error(mess);
+            res = b.ror(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
+
     }
 
     // 71: PRINT_ITEM
@@ -724,17 +776,21 @@ class Interpreter {
 
     private doNE(a,b): boolean {
         var res;
-        console.log("NOT EQUAL?", a,b);
-        if (a.ne)
-            res = a.ne(b);
-        else if (b.ne)
-            res = b.ne(a);
-        console.log("RESULT: ", res);
+        var mess = "There is no inequality operation between "+ a + " and " + b;
 
-        if (typeof(res) == 'undefined' || res == NotImplementedError)
-            throw new Error("No non-equality obtainable for " + a + " and " + b);
-        else
-            return res;
+        if (typeof a.ne == 'undefined')
+            throw new Error(mess);
+
+        res = a.ne(b);
+        if (res == NotImplementedError) {
+            if(typeof b.ne == 'undefined')
+                throw new Error(mess);
+            res = b.ne(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        return res;
     }
 
     private doGT(a,b): boolean {
