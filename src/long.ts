@@ -73,8 +73,8 @@ class Py_Long {
 
     divmod(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return a.divToInt(b).modulo(b)
-       ; });
+            return a.divToInt(b).modulo(b);
+        });
     }
 
     pow(other: any): any {
@@ -84,13 +84,13 @@ class Py_Long {
     lshift(other: any): any {
         return this.mathOp(other, function(a, b) {
             return a.times(Decimal.pow(2, b));
-       ; });
+        });
     }
 
     rshift(other: any): any {
         return this.mathOp(other, function(a, b) {
             return a.divToInt(Decimal.pow(2, b));
-       ; });
+        });
     }
 
     // And, Xor and Or require messing with the guts of Decimal

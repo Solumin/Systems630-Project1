@@ -10,7 +10,7 @@ class Py_Int {
         return new Py_Int(gLong.fromInt(n));
     }
 
-    private mathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
+    private mathOp(other: any, op: (a: gLong, b: gLong) => any): any {
         if (other.isInt)
             return op(this.value, other.value);
         else
@@ -18,9 +18,8 @@ class Py_Int {
     }
 
     // Reverse math ops will occur iff a `op` b => a doesn't implement op for
-    // type b. For longs, this should occur for a: Py_Int, b: Py_Long
-    // Therefore, these should do c: Py_Long = Py_Long(a), c `op` b
-    private revMathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
+    // type b. For Ints, this rarely happens.
+    private revMathOp(other: any, op: (a: gLong, b: gLong) => any): any {
         if (other.isInt)
             return op(other.value, this.value);
         else
@@ -28,31 +27,19 @@ class Py_Int {
     }
 
     add(other: any): any {
-        if (other.isInt)
-            return new Py_Int(this.value.add(other.value));
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.add(b); });
     }
 
     sub(other: any): any {
-        if (other instanceof Py_Int)
-            return new Py_Int(this.value.subtract(other.value));
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.subtract(b); });
     }
 
     mult(other: any): any {
-        if (other instanceof Py_Int)
-            return new Py_Int(this.value.multiply(other.value));
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.multiply(b); });
     }
 
     floordiv(other: any): any {
-        if (other instanceof Py_Int)
-            return new Py_Int(this.value.div(other.value));
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.div(b); });
     }
 
     div(other: any): any {
@@ -60,169 +47,126 @@ class Py_Int {
     }
 
     truediv(other: any): any {
-        if (other instanceof Py_Int) {
-            var f: Py_Float = Py_Float.fromPy_Int(this);
-            return f.truediv(other);
-        } else
-            return NIError;
+        return this.mathOp(other, function(a, b) {
+            return Py_Float.fromPy_Int(new Py_Int(a.div(b)));
+        });
     }
 
     mod(other: any): any {
-        if (other instanceof Py_Int)
-            return new Py_Int(this.value.modulo(other.value));
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.modulo(b); });
     }
 
     divmod(other: any): any {
-        if (other instanceof Py_Int)
-            return this.floordiv(other).mod(other);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) {
+            return a.div(b).modulo(b);
+       });
     }
 
     pow(other: any): any {
-        if (other instanceof Py_Int) {
-            var temp = new Py_Int(this.value);
-            for (var x = gLong.ONE; x.lessThan(other.value); x = x.add(gLong.ONE)) {
-                temp = temp.mult(this);
+        return this.mathOp(other, function(a, b) {
+            var res = a;
+            var x = gLong.ONE;
+            for (x; x.lessThan(b); x = x.add(gLong.ONE)) {
+                res = res.multiply(a);
             }
-            return temp;
-        } else
-            return NIError;
+            return res;
+        });
     }
 
     lshift(other: any): any {
-        if (other instanceof Py_Int)
-            return new Py_Int(this.value.shiftLeft(other.value));
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) {
+            return a.shiftLeft(b.toNumber());
+        });
     }
 
     rshift(other: any): any {
-        if (other instanceof Py_Int)
-            return new Py_Int(this.value.shiftRight(other.value));
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) {
+            return a.shiftRight(b.toNumber());
+        });
     }
 
     and(other: any): any {
-        if (other instanceof Py_Int)
-            return new Py_Int(this.value.and(other.value));
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.and(b); });
     }
 
     xor(other: any): any {
-        if (other instanceof Py_Int)
-            return new Py_Int(this.value.xor(other.value));
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.xor(b); });
     }
 
     or(other: any): any {
-        if (other instanceof Py_Int)
-            return new Py_Int(this.value.or(other.value));
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.or(b); });
     }
 
+    // Reverse ops
     radd(other: any): any {
-        if (other instanceof Py_Int)
-            return other.add(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.add(b); });
     }
 
     rsub(other: any): any {
-        if (other instanceof Py_Int)
-            return other.sub(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.subtract(b); });
     }
 
     rmult(other: any): any {
-        if (other instanceof Py_Int)
-            return other.mult(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.multiply(b); });
     }
 
     rfloordiv(other: any): any {
-        if (other instanceof Py_Int)
-            return other.floordiv(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.div(b); });
     }
 
     rdiv(other: any): any {
-        if (other instanceof Py_Int)
-            return other.rdiv(this);
-        else
-            return NIError;
+        return this.floordiv(other);
     }
 
     rtruediv(other: any): any {
-        if (other instanceof Py_Int)
-            return other.truediv(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) {
+            return Py_Float.fromPy_Int(new Py_Int(a.div(b)));
+        });
     }
 
     rmod(other: any): any {
-        if (other instanceof Py_Int)
-            return other.mod(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.modulo(b); });
     }
 
     rdivmod(other: any): any {
-        if (other instanceof Py_Int)
-            return other.divmod(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) {
+            return a.div(b).modulo(b);
+       });
     }
 
     rpow(other: any): any {
-        if (other instanceof Py_Int)
-            return other.pow(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) {
+            var res = a;
+            var x = gLong.ONE;
+            for (x; x.lessThan(b); x = x.add(gLong.ONE)) {
+                res = res.multiply(a);
+            }
+            return res;
+        });
     }
 
     rlshift(other: any): any {
-        if (other instanceof Py_Int)
-            return other.lshift(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) {
+            return a.shiftLeft(b.toNumber());
+        });
     }
 
     rrshift(other: any): any {
-        if (other instanceof Py_Int)
-            return other.rshift(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) {
+            return a.shiftRight(b.toNumber());
+        });
     }
 
     rand(other: any): any {
-        if (other instanceof Py_Int)
-            return other.and(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.and(b); });
     }
 
     rxor(other: any): any {
-        if (other instanceof Py_Int)
-            return other.xor(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.xor(b); });
     }
 
     ror(other: any): any {
-        if (other instanceof Py_Int)
-            return other.or(this);
-        else
-            return NIError;
+        return this.mathOp(other, function(a, b) { return a.or(b); });
     }
 
     neg(): Py_Int {
