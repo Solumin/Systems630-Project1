@@ -196,7 +196,7 @@ class Py_Long {
     }
 
     neg(): Py_Long {
-        return this.mult(-1);
+        return this.mult(Py_Long.fromString("-1"));
     }
 
     pos(): Py_Long {

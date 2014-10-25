@@ -19,6 +19,8 @@ TESTJS=test.js
 # all:
 
 test: $(TESTJS) $(EXSOURCES)
+	@echo WARNING:
+	@echo Deleting the src/\*.js files will break $(TESTJS)!
 
 $(TESTJS): $(TEST) $(TSSOURCES)
 	@echo

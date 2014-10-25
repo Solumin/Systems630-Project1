@@ -191,6 +191,10 @@ class Py_Float {
     //     return NIError
     // }
 
+    toNumber(): number {
+        return this.value;
+    }
+
     toString(): string {
         return this.value.toString();
     }

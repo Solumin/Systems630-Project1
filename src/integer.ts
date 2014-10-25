@@ -170,7 +170,7 @@ class Py_Int {
     }
 
     neg(): Py_Int {
-        return this.mult(-1);
+        return this.mult(Py_Int.fromInt(-1));
     }
 
     pos(): Py_Int {

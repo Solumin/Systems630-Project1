@@ -20,65 +20,15 @@ class Interpreter {
         this.stack = [];
     }
 
-    // In Python, there's a hierarchy among numeric types.
-    // When dealing with arithmetic ops between different numeric types, the
-    // narrower type is "widened" to the wider type. The hierarchy is:
-    // int < long < float < complex (where '<' denotes 'narrower than')
-    // In our implementation, int32 and float are the same type, but int64 is
-    // distinct.
-    // int64 < long < number < complex is the hierarchy.
-    // wider returns <0 if a '<' b, 0 if a '==' b, and >0 if a '>' b
-    // or NaN if a or b is not numeric
-    // wider(a: any, b: any): number {
-    //     return this.numericIndex(a) - this.numericIndex(b);
-    // }
-
-    // private numericIndex(x: any): number {
-    //     if (x instanceof gLong) {
-    //         return 0;
-    //     } else if (x instanceof Decimal) {
-    //         return 1;
-    //     } else if (typeof x == 'number') {
-    //         return 2;
-    //     } else if (x instanceof Py_Complex) {
-    //         return 3;
-    //     } else {
-    //         return NaN;
-    //     }
-    // }
-
-    private isNumeric(x: any): boolean {
-        return ((x instanceof Py_Int) || (x instanceof Py_Long) ||
-                (typeof x == 'number') || (x instanceof Py_Complex));
-    }
-
-    // Assuming a is wider than b, this widens b to have the same type as a
-    // int64 < long < number < complex is the hierarchy.
-    // gLong < Decimal < number < Py_Complex
-    // widen(a: any, b: any): any {
-    //     if (a instanceof Py_Complex) {
-    //         if (typeof b == 'number') {
-    //             return new Py_Complex(b, 0);
-    //         } else { // Decimal and gLong both use 'toNumber'
-    //             // May (will?) cause loss of precision
-    //             return new Py_Complex(b.toNumber(), 0);
-    //         }
-    //     } else if (typeof a == 'number') {
-    //         return b.toNumber(); // Decimal and gLong both use 'toNumber'
-    //     } else { // a is a Decimal, b is a gLong
-    //         return Decimal.fromString(b.toString())
-    //     } // No need for case where a is a gLong, since b would also be a gLong
-    // }
-
     // toBool returns false if the argument would be considered False in Python
     // Similarly, returns true if it would be considered true.
     toBool(a: any): boolean {
         if (typeof a == 'boolean') {
             return a
-        } else if (a instanceof Py_Long || a instanceof Py_Int) {
+        } else if (a.isInt || a.isLong || a.isFloat) {
             return a.toNumber() == 0;
-        } else if (a instanceof Py_Complex) {
-            return a.real == 0 && a.imag == 0;
+        } else if (a.isComplex) {
+            return (a.real == 0 && a.imag == 0);
         }
 
         switch(a) {
@@ -167,12 +117,12 @@ class Interpreter {
                 case opcodes.BINARY_TRUE_DIVIDE:
                     this.binary_true_divide(frame);
                     break;
-                case opcodes.INPLACE_FLOOR_DIVIDE:
-                    this.inplace_floor_divide(frame);
-                    break;
-                case opcodes.INPLACE_TRUE_DIVIDE:
-                    this.inplace_true_divide(frame);
-                    break;
+                // case opcodes.INPLACE_FLOOR_DIVIDE:
+                //     this.inplace_floor_divide(frame);
+                //     break;
+                // case opcodes.INPLACE_TRUE_DIVIDE:
+                //     this.inplace_true_divide(frame);
+                //     break;
                 case opcodes.STORE_SUBSCR:
                     this.store_subscr(frame);
                     break;
@@ -202,7 +152,7 @@ class Interpreter {
                     break;
                 case opcodes.RETURN_VALUE:
                     this.return_value(frame);
-                    break;
+                    return; // <== THAT'S NOT A BREAK
                 case opcodes.STORE_NAME:
                     this.store_name(frame);
                     break;
@@ -285,146 +235,7 @@ class Interpreter {
         }
     }
 
-    //TODO: From here down to Opcodes: Check if this is the correct implementation
-    // 4: DUP_TOP
-    dup_top(f: Py_FrameObject) {
-        f.push(f.peek());
-    }
 
-    // 9: NOP
-    nop(f: Py_FrameObject) {
-
-    }
-
-    // 13: UNARY_CONVERT
-    // TODO: convert to string. need to test which type to know how to convert?
-    unary_convert(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = a.toString();
-        f.push(b);
-    }
-
-    // 26: BINARY_FLOOR_DIVIDE
-    // Math.floor returns an integer. Should we change to float to be consistent with python?
-    binary_floor_divide(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        f.push(Math.floor(b / a));
-    }
-
-    // 27: BINARY_TRUE_DIVIDE
-    // used when from __future__ import division is in effect
-    //TODO: do not know how it is different from BINARY_DIVIDE
-    binary_true_divide(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        f.push(b / a);
-    }
-
-    //TODO: inplace operations
-    // 28: INPLACE_FLOOR_DIVIDE
-    inplace_floor_divide(f: Py_FrameObject) {
-        throw new Error("Not implemented yet");
-    }
-    // 29: INPLACE_TRUE_DIVIDE
-    inplace_true_divide(f: Py_FrameObject) {
-        throw new Error("Not implemented yet");
-    }
-    // 30: SLICE+0
-    slice_0(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = a.slice(0);
-        f.push(b);
-    }
-    // 31: SLICE+1
-    slice_1(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        f.push(b.slice(a));
-    }
-    // 32: SLICE+2
-    slice_2(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        f.push(b.slice(0,a));
-    }
-    // 33: SLICE+3
-    slice_3(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        var c = f.pop();
-        f.push(c.slice(b,a));
-    }
-    //TODO: store_slice is not working yet
-    // 40: STORE_SLICE+0
-    store_slice_0(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        var aux = a.slice(0);
-        aux = b;
-    }
-    // 41: STORE_SLICE+1
-    store_slice_1(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        var c = f.pop();
-        var aux = b.slice(a);
-        aux = c;
-    }
-    // 42: STORE_SLICE+2
-    store_slice_2(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        var c = f.pop();
-        var aux = b.slice(0,a);
-        aux = c;
-    }
-    // 43: STORE_SLICE+3
-    store_slice_3(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        var c = f.pop();
-        var d = f.pop();
-        var aux = c.slice(b,a);
-        aux = d;
-    }
-    // 60: STORE_SUBSCR
-    // TODO: more testing
-    store_subscr(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        var c = f.pop();
-        b[a] = c;
-    }
-    // 61: DELETE_SUBSCR
-    // TODO: more testing
-    delete_subscr(f: Py_FrameObject) {
-        var a = f.pop();
-        var b = f.pop();
-        f.push(b.splice(a,1));
-    }
-
-    // 102: BUILD_TUPLE
-    // TODO: not sure what would be a tuple in typescript
-    build_tuple(f: Py_FrameObject) {
-        throw new Error("Not implemented yet");
-    }
-
-    // 103: BUILD_LIST
-    //TODO: seems to work but need more testing
-    build_list(f: Py_FrameObject) {
-        var count = f.readArg();
-        var l = [];
-        for (var i = count-1; i >= 0; i--){
-            l[i] = f.pop();
-        }
-        f.push(l);
-    }
-
-    // 105: BUILD_MAP
-    build_map(f: Py_FrameObject) {
-        throw new Error("Not implemented yet");
-    }
 
     // Opcodes
     // 0: STOP_CODE
@@ -470,54 +281,121 @@ class Interpreter {
     // 10: UNARY_POSITIVE
     unary_positive(f: Py_FrameObject) {
         var a = f.pop();
-        f.push(a);
+
+        if (a.pos)
+            f.push(a.pos());
+        else
+            throw new Error("No unary_+ for " + a);
     }
 
     // 11: UNARY_NEGATIVE
     unary_negative(f: Py_FrameObject) {
         var a = f.pop();
-        f.push(-1 * a);
+
+        if (a.neg)
+            f.push(a.neg());
+        else
+            throw new Error("No unary_- for " + a);
     }
 
     // 12: UNARY_NOT
     unary_not(f: Py_FrameObject) {
         var a = f.pop();
-        f.push(!a);
+
+        return !(this.toBool(a));
+    }
+
+    // 13: UNARY_CONVERT
+    unary_convert(f: Py_FrameObject) {
+        var a = f.pop();
+        f.push(a.toString());
     }
 
     // 15: UNARY_INVERT
     unary_invert(f: Py_FrameObject) {
         var a = f.pop();
-        f.push(-a-1);
+
+        if (a.invert)
+            f.push(a.invert());
+        else
+            throw new Error("No inversion function for " + a);
     }
 
-    // 19: BINARY_POWER
+     // 19: BINARY_POWER
     binary_power(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(Math.pow(b, a));
+        var a = f.pop();
+
+        var res;
+        if (a.pow)
+            res = a.pow(b);
+        else if (b.rpow)
+            res = b.rpow(a);
+        else
+            throw new Error("No method exists to raise " + a + " to " + b);
+
+        if ((a.pow || b.rpow) && res == NotImplementedError)
+            throw new Error("No method exists to raise " + a + " to " + b);
+        else
+            f.push(res);
     }
 
     // 20: BINARY_MULTIPLY
     binary_mult(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(a.mult(b));
+        var a = f.pop();
+
+        var res;
+        if (a.mult)
+            res = a.mult(b);
+        else if (b.rmult)
+            res = b.rmult(a);
+        else
+            throw new Error("No method exists to multiply " + a + " and " + b);
+
+        if ((a.mult || b.rmult) && res == NotImplementedError)
+            throw new Error("No method exists to multiply " + a + " and " + b);
+        else
+            f.push(res);
     }
 
     // 21: BINARY_DIVIDE
     //used when from __future__ import division is not in effect
     binary_divide(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(b / a);
+        var a = f.pop();
+
+        var res;
+        if (a.div)
+            res = a.div(b);
+        else if (b.rdiv)
+            res = b.rdiv(a);
+        else
+            throw new Error("No method exists to diviply " + a + " and " + b);
+
+        if ((a.div || b.rdiv) && res == NotImplementedError)
+            throw new Error("No method exists to diviply " + a + " and " + b);
+        else
+            f.push(res);
     }
 
     // 22: BINARY_MODULO
     binary_modulo(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(b % a);
+        var a = f.pop();
+
+        var res;
+        if (a.mod)
+            res = a.mod(b);
+        else if (b.rmod)
+            res = b.rmod(a);
+        else
+            throw new Error("No method exists to modulo " + a + " and " + b);
+
+        if ((a.mod || b.rmod) && res == NotImplementedError)
+            throw new Error("No method exists to modulo " + a + " and " + b);
+        else
+            f.push(res);
     }
 
     // 23: BINARY_ADD
@@ -530,68 +408,180 @@ class Interpreter {
             return;
         }
 
-        if (a.add) {
-            var res = a.add(b);
+        var res;
+        if (a.add)
+            res = a.add(b);
+        else if (b.radd)
+            res = b.radd(a);
+        else
+            throw new Error("No method exists to add " + a + " and " + b);
 
-            if (res instanceof NotImplementedError) {
-                if (b.radd)
-                    res = b.radd(a);
-                else
-                    throw new Error("No method exists to add " + a + " and " + b);
-            }
+        if ((a.add || b.radd) && res == NotImplementedError)
+            throw new Error("No method exists to add " + a + " and " + b);
+        else
             f.push(res);
-        } else {
-            throw new Error("There's no way to add " + a + " and " + b);
-        }
     }
 
     // 24: BINARY_SUBTRACT
     binary_subtract(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(b - a);
+        var a = f.pop();
+
+        var res;
+        if (a.sub)
+            res = a.sub(b);
+        else if (b.rsub)
+            res = b.rsub(a);
+        else
+            throw new Error("No method exists to subtract " + a + " and " + b);
+
+        if ((a.sub || b.rsub) && res == NotImplementedError)
+            throw new Error("No method exists to subtract " + a + " and " + b);
+        else
+            f.push(res);
     }
 
     // 25: BINARY_SUBSCR
     binary_subscr(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(b[a]);
+        var a = f.pop();
+        f.push(a[b]);
     }
+
+    // 26: BINARY_FLOOR_DIVIDE
+    binary_floor_divide(f: Py_FrameObject) {
+        var b = f.pop();
+        var a = f.pop();
+
+        var res;
+        if (a.floordiv)
+            res = a.floordiv(b);
+        else if (b.rfloordiv)
+            res = b.rfloordiv(a);
+        else
+            throw new Error("No method exists to divide " + a + " by " + b);
+
+        if ((a.floordiv || b.rfloordiv) && res == NotImplementedError)
+            throw new Error("No method exists to divide " + a + " by " + b);
+        else
+            f.push(res);
+    }
+
+    // 27: BINARY_TRUE_DIVIDE
+    // used when from __future__ import division is in effect
+    //TODO: do not know how it is different from BINARY_DIVIDE
+    binary_true_divide(f: Py_FrameObject) {
+        var b = f.pop();
+        var a = f.pop();
+
+        var res;
+        if (a.truediv)
+            res = a.truediv(b);
+        else if (b.rtruediv)
+            res = b.rtruediv(a);
+        else
+            throw new Error("No method exists to divide " + a + " by " + b);
+
+        if ((a.truediv || b.rtruediv) && res == NotImplementedError)
+            throw new Error("No method exists to divide " + a + " by " + b);
+        else
+            f.push(res);
+    }
+
 
     // 62: BINARY_LSHIFT
     binary_lshift(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(b << a);
+        var a = f.pop();
+
+        var res;
+        if (a.lshift)
+            res = a.lshift(b);
+        else if (b.rlshift)
+            res = b.rlshift(a);
+        else
+            throw new Error("No method exists to shift " + a + " by " + b);
+
+        if ((a.lshift || b.rlshift) && res == NotImplementedError)
+            throw new Error("No method exists to shift " + a + " by " + b);
+        else
+            f.push(res);
     }
 
     // 63: BINARY_RSHIFT
     binary_rshift(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(b >> a);
+        var a = f.pop();
+
+        var res;
+        if (a.sub)
+            res = a.sub(b);
+        else if (b.rsub)
+            res = b.rsub(a);
+        else
+            throw new Error("No method exists to shift " + a + " by " + b);
+
+        if ((a.sub || b.rsub) && res == NotImplementedError)
+            throw new Error("No method exists to shift " + a + " by " + b);
+        else
+            f.push(res);
     }
 
     // 64: BINARY_AND
     binary_and(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(a & b);
+        var a = f.pop();
+
+        var res;
+        if (a.and)
+            res = a.and(b);
+        else if (b.rand)
+            res = b.rand(a);
+        else
+            throw new Error("No method exists for " + a + " and " + b);
+
+        if ((a.and || b.rand) && res == NotImplementedError)
+            throw new Error("No method exists for " + a + " and " + b);
+        else
+            f.push(res);
     }
 
     // 65: BINARY_XOR
     binary_xor(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(a ^ b);
+        var a = f.pop();
+
+        var res;
+        if (a.xor)
+            res = a.xor(b);
+        else if (b.rxor)
+            res = b.rxor(a);
+        else
+            throw new Error("No method exists for " + a + " xor " + b);
+
+        if ((a.xor || b.rxor) && res == NotImplementedError)
+            throw new Error("No method exists for " + a + " xor " + b);
+        else
+            f.push(res);
     }
 
     // 66: BINARY_OR
     binary_or(f: Py_FrameObject) {
-        var a = f.pop();
         var b = f.pop();
-        f.push(a | b);
+        var a = f.pop();
+
+        var res;
+        if (a.or)
+            res = a.or(b);
+        else if (b.ror)
+            res = b.ror(a);
+        else
+            throw new Error("No method exists for " + a + " or " + b);
+
+        if ((a.or || b.ror) && res == NotImplementedError)
+            throw new Error("No method exists for " + a + " or " + b);
+        else
+            f.push(res);
     }
 
     // 71: PRINT_ITEM
@@ -646,7 +636,7 @@ class Interpreter {
 
         switch(op) {
             case '<':
-                return a < b;
+                f.push(a < b);
                 break;
             case '<=':
                 return a <= b;
@@ -718,6 +708,7 @@ class Interpreter {
     // 114: POP_JUMP_IF_FALSE
     pop_jump_if_false(f: Py_FrameObject) {
         var target = f.readArg();
+
         if (!this.toBool(f.pop()))
             f.lastInst = target;
     }
@@ -777,6 +768,7 @@ class Interpreter {
 
         var newf = new Py_FrameObject(f, f.builtins, func.code,
                 func.globals, -1, func.code.firstlineno, locals, false);
+
         this.exec(newf)
     }
 
@@ -794,5 +786,123 @@ class Interpreter {
         var func = new Py_FuncObject(code, f.globals, defaults, code.name);
         f.push(func);
     }
-}
+
+    //TODO: From here down to Opcodes: Check if this is the correct
+    //implementation
+    // 4: DUP_TOP
+    dup_top(f: Py_FrameObject) {
+        f.push(f.peek());
+    }
+
+    // 9: NOP
+    nop(f: Py_FrameObject) {
+
+    }
+
+
+
+    // 30: SLICE+0
+    slice_0(f: Py_FrameObject) {
+        var a = f.pop();
+        var b = a.slice(0);
+        f.push(b);
+    }
+
+    // 31: SLICE+1
+    slice_1(f: Py_FrameObject) {
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b.slice(a));
+    }
+
+    // 32: SLICE+2
+    slice_2(f: Py_FrameObject) {
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b.slice(0,a));
+    }
+
+    // 33: SLICE+3
+    slice_3(f: Py_FrameObject) {
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
+        f.push(c.slice(b,a));
+    }
+
+    //TODO: store_slice is not working yet
+    // 40: STORE_SLICE+0
+    store_slice_0(f: Py_FrameObject) {
+        var a = f.pop();
+        var b = f.pop();
+        var aux = a.slice(0);
+        aux = b;
+    }
+
+    // 41: STORE_SLICE+1
+    store_slice_1(f: Py_FrameObject) {
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
+        var aux = b.slice(a);
+        aux = c;
+    }
+
+    // 42: STORE_SLICE+2
+    store_slice_2(f: Py_FrameObject) {
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
+        var aux = b.slice(0,a);
+        aux = c;
+    }
+
+    // 43: STORE_SLICE+3
+    store_slice_3(f: Py_FrameObject) {
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
+        var d = f.pop();
+        var aux = c.slice(b,a);
+        aux = d;
+    }
+
+    // 60: STORE_SUBSCR
+    // TODO: more testing
+    store_subscr(f: Py_FrameObject) {
+        var a = f.pop();
+        var b = f.pop();
+        var c = f.pop();
+        b[a] = c;
+    }
+
+    // 61: DELETE_SUBSCR
+    // TODO: more testing
+    delete_subscr(f: Py_FrameObject) {
+        var a = f.pop();
+        var b = f.pop();
+        f.push(b.splice(a,1));
+    }
+
+    // 102: BUILD_TUPLE
+    // TODO: not sure what would be a tuple in typescript
+    build_tuple(f: Py_FrameObject) {
+        throw new Error("Not implemented yet");
+    }
+
+    // 103: BUILD_LIST
+    //TODO: seems to work but need more testing
+    build_list(f: Py_FrameObject) {
+        var count = f.readArg();
+        var l = [];
+        for (var i = count-1; i >= 0; i--){
+            l[i] = f.pop();
+        }
+        f.push(l);
+    }
+
+    // 105: BUILD_MAP
+    build_map(f: Py_FrameObject) {
+        throw new Error("Not implemented yet");
+    }}
 export = Interpreter;

@@ -1,6 +1,7 @@
 def abs(x):
     if x<0:
-        x = -x
-    return x
+        return -x
+    else:
+        return x
 
 print abs(-5)
