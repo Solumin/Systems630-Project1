@@ -14,9 +14,9 @@ class Py_Float {
     }
 
     private mathOp(other: any, op: (a: number, b: number) => any): any {
-        if (other instanceof Py_Int)
+        if (other instanceof Py_Int.constructor)
             return op(this.value, Py_Float.fromPy_Int(other).value);
-        else if (other instanceof Py_Long)
+        else if (other instanceof Py_Long.constructor)
             return op(this.value, Py_Float.fromPy_Long(other).value);
         else if (other instanceof Py_Float)
             return op(this.value, other.value);
@@ -68,7 +68,7 @@ class Py_Float {
 
     divmod(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return (a / b) % b;
+            return Math.floor(a/b) % b;
         });
     }
 
@@ -167,7 +167,7 @@ class Py_Float {
     // }
 
     neg(): Py_Float {
-        return this.mult(-1);
+        return this.mult(new Py_Float(-1));
     }
 
     pos(): Py_Float {

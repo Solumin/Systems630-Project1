@@ -3,7 +3,6 @@
 import NIError = require('./notimplementederror');
 import Py_Int = require('./integer');
 var Decimal = require('../lib/decimal');
-import Py_Float = require('./float');
 
 class Py_Long {
     constructor(public value: Decimal) {}
@@ -35,7 +34,7 @@ class Py_Long {
     // type b. For longs, this should occur for a: Py_Int, b: Py_Long
     // Therefore, these should do c: Py_Long = Py_Long(a), c `op` b
     private revMathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
-        if (other instanceof Py_Int)
+        if (other instanceof Py_Int.constructor)
             return op(Py_Long.fromPy_Int(other).value, this.value);
         else if (other instanceof Py_Long)
             return op(other.value, this.value);
