@@ -23,6 +23,7 @@ class Interpreter {
     // toBool returns false if the argument would be considered False in Python
     // Similarly, returns true if it would be considered true.
     toBool(a: any): boolean {
+        console.log("TO BOOL: ", a);
         if (typeof a == 'boolean') {
             return a
         } else if (a.isInt || a.isLong || a.isFloat) {
@@ -52,7 +53,9 @@ class Interpreter {
 
     exec(frame: Py_FrameObject) {
         var code: Py_CodeObject = frame.codeObj;
+        console.log("\nFunction: ", code.name);
         for (var op = frame.readOp(); op != undefined; op = frame.readOp()) {
+            console.log("OP: ", op);
             switch(op) {
                 case opcodes.STOP_CODE:
                     this.stop_code(frame);
@@ -409,17 +412,21 @@ class Interpreter {
         }
 
         var res;
-        if (a.add)
-            res = a.add(b);
-        else if (b.radd)
-            res = b.radd(a);
-        else
-            throw new Error("No method exists to add " + a + " and " + b);
+        var mess = "You cannot add " + a + " and " + b;
 
-        if ((a.add || b.radd) && res == NotImplementedError)
-            throw new Error("No method exists to add " + a + " and " + b);
-        else
-            f.push(res);
+        if (typeof a.add == 'undefined')
+            throw new Error(mess);
+
+        res = a.add(b);
+        if (res == NotImplementedError) {
+            if(typeof b.radd == 'undefined')
+                throw new Error(mess);
+            res = b.radd(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        f.push(res);
     }
 
     // 24: BINARY_SUBTRACT
@@ -627,7 +634,7 @@ class Interpreter {
 
     // 107: COMPARE_OP
     compare_op(f: Py_FrameObject) {
-        var comp_ops = ['<', '<=', '==', '>', '>=', 'in', 'not in',
+        var comp_ops = ['<', '<=', '==', '!=', '>', '>=', 'in', 'not in',
                         'is', 'is not', 'exception match'];
         var opidx = f.readArg();
         var op = comp_ops[opidx];
@@ -636,41 +643,124 @@ class Interpreter {
 
         switch(op) {
             case '<':
-                f.push(a < b);
+                f.push(this.doLT(a,b));
                 break;
             case '<=':
-                return a <= b;
+                f.push(this.doLE(a,b));
                 break;
             case '==':
-                return a == b;
+                f.push(this.doEQ(a,b));
+                break;
+            case '!=':
+                f.push(this.doNE(a,b));
                 break;
             case '>':
-                return a > b;
+                f.push(this.doGT(a,b));
                 break;
             case '>=':
-                return a >= b;
+                f.push(this.doGE(a,b));
                 break;
-            case 'in':
-                return b.some( function(elem, idx, arr) {
-                    return elem == a;
-                });
-                break;
-            case 'not in':
-                return b.every( function(elem, idx, arr) {
-                    return elem != a;
-                });
-                break;
-            case 'is':
-                return a == b;
-                break;
-            case 'is not':
-                return a != b;
-                break;
-            case 'exception match':
-                throw new Error("Python Exceptions are not supported");
+            // case 'in':
+            //     return b.some( function(elem, idx, arr) {
+            //         return elem == a;
+            //     });
+            //     break;
+            // case 'not in':
+            //     return b.every( function(elem, idx, arr) {
+            //         return elem != a;
+            //     });
+            //     break;
+            // case 'is':
+            //     return a == b;
+            //     break;
+            // case 'is not':
+            //     return a != b;
+            //     break;
+            // case 'exception match':
+            //     throw new Error("Python Exceptions are not supported");
             default:
-                throw new Error("Unknown comparison operator");
+                throw new Error("Unknown or unsupported comparison operator");
         }
+    }
+
+    private doLT(a,b): boolean {
+        var res;
+        if (a.lt)
+            res = a.lt(b);
+        else if (b.gt)
+            res = b.gt(a);
+
+        if (typeof(res) == 'undefined' || res == NotImplementedError)
+            throw new Error("No less-than ordering for " + a + " and " + b);
+        else
+            return res;
+    }
+
+    private doLE(a,b): boolean {
+        var res;
+        if (a.le)
+            res = a.le(b);
+        else if (b.ge)
+            res = b.ge(a);
+
+        if (typeof(res) == 'undefined' || res == NotImplementedError)
+            throw new Error("No less-than-equals ordering for " + a + " and " + b);
+        else
+            return res;
+    }
+
+    private doEQ(a,b): boolean {
+        var res;
+        if (a.eq)
+            res = a.eq(b);
+        else if (b.eq)
+            res = b.eq(a);
+
+        if (typeof(res) == 'undefined' || res == NotImplementedError)
+            throw new Error("No equality obtainable for " + a + " and " + b);
+        else
+            return res;
+    }
+
+    private doNE(a,b): boolean {
+        var res;
+        console.log("NOT EQUAL?", a,b);
+        if (a.ne)
+            res = a.ne(b);
+        else if (b.ne)
+            res = b.ne(a);
+        console.log("RESULT: ", res);
+
+        if (typeof(res) == 'undefined' || res == NotImplementedError)
+            throw new Error("No non-equality obtainable for " + a + " and " + b);
+        else
+            return res;
+    }
+
+    private doGT(a,b): boolean {
+        var res;
+        if (a.gt)
+            res = a.gt(b);
+        else if (b.lt)
+            res = b.lt(a);
+
+        if (typeof(res) == 'undefined' || res == NotImplementedError)
+            throw new Error("No greater-than ordering obtainable for " + a + " and " + b);
+        else
+            return res;
+    }
+
+    private doGE(a,b): boolean {
+        var res;
+        if (a.ge)
+            res = a.ge(b);
+        else if (b.le)
+            res = b.le(a);
+
+        if (typeof(res) == 'undefined' || res == NotImplementedError)
+            throw new Error("No greater-than-or-equals ordering obtainable for " + a + " and " + b);
+        else
+            return res;
     }
 
     // 110: JUMP_FORWARD
@@ -709,8 +799,10 @@ class Interpreter {
     pop_jump_if_false(f: Py_FrameObject) {
         var target = f.readArg();
 
-        if (!this.toBool(f.pop()))
-            f.lastInst = target;
+        if (!this.toBool(f.pop())) {
+            console.log("JUMP TO ", target);
+            f.lastInst = target-1;
+        }
     }
 
     // 115: POP_JUMP_IF_TRUE

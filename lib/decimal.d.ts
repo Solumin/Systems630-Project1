@@ -5,12 +5,12 @@ interface Decimal {
 
     ceil(): Decimal;
 
-    comparedTo(n: number, base?: number): Decimal;
-    comparedTo(n: string, base?: number): Decimal;
-    comparedTo(n: Decimal, base?: number): Decimal;
-    cmp(n: number, base?: number): Decimal;
-    cmp(n: string, base?: number): Decimal;
-    cmp(n: Decimal, base?: number): Decimal;
+    comparedTo(n: number, base?: number): number;
+    comparedTo(n: string, base?: number): number;
+    comparedTo(n: Decimal, base?: number): number;
+    cmp(n: number, base?: number): number;
+    cmp(n: string, base?: number): number;
+    cmp(n: Decimal, base?: number): number;
 
     decimalPlaces(): number;
     dp(): number;
@@ -29,22 +29,22 @@ interface Decimal {
     divToInt(n: string, base?: number): Decimal;
     divToInt(n: Decimal, base?: number): Decimal;
 
-    equals(n: number, base?: number): Decimal;
-    equals(n: string, base?: number): Decimal;
-    equals(n: Decimal, base?: number): Decimal;
+    equals(n: number, base?: number): boolean;
+    equals(n: string, base?: number): boolean;
+    equals(n: Decimal, base?: number): boolean;
 
     exponential(): Decimal;
     exp(): Decimal;
 
     floor(): Decimal;
 
-    greaterThan(n: number, base?: number): Decimal;
-    greaterThan(n: string, base?: number): Decimal;
-    greaterThan(n: Decimal, base?: number): Decimal;
+    greaterThan(n: number, base?: number): boolean;
+    greaterThan(n: string, base?: number): boolean;
+    greaterThan(n: Decimal, base?: number): boolean;
 
-    greaterThanOrEqualTo(n: number, base?: number): Decimal;
-    greaterThanOrEqualTo(n: string, base?: number): Decimal;
-    greaterThanOrEqualTo(n: Decimal, base?: number): Decimal;
+    greaterThanOrEqualTo(n: number, base?: number): boolean;
+    greaterThanOrEqualTo(n: string, base?: number): boolean;
+    greaterThanOrEqualTo(n: Decimal, base?: number): boolean;
 
     isFinite(): boolean;
 
@@ -56,13 +56,13 @@ interface Decimal {
 
     isZero(): boolean;
 
-    lessThan(n: number, base?: number): Decimal;
-    lessThan(n: string, base?: number): Decimal;
-    lessThan(n: Decimal, base?: number): Decimal;
+    lessThan(n: number, base?: number): boolean;
+    lessThan(n: string, base?: number): boolean;
+    lessThan(n: Decimal, base?: number): boolean;
 
-    lessThanOrEqualTo(n: number, base?: number): Decimal;
-    lessThanOrEqualTo(n: string, base?: number): Decimal;
-    lessThanOrEqualTo(n: Decimal, base?: number): Decimal;
+    lessThanOrEqualTo(n: number, base?: number): boolean;
+    lessThanOrEqualTo(n: string, base?: number): boolean;
+    lessThanOrEqualTo(n: Decimal, base?: number): boolean;
 
     logarithm(n: number, base?: number): Decimal;
     logarithm(n: string, base?: number): Decimal;

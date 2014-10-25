@@ -215,6 +215,46 @@ class Py_Long {
         return this.neg().sub(1);
     }
 
+    // Rich comparison ops
+    private cmpOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
+        if (other.isInt)
+            return op(this.value, Py_Long.fromPy_Int(other).value);
+        else if (other.isLong)
+            return op(this.value, other.value);
+        else
+            return NIError;
+    }
+
+    lt(other): boolean {
+        return this.cmpOp(other, function(a, b) { return a.lessThan(b); });
+    }
+
+    le(other): boolean {
+        return this.cmpOp(other, function(a, b) {
+            return a.lessThanOrEqualTo(b);
+        });
+    }
+
+    eq(other): boolean {
+        return this.cmpOp(other, function(a, b) { return a.equals(b); });
+    }
+
+    ne(other): boolean {
+        return this.cmpOp(other, function(a, b) { return !a.equals(b); });
+    }
+
+    gt(other): boolean {
+        return this.cmpOp(other, function(a, b) {
+            return a.greaterThan(b);
+        });
+    }
+
+    ge(other): boolean {
+        return this.cmpOp(other, function(a, b) {
+            return a.greaterThanOrEqualTo(b);
+        });
+    }
+
     toString(): string {
         return this.value.toString();
     }

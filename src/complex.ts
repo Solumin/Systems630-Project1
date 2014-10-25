@@ -257,6 +257,37 @@ class Py_Complex {
     //     return NIError
     // }
 
+    // Rich comparison ops
+    // Python does not define an ordering for complex numbers
+
+    // lt(other): any {
+    //     return NIError;
+    // }
+
+    // le(other): any {
+    //     return NIError;
+    // }
+
+    eq(other): boolean {
+        return this.mathOp(other, function(a, b) {
+            return (a.real.eq(b.real) && a.imag.eq(b.imag));
+        });
+    }
+
+    ne(other): boolean {
+        return this.mathOp(other, function(a, b) {
+            return (a.real.ne(b.real) && a.imag.ne(b.imag));
+        });
+    }
+
+    // gt(other): any {
+    //     return NIError;
+    // }
+
+    // ge(other): any {
+    //     return NIError;
+    // }
+
     toString(): string {
         return "(" + this.real.toString() + " + " + this.imag.toString() + "j)";
     }

@@ -10,7 +10,7 @@ EDIR=examples
 TSSOURCES=$(wildcard $(SDIR)/*.ts)
 JSSOURCES=$(TSSOURCES:.ts=.js)
 # Example files:
-PYSOURCES=$(wildcard $(EDIR)/*.py)
+PYSOURCES=$(wildcard $(EDIR)/**/*.py)
 EXSOURCES=$(PYSOURCES:.py=.pyc)
 # Test application file:
 TEST=test.ts
