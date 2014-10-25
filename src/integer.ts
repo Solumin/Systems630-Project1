@@ -10,6 +10,23 @@ class Py_Int {
         return new Py_Int(gLong.fromInt(n));
     }
 
+    private mathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
+        if (other.isInt)
+            return op(this.value, other.value);
+        else
+            return NIError;
+    }
+
+    // Reverse math ops will occur iff a `op` b => a doesn't implement op for
+    // type b. For longs, this should occur for a: Py_Int, b: Py_Long
+    // Therefore, these should do c: Py_Long = Py_Long(a), c `op` b
+    private revMathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
+        if (other.isInt)
+            return op(other.value, this.value);
+        else
+            return NIError;
+    }
+
     add(other: any): any {
         if (other.isInt)
             return new Py_Int(this.value.add(other.value));

@@ -35,9 +35,9 @@ class Py_Long {
     // type b. For longs, this should occur for a: Py_Int, b: Py_Long
     // Therefore, these should do c: Py_Long = Py_Long(a), c `op` b
     private revMathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
-        if (other instanceof Py_Int.constructor)
+        if (other.isInt)
             return op(Py_Long.fromPy_Int(other).value, this.value);
-        else if (other instanceof Py_Long)
+        else if (other.isLong)
             return op(other.value, this.value);
         else
             return NIError;

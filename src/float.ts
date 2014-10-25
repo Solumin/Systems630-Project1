@@ -29,11 +29,11 @@ class Py_Float {
     // type b. For longs, this should occur for a: Py_Int, b: Py_Float
     // Therefore, these should do c: Py_Float = Py_Float(a), c `op` b
     private revMathOp(other: any, op: (a: number, b: number) => any): any {
-        if (other instanceof Py_Int)
+        if (other.isInt)
             return op(Py_Float.fromPy_Int(other).value, this.value);
-        if (other instanceof Py_Long)
+        if (other.isLong)
             return op(Py_Float.fromPy_Long(other).value, this.value);
-        else if (other instanceof Py_Float)
+        else if (other.isFloat)
             return op(other.value, this.value);
         else
             return NIError;

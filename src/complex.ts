@@ -40,13 +40,13 @@ class Py_Complex {
     // type b. For longs, this should occur for a: Py_Int, b: Py_Long
     // Therefore, these should do c: Py_Long = Py_Long(a), c `op` b
     private revMathOp(other: any, op: (a: Py_Complex, b: Py_Complex) => any): any {
-        if (other instanceof Py_Int.constructor)
+        if (other.isInt)
             return op(Py_Complex.fromPy_Int(other), this);
-        else if (other instanceof Py_Long.constructor)
+        else if (other.isLong)
             return op(Py_Complex.fromPy_Long(other), this);
-        else if (other instanceof Py_Float.constructor)
+        else if (other.isFloat)
             return op(Py_Complex.fromPy_Float(other), this);
-        else if (other instanceof Py_Complex)
+        else if (other.isComplex)
             return op(other, this);
         else
             return NIError;
