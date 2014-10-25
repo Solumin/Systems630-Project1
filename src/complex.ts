@@ -4,6 +4,7 @@ import Py_Long = require('./long');
 import Py_Float = require('./float');
 
 class Py_Complex {
+    isComplex: boolean = true;
     constructor(public real: Py_Float, public imag: Py_Float) {}
 
     static fromNumber(r: number, i = 0) {
@@ -23,13 +24,13 @@ class Py_Complex {
     }
 
     private mathOp(other: any, op: (a: Py_Complex, b: Py_Complex) => any): any {
-        if (other instanceof Py_Int.constructor)
+        if (other.isInt)
             return op(this, Py_Complex.fromPy_Int(other));
-        else if (other instanceof Py_Long.constructor)
+        else if (other.isLong)
             return op(this, Py_Complex.fromPy_Long(other));
-        else if (other instanceof Py_Float.constructor)
+        else if (other.isFloat)
             return op(this, Py_Complex.fromPy_Float(other));
-        else if (other instanceof Py_Complex)
+        else if (other.isComplex)
             return op(this, other);
         else
             return NIError;

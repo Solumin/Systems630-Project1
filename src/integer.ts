@@ -3,6 +3,7 @@ import NIError = require('./notimplementederror');
 import Py_Float = require('./float');
 
 class Py_Int {
+    isInt: boolean = true;
     constructor(public value: gLong) {}
 
     static fromInt(n: number): Py_Int {
@@ -10,7 +11,7 @@ class Py_Int {
     }
 
     add(other: any): any {
-        if (other instanceof Py_Int)
+        if (other.isInt)
             return new Py_Int(this.value.add(other.value));
         else
             return NIError;

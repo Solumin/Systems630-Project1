@@ -3,6 +3,7 @@ import Py_Int = require('./integer');
 import Py_Long = require('./long');
 
 class Py_Float {
+    isFloat: boolean = true;
     constructor(public value: number) {}
 
     static fromPy_Int(n: Py_Int): Py_Float {
@@ -14,11 +15,11 @@ class Py_Float {
     }
 
     private mathOp(other: any, op: (a: number, b: number) => any): any {
-        if (other instanceof Py_Int.constructor)
+        if (other.isInt)
             return op(this.value, Py_Float.fromPy_Int(other).value);
-        else if (other instanceof Py_Long.constructor)
+        else if (other.isLong)
             return op(this.value, Py_Float.fromPy_Long(other).value);
-        else if (other instanceof Py_Float)
+        else if (other.isFloat)
             return op(this.value, other.value);
         else
             return NIError;

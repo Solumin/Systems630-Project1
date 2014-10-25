@@ -5,6 +5,7 @@ import Py_Int = require('./integer');
 var Decimal = require('../lib/decimal');
 
 class Py_Long {
+    isLong: boolean = true;
     constructor(public value: Decimal) {}
 
     static fromInt(n: number) {
@@ -22,9 +23,9 @@ class Py_Long {
     }
 
     private mathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
-        if (other instanceof Py_Int.constructor)
+        if (other.isInt)
             return op(this.value, Py_Long.fromPy_Int(other).value);
-        else if (other instanceof Py_Long)
+        else if (other.isLong)
             return op(this.value, other.value);
         else
             return NIError;
