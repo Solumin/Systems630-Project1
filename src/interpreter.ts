@@ -737,41 +737,59 @@ class Interpreter {
 
     private doLT(a,b): boolean {
         var res;
-        if (a.lt)
-            res = a.lt(b);
-        else if (b.gt)
-            res = b.gt(a);
+        var mess = "There is no less-than ordering between " + a + " and " + b;
 
-        if (typeof(res) == 'undefined' || res == NotImplementedError)
-            throw new Error("No less-than ordering for " + a + " and " + b);
-        else
-            return res;
+        if (typeof a.lt == 'undefined')
+            throw new Error(mess);
+
+        res = a.lt(b);
+        if (res == NotImplementedError) {
+            if(typeof b.gt == 'undefined')
+                throw new Error(mess);
+            res = b.gt(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        return res;
     }
 
     private doLE(a,b): boolean {
         var res;
-        if (a.le)
-            res = a.le(b);
-        else if (b.ge)
-            res = b.ge(a);
+        var mess = "There is no '<=' (LTE) ordering between " + a + " and " + b;
 
-        if (typeof(res) == 'undefined' || res == NotImplementedError)
-            throw new Error("No less-than-equals ordering for " + a + " and " + b);
-        else
-            return res;
+        if (typeof a.le == 'undefined')
+            throw new Error(mess);
+
+        res = a.le(b);
+        if (res == NotImplementedError) {
+            if(typeof b.ge == 'undefined')
+                throw new Error(mess);
+            res = b.ge(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        return res;
     }
 
     private doEQ(a,b): boolean {
         var res;
-        if (a.eq)
-            res = a.eq(b);
-        else if (b.eq)
-            res = b.eq(a);
+        var mess = "There is no equality operation between " + a + " and " + b;
 
-        if (typeof(res) == 'undefined' || res == NotImplementedError)
-            throw new Error("No equality obtainable for " + a + " and " + b);
-        else
-            return res;
+        if (typeof a.eq == 'undefined')
+            throw new Error(mess);
+
+        res = a.eq(b);
+        if (res == NotImplementedError) {
+            if(typeof b.eq == 'undefined')
+                throw new Error(mess);
+            res = b.eq(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        return res;
     }
 
     private doNE(a,b): boolean {
@@ -795,28 +813,40 @@ class Interpreter {
 
     private doGT(a,b): boolean {
         var res;
-        if (a.gt)
-            res = a.gt(b);
-        else if (b.lt)
-            res = b.lt(a);
+        var mess = "There is no greater-than ordering between "+ a +" and " + b;
 
-        if (typeof(res) == 'undefined' || res == NotImplementedError)
-            throw new Error("No greater-than ordering obtainable for " + a + " and " + b);
-        else
-            return res;
+        if (typeof a.gt == 'undefined')
+            throw new Error(mess);
+
+        res = a.gt(b);
+        if (res == NotImplementedError) {
+            if(typeof b.lt == 'undefined')
+                throw new Error(mess);
+            res = b.lt(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        return res;
     }
 
     private doGE(a,b): boolean {
         var res;
-        if (a.ge)
-            res = a.ge(b);
-        else if (b.le)
-            res = b.le(a);
+        var mess = "There is no >= (GTE) ordering between "+ a + " and " + b;
 
-        if (typeof(res) == 'undefined' || res == NotImplementedError)
-            throw new Error("No greater-than-or-equals ordering obtainable for " + a + " and " + b);
-        else
-            return res;
+        if (typeof a.ge == 'undefined')
+            throw new Error(mess);
+
+        res = a.ge(b);
+        if (res == NotImplementedError) {
+            if(typeof b.le == 'undefined')
+                throw new Error(mess);
+            res = b.le(a);
+            if (res == NotImplementedError)
+                throw new Error(mess);
+        }
+
+        return res;
     }
 
     // 110: JUMP_FORWARD
