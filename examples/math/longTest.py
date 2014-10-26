@@ -7,9 +7,9 @@ def test(testVal, refVal, name):
         print "passed: " + name
         return 1
 
-x = 5
+x = 5L
 passed = 0
-total = 16
+total = 13
 
 # Basic math
 passed = passed + test(x + 1, 6, "Basic addition (5 + 1 = 6)")
@@ -24,9 +24,6 @@ passed = passed + test(x ** 4, 625, "Positive power (5 ** 4 = 625)")
 passed = passed + test(x ** -2, 0.04, "Negative power (5 ** -2 = 0.04)")
 passed = passed + test(x << 2, 20, "Left shift (5 << 2 = 20)")
 passed = passed + test(x >> 2, 1, "Right shift (5 >> 2 = 1)")
-passed = passed + test(x & 3, 1, "Bitwise AND (5 & 3 = 1)")
-passed = passed + test(x | 19, 23, "Bitwise OR (5 | 19 = 23)")
-passed = passed + test(x ^ 14, 11, "Bitwise XOR (5 ^ 14 = 11)")
 passed = passed + test(~x, -6, "Inversion (~5 = -6)")
 
 print "Passed ", passed, "/", total, " tests"

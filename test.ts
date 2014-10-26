@@ -12,6 +12,8 @@ function test(name, file) {
 }
 
 test("Integer test", "examples/math/intTest.pyc");
+test("Long Int test", "examples/math/longTest.pyc");
+test("Floating-point test", "examples/math/floatTest.pyc");
 test("Keyword arguments in a function", "examples/functions/keywordargs.pyc");
 
 // console.log("Running unmarshal test...");
