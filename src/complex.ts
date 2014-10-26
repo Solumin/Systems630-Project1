@@ -176,13 +176,7 @@ class Py_Complex {
     }
 
     rdiv(other: any): any {
-        return this.mathOp(other, function(a, b) {
-            var r, i, d: Py_Float;
-            r = (this.real.mult(other.real) + this.imag.mult(other.imag));
-            i = (this.imag.mult(other.real) - this.real.mult(other.imag));
-            d = (other.real.mult(other.real) + other.imag.mult(other.imag));
-            return new Py_Complex(r.div(d), i.div(d));
-        });
+        return this.rtruediv(other);
     }
 
     rtruediv(other: any): any {

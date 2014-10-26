@@ -124,7 +124,7 @@ class Py_Float {
     }
 
     rdiv(other: any): any {
-        return this.floordiv(other);
+        return this.rtruediv(other);
     }
 
     rtruediv(other: any): any {

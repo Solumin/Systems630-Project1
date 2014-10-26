@@ -23,7 +23,6 @@ class Interpreter {
     // toBool returns false if the argument would be considered False in Python
     // Similarly, returns true if it would be considered true.
     toBool(a: any): boolean {
-        console.log("TO BOOL: ", a);
         if (typeof a == 'boolean') {
             return a
         } else if (a.isInt || a.isLong || a.isFloat) {
@@ -53,9 +52,7 @@ class Interpreter {
 
     exec(frame: Py_FrameObject) {
         var code: Py_CodeObject = frame.codeObj;
-        console.log("\nFunction: ", code.name);
         for (var op = frame.readOp(); op != undefined; op = frame.readOp()) {
-            console.log("OP: ", op);
             switch(op) {
                 case opcodes.STOP_CODE:
                     this.stop_code(frame);
@@ -422,8 +419,8 @@ class Interpreter {
         var b = f.pop();
         var a = f.pop();
 
-        if (typeof a == 'string' && typeof b == 'string') {
-            f.push(a + b);
+        if (typeof a == 'string' || typeof b == 'string') {
+            f.push(a.toString() + b.toString());
             return;
         }
 
@@ -885,10 +882,8 @@ class Interpreter {
     pop_jump_if_false(f: Py_FrameObject) {
         var target = f.readArg();
 
-        if (!this.toBool(f.pop())) {
-            console.log("JUMP TO ", target);
+        if (!this.toBool(f.pop()))
             f.lastInst = target-1;
-        }
     }
 
     // 115: POP_JUMP_IF_TRUE

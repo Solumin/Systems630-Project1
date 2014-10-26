@@ -10,36 +10,44 @@ class Py_Int {
         return new Py_Int(gLong.fromInt(n));
     }
 
-    private mathOp(other: any, op: (a: gLong, b: gLong) => any): any {
+    private mathOp(other: any, op: (a: Py_Int, b: Py_Int) => Py_Int): any {
         if (other.isInt)
-            return new Py_Int(op(this.value, other.value));
+            return op(this, other);
         else
             return NIError;
     }
 
     // Reverse math ops will occur iff a `op` b => a doesn't implement op for
     // type b. For Ints, this rarely happens.
-    private revMathOp(other: any, op: (a: gLong, b: gLong) => any): any {
+    private revMathOp(other: any, op: (a: Py_Int, b: Py_Int) => any): any {
         if (other.isInt)
-            return new Py_Int(op(other.value, this.value));
+            return op(other, this);
         else
             return NIError;
     }
 
     add(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.add(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.add(b.value));
+        });
     }
 
     sub(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.subtract(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.subtract(b.value));
+        });
     }
 
     mult(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.multiply(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.multiply(b.value));
+        });
     }
 
     floordiv(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.div(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.div(b.value));
+        });
     }
 
     div(other: any): any {
@@ -47,126 +55,161 @@ class Py_Int {
     }
 
     truediv(other: any): any {
-        return this.mathOp(other, function(a, b) {
-            return Py_Float.fromPy_Int(new Py_Int(a.div(b)));
-        });
+        // Do this / (float)other
+        return Py_Float.fromPy_Int(this).truediv(other);
+        // return this.mathOp(other, function(a, b) {
+        //     return Py_Float.fromPy_Int(new Py_Int(a.div(b.value)));
+        // });
     }
 
     mod(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.modulo(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.modulo(b.value));
+        });
     }
 
     divmod(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return a.div(b).modulo(b);
-       });
+            return a.div(b).mod(b);
+        });
     }
 
     pow(other: any): any {
-        return this.mathOp(other, function(a, b) {
-            var res = a;
-            var x = gLong.ONE;
-            for (x; x.lessThan(b); x = x.add(gLong.ONE)) {
-                res = res.multiply(a);
-            }
-            return res;
-        });
+        if (other.isInt && other.value.isNegative()) {
+            return Py_Float.fromPy_Int(this).pow(other);
+        } else {
+            return this.mathOp(other, function(a, b) {
+                var res = a.value;
+                var x = gLong.ONE;
+                for (x; x.lessThan(b.value); x = x.add(gLong.ONE)) {
+                    res = res.multiply(a.value);
+                }
+                return new Py_Int(res);
+            });
+        }
     }
 
     lshift(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return a.shiftLeft(b.toNumber());
+            return new Py_Int(a.value.shiftLeft(b.toNumber()));
         });
     }
 
     rshift(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return a.shiftRight(b.toNumber());
+            return new Py_Int(a.value.shiftRight(b.toNumber()));
         });
     }
 
     and(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.and(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.and(b.value));
+        });
     }
 
     xor(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.xor(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.xor(b.value));
+        });
     }
 
     or(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.or(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.or(b.value));
+        });
     }
 
     // Reverse ops
     radd(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.add(b); });
-    }
-
-    rsub(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.subtract(b); });
-    }
-
-    rmult(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.multiply(b); });
-    }
-
-    rfloordiv(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.div(b); });
-    }
-
-    rdiv(other: any): any {
-        return this.floordiv(other);
-    }
-
-    rtruediv(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return Py_Float.fromPy_Int(new Py_Int(a.div(b)));
+            return new Py_Int(a.value.add(b.value));
         });
     }
 
+    rsub(other: any): any {
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.subtract(b.value));
+        });
+    }
+
+    rmult(other: any): any {
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.multiply(b.value));
+        });
+    }
+
+    rfloordiv(other: any): any {
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.div(b.value));
+        });
+    }
+
+    rdiv(other: any): any {
+        return this.rtruediv(other);
+    }
+
+    rtruediv(other: any): any {
+        return Py_Float.fromPy_Int(this).rtruediv(other);
+        // return this.mathOp(other, function(a, b) {
+        //     return Py_Float.fromPy_Int(new Py_Int(a.div(b.value)));
+        // });
+    }
+
     rmod(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.modulo(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.modulo(b.value));
+        });
     }
 
     rdivmod(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return a.div(b).modulo(b);
-       });
+            return a.div(b).mod(b);
+        });
     }
 
     rpow(other: any): any {
-        return this.mathOp(other, function(a, b) {
-            var res = a;
-            var x = gLong.ONE;
-            for (x; x.lessThan(b); x = x.add(gLong.ONE)) {
-                res = res.multiply(a);
-            }
-            return res;
-        });
+        if (other.isInt && other.value.isNegative()) {
+            return Py_Float.fromPy_Int(this).rpow(other);
+        } else {
+            return this.mathOp(other, function(a, b) {
+                var res = a;
+                var x = gLong.ONE;
+                for (x; x.lessThan(b.value); x = x.add(gLong.ONE)) {
+                    res = res.mult(a);
+                }
+                return res;
+            });
+        }
     }
 
     rlshift(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return a.shiftLeft(b.toNumber());
+            return new Py_Int(a.value.shiftLeft(b.toNumber()));
         });
     }
 
     rrshift(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return a.shiftRight(b.toNumber());
+            return new Py_Int(a.value.shiftRight(b.toNumber()));
         });
     }
 
     rand(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.and(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.and(b.value));
+        });
     }
 
     rxor(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.xor(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.xor(b.value));
+        });
     }
 
     ror(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.or(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Int(a.value.or(b.value));
+        });
     }
 
     neg(): Py_Int {

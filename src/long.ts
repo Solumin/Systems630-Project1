@@ -136,7 +136,7 @@ class Py_Long {
     }
 
     rdiv(other: any): any {
-        return this.floordiv(other);
+        return this.rtruediv(other);
     }
 
     rtruediv(other: any): any {
