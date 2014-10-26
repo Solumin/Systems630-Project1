@@ -1,94 +1,20 @@
 /// <reference path="../lib/node.d.ts" />
+
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
 // converts into a Python code object.
+import Py_CodeObject = require('./codeobject');
+import Py_Int = require('./integer');
+import Py_Long = require('./long');
+import Py_Float = require('./float');
+import Py_Complex = require('./complex');
+import None = require('./none');
 import fs = require('fs');
 import gLong = require("../lib/gLong");
 // TODO: Write declaration file for decimal.js
 var Decimal = require('../lib/decimal');
 
-// Null is an empty value. Mostly used in the interpreter for dictionaries.
-// Python has a single null object called "None".
-class NullSingleton {
-    private static _instance: NullSingleton;
-
-    constructor() {
-        if(NullSingleton._instance) {
-            throw new Error("Null is already instantiated. Use get() instead.");
-        }
-        NullSingleton._instance = this;
-    }
-
-    public static get(): NullSingleton {
-        if(NullSingleton._instance == null) {
-            NullSingleton._instance = new NullSingleton();
-            return NullSingleton._instance;
-        }
-    }
-
-    toString(): string {
-        return "None";
-    }
-}
-var None = NullSingleton.get();
-
-class Py_CodeObject {
-    argcount: number;
-    cellvars: string[];
-    code: string;
-    consts: any[];
-    filename: string;
-    firstlineno: number;
-    flags: number;
-    freevars: string[];
-    lnotab: string;
-    name: string;
-    names: string[];
-    nlocals: number;
-    stacksize: number;
-    varnames: string[];
-
-    // Args are in marshal order
-    constructor(argcount: number,
-                nlocals: number,
-                stacksize: number,
-                flags: number,
-                code: string,
-                consts: any[],
-                names: string[],
-                varnames: string[],
-                freevars: string[],
-                cellvars: string[],
-                filename: string,
-                name: string,
-                firstlineno: number,
-                lnotab: string) {
-        this.argcount = argcount;
-        this.cellvars = cellvars;
-        this.code = code;
-        this.consts = consts;
-        this.filename = filename;
-        this.firstlineno = firstlineno;
-        this.flags = flags;
-        this.freevars = freevars;
-        this.lnotab = lnotab;
-        this.name = name;
-        this.names = names;
-        this.nlocals = nlocals;
-        this.stacksize = stacksize;
-        this.varnames = varnames;
-    }
-}
-
-class Complex64 {
-    real: number;
-    imag: number;
-
-    constructor(r: number, j: number) {
-        this.real = r;
-        this.imag = j;
-    }
-}
-
+// An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX")
+// and converts into a Python code object.
 class Unmarshaller {
     // How far we are into the buffer
     index: number;
@@ -103,7 +29,7 @@ class Unmarshaller {
     // The list of "interalized" strings
     internedStrs: string[];
     // The output of unmarshalling the .pyc file
-    output;
+    output: Py_CodeObject;
 
     constructor(inputFilePath: string) {
         // Initialize values
@@ -126,7 +52,7 @@ class Unmarshaller {
     }
 
     // Processes the input string
-    value() {
+    value(): Py_CodeObject {
         if (this.output == null) {
             this.output = this.unmarshal();
         }
@@ -180,13 +106,34 @@ class Unmarshaller {
     }
 
     readString(length: number, encoding = "ascii"): string {
-        var s = this.input.toString("ascii", this.index, this.index+length);
+        var s = this.input.toString(encoding, this.index, this.index+length);
         this.index += length;
         return s;
     }
 
     readUnicodeString(length: number): string {
         return this.readString(length, "utf8");
+    }
+
+    readBinaryString(length: number): Buffer {
+        var buf = new Buffer(length);
+        this.input.copy(buf, 0, this.index, this.index+length);
+        this.index += length;
+        return buf
+    }
+
+    // Code strings are a special case: They're raw binary
+    // nodeJS buffers COULD handle this by using the 'ascii' encoding, except
+    // ONLY handles 7-bit chars. So something like "\x84", which is the
+    // MAKE_FUNCTION opcode and has the binary format 10000100b, is truncated to
+    // "\x04".
+    unmarshalCodeString(): Buffer {
+        var op = this.readChar();
+        if (op != "s") {
+            throw new Error("The code string should be marshalled as a string");
+        }
+        var length = this.readInt32();
+        return this.readBinaryString(length);
     }
 
     // Unmarshals the input string
@@ -211,33 +158,35 @@ class Unmarshaller {
                 break;
             // Numbers
             case "g": // double-precision floating-point number
-                res = this.readFloat64();
+                res = new Py_Float(this.readFloat64());
                 break;
             case "i": // 32-bit integer (signed)
-                res = this.readInt32();
+                res = Py_Int.fromInt(this.readInt32());
                 break;
             case "I": // 64-bit integer (signed)
-                res = this.readInt64();
+                res = new Py_Int(this.readInt64());
                 break;
             case "l": // arbitrary precision integer
                 // Stored as a 32-bit integer of length, then $length 16-bit
                 // digits.
                 var length = this.readInt32();
-                res = new Decimal(0);
+                var num = new Decimal(0);
                 if (length != 0) {
                     var shift = new Decimal(15);
                     for(var i = 0; i < Math.abs(length); i++) {
                         var digit = new Decimal(this.readUInt16());
-                        res = res.plus(digit.times(
+                        num = num.plus(digit.times(
                                     Decimal.pow(2, shift.times(i))));
                     }
                 }
                 if (length < 0) {
-                    res = res.times(-1);
+                    num = num.times(-1);
                 }
+                res = new Py_Long(num);
                 break;
             case "y": // complex number
-                res = new Complex64(this.readFloat64(), this.readFloat64());
+                res = Py_Complex.fromNumber(this.readFloat64(),
+                        this.readFloat64());
                 break;
             // Strings
             case "R": // Reference to interned string
@@ -272,7 +221,7 @@ class Unmarshaller {
                 var nlocals = this.readInt32();
                 var stacksize = this.readInt32();
                 var flags = this.readInt32();
-                var codestr: string = this.unmarshal();
+                var codestr: Buffer = this.unmarshalCodeString();
                 var consts: string[] = this.unmarshal();
                 var names: string[] = this.unmarshal();
                 var varnames: string[] = this.unmarshal();
@@ -296,10 +245,4 @@ class Unmarshaller {
         return res;
     }
 }
-
-var u = new Unmarshaller("../examples_pyc/5code.pyc");
-var code: Py_CodeObject = u.value();
-console.log(code);
-code.consts.forEach(function(element, index, array) {
-    console.log("\t" + index + ": " + element);
-});
+export = Unmarshaller;

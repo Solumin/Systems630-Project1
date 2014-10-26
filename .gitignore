@@ -1,1 +1,9 @@
+# Typescript-generated JS files should be ignored
+*.js
+## Except for the ones in lib/
+!lib/*.js
+# .pyc files should be generated and cleaned by make
+examples/**/*.pyc
+# Ignore Vim's swap files
 *.swp
+*.swo
