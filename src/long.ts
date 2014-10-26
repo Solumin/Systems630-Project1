@@ -60,7 +60,7 @@ class Py_Long {
     }
 
     div(other: any): any {
-        return this.floordiv(other);
+        return this.truediv(other);
     }
 
     truediv(other: any): any {
