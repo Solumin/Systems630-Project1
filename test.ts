@@ -4,7 +4,7 @@ import Py_CodeObject = require('./src/codeobject');
 
 var interp = new Interpreter();
 function test(name, file) {
-    console.log("Running " + name + "...");
+    console.log("Running " + name);
     var u = new Unmarshaller(file);
     // The test does all the pass/fail checking
     interp.interpret(u.value());
@@ -15,7 +15,9 @@ test("Integer test", "examples/math/intTest.pyc");
 test("Long Int test", "examples/math/longTest.pyc");
 test("Floating-point test", "examples/math/floatTest.pyc");
 test("Complex number test", "examples/math/complexTest.pyc");
-test("Keyword arguments in a function", "examples/functions/keywordargs.pyc");
+test("Mixed Arithmetic test", "examples/math/mixedMathTest.pyc");
+test("Keyword and default arguments test","examples/functions/keywordargs.pyc");
+test("Numeric comparison test", "examples/functions/comparisonTest.pyc");
 
 // console.log("Running unmarshal test...");
 // var u = new Unmarshaller("examples/play.pyc");

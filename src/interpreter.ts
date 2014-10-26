@@ -15,6 +15,8 @@ import gLong = require("../lib/gLong");
 class Interpreter {
     // The interpreter stack
     stack: any[]
+    builtins: { [name: string]: any } = {"True": true, "False": false,
+            "None": None, "NotImplemented": NotImplementedError};
 
     constructor() {
         this.stack = [];
@@ -46,7 +48,7 @@ class Interpreter {
 
     interpret(code: Py_CodeObject) {
         return this.exec(
-            new Py_FrameObject(null, {}, code, {}, -1,
+            new Py_FrameObject(null, this.builtins, code, {}, -1,
                 code.firstlineno, {}, false));
     }
 
@@ -677,8 +679,8 @@ class Interpreter {
     // 101: LOAD_NAME
     load_name(f: Py_FrameObject) {
         var i = f.readArg();
-        var name = f.codeObj.names[i];
-        f.push(f.locals[name]);
+        var name: string = f.codeObj.names[i];
+        f.push(f.locals[name] || f.builtins[name]);
     }
 
     // 107: COMPARE_OP
@@ -689,6 +691,23 @@ class Interpreter {
         var op = comp_ops[opidx];
         var b = f.pop();
         var a = f.pop();
+
+        // Convert booleans to Integers
+        // Python has True and False encoded as Integers (booleans, subclassed
+        // from Integer) but that will take too long
+        if (typeof a == 'boolean') {
+            if (a)
+                a = Py_Int.fromInt(1);
+            else
+                a = Py_Int.fromInt(0);
+        }
+
+        if (typeof b == 'boolean') {
+            if (b)
+                b = Py_Int.fromInt(1);
+            else
+                b = Py_Int.fromInt(0);
+        }
 
         switch(op) {
             case '<':
@@ -935,8 +954,12 @@ class Interpreter {
         }
 
         func.code.varnames.reverse().forEach( function(name, idx, array) {
-            if (locals[name] == undefined)
-                locals[name] = posVals.pop() || func.defaults[name];
+            if (locals[name] == undefined) {
+                if (posVals.length == 0)
+                    locals[name] = func.defaults[name];
+                else
+                    locals[name] = posVals.pop();
+            }
         });
 
         var newf = new Py_FrameObject(f, f.builtins, func.code,
@@ -971,8 +994,6 @@ class Interpreter {
     nop(f: Py_FrameObject) {
 
     }
-
-
 
     // 30: SLICE+0
     slice_0(f: Py_FrameObject) {
