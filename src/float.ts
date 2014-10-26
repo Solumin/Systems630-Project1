@@ -14,15 +14,13 @@ class Py_Float {
         return new Py_Float(n.toNumber());
     }
 
-    private mathOp(other: any, op: (a: number, b: number) => any): any {
+    private mathOp(other: any, op: (a: Py_Float, b: Py_Float) => any): any {
         if (other.isInt)
-            return new Py_Float(op(this.value,
-                                   Py_Float.fromPy_Int(other).value));
+            return op(this, Py_Float.fromPy_Int(other));
         else if (other.isLong)
-            return new Py_Float(op(this.value,
-                                   Py_Float.fromPy_Long(other).value));
+            return op(this, Py_Float.fromPy_Long(other));
         else if (other.isFloat)
-            return new Py_Float(op(this.value, other.value));
+            return op(this, other);
         else
             return NIError;
     }
@@ -30,34 +28,39 @@ class Py_Float {
     // Reverse math ops will occur iff a `op` b => a doesn't implement op for
     // type b. For longs, this should occur for a: Py_Int, b: Py_Float
     // Therefore, these should do c: Py_Float = Py_Float(a), c `op` b
-    private revMathOp(other: any, op: (a: number, b: number) => any): any {
+    private revMathOp(other: any, op: (a: Py_Float, b: Py_Float) => any): any {
         if (other.isInt)
-            return new Py_Float(op(Py_Float.fromPy_Int(other).value,
-                                   this.value));
-        if (other.isLong) {
-            return new Py_Float(op(Py_Float.fromPy_Long(other).value,
-                                   this.value));
-        }
+            return op(Py_Float.fromPy_Int(other), this);
+        if (other.isLong)
+            return op(Py_Float.fromPy_Long(other), this);
         else if (other.isFloat)
-            return new Py_Float(op(other.value, this.value));
+            return op(other, this);
         else
             return NIError;
     }
 
     add(other: any): any {
-        return this.mathOp(other, function(a, b) { return a + b; });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Float(a.value + b.value);
+        });
     }
 
     sub(other: any): any {
-        return this.mathOp(other, function(a, b) { return a - b; });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Float(a.value - b.value);
+        });
     }
 
     mult(other: any): any {
-        return this.mathOp(other, function(a, b) { return a * b; });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Float(a.value * b.value);
+        });
     }
 
     floordiv(other: any): any {
-        return this.mathOp(other, function(a, b) { return Math.floor(a / b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Float(Math.floor(a.value / b.value));
+        });
     }
 
     div(other: any): any {
@@ -65,21 +68,27 @@ class Py_Float {
     }
 
     truediv(other: any): any {
-        return this.mathOp(other, function(a, b) { return a / b; });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Float(a.value / b.value);
+        });
     }
 
     mod(other: any): any {
-        return this.mathOp(other, function(a, b) { return a % b; });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Float(a.value % b.value);
+        });
     }
 
     divmod(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return Math.floor(a/b) % b;
+            return new Py_Float(Math.floor(a.value / b.value) % b.value);
         });
     }
 
     pow(other: any): any {
-        return this.mathOp(other, function(a, b) { return Math.pow(a,b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Float(Math.pow(a.value, b.value));
+        });
     }
 
     // lshift(other: any): any {
@@ -103,20 +112,26 @@ class Py_Float {
     // }
 
     radd(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a + b; });
+        return this.revMathOp(other, function(a, b) {
+            return new Py_Float(a.value + (b.value));
+        });
     }
 
     rsub(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a - b; });
+        return this.revMathOp(other, function(a, b) {
+            return new Py_Float(a.value - (b.value));
+        });
     }
 
     rmult(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a * b; });
+        return this.revMathOp(other, function(a, b) {
+            return new Py_Float(a.value * (b.value));
+        });
     }
 
     rfloordiv(other: any): any {
         return this.revMathOp(other, function(a, b) {
-            return Math.floor(a / b);
+            return new Py_Float(Math.floor(a.value / b.value));
         });
     }
 
@@ -125,21 +140,27 @@ class Py_Float {
     }
 
     rtruediv(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a / b; });
+        return this.revMathOp(other, function(a, b) {
+            return new Py_Float(a.value / (b.value));
+        });
     }
 
     rmod(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a % b; });
+        return this.revMathOp(other, function(a, b) {
+            return new Py_Float(a.value % (b.value));
+        });
     }
 
     rdivmod(other: any): any {
         return this.revMathOp(other, function(a, b) {
-            return Math.floor(a / b) % b;
+            return new Py_Float(Math.floor(a.value / b.value) % b.value);
         });
     }
 
     rpow(other: any): any {
-        return this.revMathOp(other, function(a, b) { return Math.pow(a,b); });
+        return this.revMathOp(other, function(a, b) {
+            return new Py_Float(Math.pow(a.value,b.value));
+        });
     }
 
     // rlshift(other: any): any {
@@ -183,39 +204,39 @@ class Py_Float {
     // }
 
     // Rich comparison ops
-    private cmpOp(other: any, op: (a: number, b: number) => any): any {
+    private cmpOp(other: any, op: (a: Py_Float, b: Py_Float) => any): any {
         if (other.isInt)
-            return op(this.value, Py_Float.fromPy_Int(other).value);
+            return op(this, Py_Float.fromPy_Int(other));
         else if (other.isLong)
-            return op(this.value, Py_Float.fromPy_Long(other).value);
+            return op(this, Py_Float.fromPy_Long(other));
         else if (other.isFloat)
-            return op(this.value, other.value);
+            return op(this, other);
         else
             return NIError;
     }
 
     lt(other): boolean {
-        return this.cmpOp(other, function(a, b) { return a < b; });
+        return this.cmpOp(other, function(a, b) { return a.value < b.value; });
     }
 
     le(other): boolean {
-        return this.cmpOp(other, function(a, b) { return a <= b; });
+        return this.cmpOp(other, function(a, b) { return a.value <= b.value; });
     }
 
     eq(other): boolean {
-        return this.cmpOp(other, function(a, b) { return a == b; });
+        return this.cmpOp(other, function(a, b) { return a.value == b.value; });
     }
 
     ne(other): boolean {
-        return this.cmpOp(other, function(a, b) { return a != b; });
+        return this.cmpOp(other, function(a, b) { return a.value != b.value; });
     }
 
     gt(other): boolean {
-        return this.cmpOp(other, function(a, b) { return a > b; });
+        return this.cmpOp(other, function(a, b) { return a.value > b.value; });
     }
 
     ge(other): boolean {
-        return this.cmpOp(other, function(a, b) { return a >= b; });
+        return this.cmpOp(other, function(a, b) { return a.value >= b.value; });
     }
 
     toNumber(): number {
