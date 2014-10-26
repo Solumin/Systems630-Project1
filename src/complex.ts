@@ -75,6 +75,8 @@ class Py_Complex {
 
     floordiv(other: any): any {
         return this.mathOp(other, function(a, b) {
+            if (b.real.value == 0 && b.imag.value == 0)
+                throw new Error("Division by 0")
             var r, i, d: Py_Float;
             r = a.real.mult(b.real).add(a.imag.mult(b.imag));
             i = a.imag.mult(b.real).sub(a.real.mult(b.imag));
@@ -89,6 +91,8 @@ class Py_Complex {
 
     truediv(other: any): any {
         return this.mathOp(other, function(a, b) {
+            if (b.real.value == 0 && b.imag.value == 0)
+                throw new Error("Division by 0")
             var r, i, d: Py_Float;
             r = a.real.mult(b.real).add(a.imag.mult(b.imag));
             i = a.imag.mult(b.real).sub(a.real.mult(b.imag));
@@ -99,7 +103,18 @@ class Py_Complex {
 
     mod(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return new Py_Complex(a.real.mod(b.real), a.imag.mod(b.imag));
+            if (b.real.value == 0 && b.imag.value == 0)
+                throw new Error("Modulo by 0");
+            else if (b.real.value == 0)
+                return new Py_Complex(a.real, a.imag.mod(b.imag));
+            else if (b.imag.value == 0)
+                return new Py_Complex(a.real.mod(b.real), a.imag);
+            else {
+                var div = new Py_Complex(a.floordiv(b).real, new Py_Float(0));
+                // See complexobject.c, because Python is weird
+                // See Wikipedia: Modulo_operation#Modulo_operation_expression
+                return a.sub(b.mult(div));
+            }
         });
     }
 
@@ -161,6 +176,8 @@ class Py_Complex {
 
     rfloordiv(other: any): any {
         return this.revMathOp(other, function(a, b) {
+            if (b.real.value == 0 && b.imag.value == 0)
+                throw new Error("Division by 0")
             var r, i, d: Py_Float;
             r = a.real.mult(b.real).add(a.imag.mult(b.imag));
             i = a.imag.mult(b.real).sub(a.real.mult(b.imag));
@@ -175,6 +192,8 @@ class Py_Complex {
 
     rtruediv(other: any): any {
         return this.revMathOp(other, function(a, b) {
+            if (b.real.value == 0 && b.imag.value == 0)
+                throw new Error("Division by 0")
             var r, i, d: Py_Float;
             r = a.real.mult(b.real).add(a.imag.mult(b.imag));
             i = a.imag.mult(b.real).sub(a.real.mult(b.imag));
@@ -185,7 +204,14 @@ class Py_Complex {
 
     rmod(other: any): any {
         return this.revMathOp(other, function(a, b) {
-            return new Py_Complex(a.real.mod(b.real), a.imag.mod(b.imag));
+            if (b.real.value == 0 && b.imag.value == 0)
+                throw new Error("Modulo by 0");
+            else if (b.real.value == 0)
+                return new Py_Complex(a.real, a.imag.mod(b.imag));
+            else if (b.imag.value == 0)
+                return new Py_Complex(a.real.mod(b.real), a.imag);
+            else
+                return a.sub(b.mult(a.floordiv(b)));
         });
     }
 

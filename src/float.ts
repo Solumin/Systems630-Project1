@@ -59,6 +59,8 @@ class Py_Float {
 
     floordiv(other: any): any {
         return this.mathOp(other, function(a, b) {
+            if (b.value == 0)
+                throw new Error("Division by 0");
             return new Py_Float(Math.floor(a.value / b.value));
         });
     }
@@ -69,13 +71,18 @@ class Py_Float {
 
     truediv(other: any): any {
         return this.mathOp(other, function(a, b) {
+            if (b.value == 0)
+                throw new Error("Division by 0");
             return new Py_Float(a.value / b.value);
         });
     }
 
     mod(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return new Py_Float(a.value % b.value);
+            if (b.value == 0)
+                throw new Error("Modulo by 0");
+            // return new Py_Float(a.value % b.value);
+            return a.sub(b.mult(a.floordiv(b)));
         });
     }
 
@@ -131,6 +138,8 @@ class Py_Float {
 
     rfloordiv(other: any): any {
         return this.revMathOp(other, function(a, b) {
+            if (b.value == 0)
+                throw new Error("Division by 0");
             return new Py_Float(Math.floor(a.value / b.value));
         });
     }
@@ -141,12 +150,16 @@ class Py_Float {
 
     rtruediv(other: any): any {
         return this.revMathOp(other, function(a, b) {
+            if (b.value == 0)
+                throw new Error("Division by 0");
             return new Py_Float(a.value / (b.value));
         });
     }
 
     rmod(other: any): any {
         return this.revMathOp(other, function(a, b) {
+            if (b.value == 0)
+                throw new Error("Modulo by 0");
             return new Py_Float(a.value % (b.value));
         });
     }

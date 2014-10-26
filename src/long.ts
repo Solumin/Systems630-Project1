@@ -65,7 +65,7 @@ class Py_Long {
         return this.mathOp(other, function(a, b) {
             if (b.value.isZero())
                 throw new Error("Division by 0");
-            return new Py_Long(a.value.divToInt(b.value));
+            return new Py_Long(a.value.div(b.value).floor());
         });
     }
 
@@ -85,7 +85,7 @@ class Py_Long {
         return this.mathOp(other, function(a, b) {
             if (b.value.isZero())
                 throw new Error("Modulo by 0");
-            return new Py_Long(a.value.modulo(b.value));
+            return a.sub(b.mult(a.floordiv(b)));
         });
     }
 
@@ -161,7 +161,7 @@ class Py_Long {
         return this.revMathOp(other, function(a, b) {
             if (b.value.isZero())
                 throw new Error("Division by 0");
-            return new Py_Long(a.value.divToInt(b.value));
+            return new Py_Long(a.value.div(b.value).floor());
         });
     }
 
@@ -181,7 +181,7 @@ class Py_Long {
         return this.revMathOp(other, function(a, b) {
             if (b.value.isZero())
                 throw new Error("Division by 0");
-            return new Py_Long(a.value.modulo(b.value));
+            return a.sub(b.mult(a.floordiv(b)));
         });
     }
 

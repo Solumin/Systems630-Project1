@@ -68,7 +68,10 @@ class Py_Int {
         return this.mathOp(other, function(a, b) {
             if (b.value.isZero())
                 throw new Error("Modulos by 0 is not allowed");
-            return new Py_Int(a.value.modulo(b.value));
+            // return new Py_Int(a.value.modulo(b.value));
+            console.log("MOD: ", a, b);
+            console.log("FLOORDIV: ", a.floordiv(b));
+            return a.sub(b.mult(a.floordiv(b)));
         });
     }
 
@@ -166,6 +169,7 @@ class Py_Int {
             if (b.value.isZero())
                 throw new Error("Modulo by 0 is not allowed");
             return new Py_Int(a.value.modulo(b.value));
+            // return a.sub(b.mult(a.floordiv(b)));
         });
     }
 
