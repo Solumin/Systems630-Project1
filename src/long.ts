@@ -212,7 +212,7 @@ class Py_Long {
 
     // ~x = (-x) - 1 for integers, emulate it w/ long
     invert(): Py_Long {
-        return this.neg().sub(1);
+        return this.neg().sub(Py_Long.fromString("1"));
     }
 
     // Rich comparison ops

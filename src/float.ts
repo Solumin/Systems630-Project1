@@ -34,9 +34,10 @@ class Py_Float {
         if (other.isInt)
             return new Py_Float(op(Py_Float.fromPy_Int(other).value,
                                    this.value));
-        if (other.isLong)
+        if (other.isLong) {
             return new Py_Float(op(Py_Float.fromPy_Long(other).value,
                                    this.value));
+        }
         else if (other.isFloat)
             return new Py_Float(op(other.value, this.value));
         else
@@ -83,44 +84,40 @@ class Py_Float {
 
     // lshift(other: any): any {
     //     return NIError
-    //     // return this.mathOp(other, function(a, b) {
-    //     //     return a.times(Decimal.pow(2, b));
-    //     // ; });
     // }
 
     // rshift(other: any): any {
     //     return NIError
-    //     // return this.mathOp(other, function(a, b) {
-    //     //     return a.divToInt(Decimal.pow(2, b));
-    //     // ; });
     // }
 
     // and(other: any): any {
-    //    return this.mathOp(other, function(a, b) { return a & b; });
+    //    return NIError
     // }
 
     // xor(other: any): any {
-    //    return this.mathOp(other, function(a, b) { return a ^ b; });
+    //    return NIError
     // }
 
     // or(other: any): any {
-    //    return this.mathOp(other, function(a, b) { return a | b; });
+    //    return NIError
     // }
 
     radd(other: any): any {
-        return this.mathOp(other, function(a, b) { return a + b; });
+        return this.revMathOp(other, function(a, b) { return a + b; });
     }
 
     rsub(other: any): any {
-        return this.mathOp(other, function(a, b) { return a - b; });
+        return this.revMathOp(other, function(a, b) { return a - b; });
     }
 
     rmult(other: any): any {
-        return this.mathOp(other, function(a, b) { return a * b; });
+        return this.revMathOp(other, function(a, b) { return a * b; });
     }
 
     rfloordiv(other: any): any {
-        return this.mathOp(other, function(a, b) { return Math.floor(a / b); });
+        return this.revMathOp(other, function(a, b) {
+            return Math.floor(a / b);
+        });
     }
 
     rdiv(other: any): any {
@@ -128,47 +125,41 @@ class Py_Float {
     }
 
     rtruediv(other: any): any {
-        return this.mathOp(other, function(a, b) { return a / b; });
+        return this.revMathOp(other, function(a, b) { return a / b; });
     }
 
     rmod(other: any): any {
-        return this.mathOp(other, function(a, b) { return a % b; });
+        return this.revMathOp(other, function(a, b) { return a % b; });
     }
 
     rdivmod(other: any): any {
-        return this.mathOp(other, function(a, b) {
-            return (a / b) % b;
+        return this.revMathOp(other, function(a, b) {
+            return Math.floor(a / b) % b;
         });
     }
 
     rpow(other: any): any {
-        return this.mathOp(other, function(a, b) { return Math.pow(a,b); });
+        return this.revMathOp(other, function(a, b) { return Math.pow(a,b); });
     }
 
     // rlshift(other: any): any {
     //     return NIError
-    //     // return this.mathOp(other, function(a, b) {
-    //     //     return a.times(Decimal.pow(2, b));
-    //     // ; });
     // }
 
     // rrshift(other: any): any {
     //     return NIError
-    //     // return this.mathOp(other, function(a, b) {
-    //     //     return a.divToInt(Decimal.pow(2, b));
-    //     // ; });
     // }
 
     // rand(other: any): any {
-    //    return this.mathOp(other, function(a, b) { return a & b; });
+    //    return NIError
     // }
 
     // rxor(other: any): any {
-    //    return this.mathOp(other, function(a, b) { return a ^ b; });
+    //    return NIError
     // }
 
     // ror(other: any): any {
-    //    return this.mathOp(other, function(a, b) { return a | b; });
+    //    return NIError
     // }
 
     neg(): Py_Float {

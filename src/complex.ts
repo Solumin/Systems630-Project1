@@ -145,19 +145,19 @@ class Py_Complex {
     // }
 
     radd(other: any): any {
-        return this.mathOp(other, function(a, b) {
+        return this.revMathOp(other, function(a, b) {
             return new Py_Complex(a.real.add(b.real), a.imag.add(b.imag));
         });
     }
 
     rsub(other: any): any {
-        return this.mathOp(other, function(a, b) {
+        return this.revMathOp(other, function(a, b) {
             return new Py_Complex(a.real.sub(b.real), a.imag.sub(b.imag));
         });
     }
 
     rmult(other: any): any {
-        return this.mathOp(other, function(a, b) {
+        return this.revMathOp(other, function(a, b) {
             var r, i: Py_Float;
             r = (this.real.mult(other.real) - this.imag.mult(other.imag));
             i = (this.imag.mult(other.real) + this.real.mult(other.imag));
@@ -166,7 +166,7 @@ class Py_Complex {
     }
 
     rfloordiv(other: any): any {
-        return this.mathOp(other, function(a, b) {
+        return this.revMathOp(other, function(a, b) {
             var r, i, d: Py_Float;
             r = (this.real.mult(other.real) + this.imag.mult(other.imag));
             i = (this.imag.mult(other.real) - this.real.mult(other.imag));
@@ -180,7 +180,7 @@ class Py_Complex {
     }
 
     rtruediv(other: any): any {
-        return this.mathOp(other, function(a, b) {
+        return this.revMathOp(other, function(a, b) {
             var r, i, d: Py_Float;
             r = (this.real.mult(other.real) + this.imag.mult(other.imag));
             i = (this.imag.mult(other.real) - this.real.mult(other.imag));
@@ -190,13 +190,13 @@ class Py_Complex {
     }
 
     rmod(other: any): any {
-        return this.mathOp(other, function(a, b) {
+        return this.revMathOp(other, function(a, b) {
             return new Py_Complex(a.real.mod(b.real), a.imag.mod(b.imag));
         });
     }
 
     rdivmod(other: any): any {
-        return this.mathOp(other, function(a, b) {
+        return this.revMathOp(other, function(a, b) {
             return a.floordiv(b).mod(b);
         });
     }
@@ -205,7 +205,7 @@ class Py_Complex {
     // multiplication loops, but not negative or fractional powers.
     rpow(other: any): any {
         return NIError;
-        // return this.mathOp(other, function(a, b) {
+        // return this.revMathOp(other, function(a, b) {
         // });
     }
 
