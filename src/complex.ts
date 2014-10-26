@@ -39,7 +39,7 @@ class Py_Complex {
     // Reverse math ops will occur iff a `op` b => a doesn't implement op for
     // type b. For longs, this should occur for a: Py_Int, b: Py_Long
     // Therefore, these should do c: Py_Long = Py_Long(a), c `op` b
-    private revMathOp(other: any, op: (a: Py_Complex, b: Py_Complex) => any): any {
+    private revMathOp(other: any, op: (a: Py_Complex, b: Py_Complex)=>any): any {
         if (other.isInt)
             return op(Py_Complex.fromPy_Int(other), this);
         else if (other.isLong)
@@ -67,8 +67,8 @@ class Py_Complex {
     mult(other: any): any {
         return this.mathOp(other, function(a, b) {
             var r, i: Py_Float;
-            r = (this.real.mult(other.real) - this.imag.mult(other.imag));
-            i = (this.imag.mult(other.real) + this.real.mult(other.imag));
+            r = a.real.mult(b.real).sub(a.imag.mult(b.imag));
+            i = a.imag.mult(b.real).add(a.real.mult(b.imag));
             return new Py_Complex(r, i);
         });
     }
@@ -76,9 +76,9 @@ class Py_Complex {
     floordiv(other: any): any {
         return this.mathOp(other, function(a, b) {
             var r, i, d: Py_Float;
-            r = (this.real.mult(other.real) + this.imag.mult(other.imag));
-            i = (this.imag.mult(other.real) - this.real.mult(other.imag));
-            d = (other.real.mult(other.real) + other.imag.mult(other.imag));
+            r = a.real.mult(b.real).add(a.imag.mult(b.imag));
+            i = a.imag.mult(b.real).sub(a.real.mult(b.imag));
+            d = b.real.mult(b.real).add(b.imag.mult(b.imag));
             return new Py_Complex(r.floordiv(d), i.floordiv(d));
         });
     }
@@ -90,9 +90,9 @@ class Py_Complex {
     truediv(other: any): any {
         return this.mathOp(other, function(a, b) {
             var r, i, d: Py_Float;
-            r = (this.real.mult(other.real) + this.imag.mult(other.imag));
-            i = (this.imag.mult(other.real) - this.real.mult(other.imag));
-            d = (other.real.mult(other.real) + other.imag.mult(other.imag));
+            r = a.real.mult(b.real).add(a.imag.mult(b.imag));
+            i = a.imag.mult(b.real).sub(a.real.mult(b.imag));
+            d = b.real.mult(b.real).add(b.imag.mult(b.imag));
             return new Py_Complex(r.truediv(d), i.truediv(d));
         });
     }
@@ -120,28 +120,22 @@ class Py_Complex {
 
     // lshift(other: any): any {
     //     return NIError
-    //     // return this.mathOp(other, function(a, b) {
-    //     //     return a.times(Decimal.pow(2, b));
-    //     // ; });
     // }
 
     // rshift(other: any): any {
     //     return NIError
-    //     // return this.mathOp(other, function(a, b) {
-    //     //     return a.divToInt(Decimal.pow(2, b));
-    //     // ; });
     // }
 
     // and(other: any): any {
-    //    return this.mathOp(other, function(a, b) { return a & b; });
+    //    return NIError;
     // }
 
     // xor(other: any): any {
-    //    return this.mathOp(other, function(a, b) { return a ^ b; });
+    //    return NIError;
     // }
 
     // or(other: any): any {
-    //    return this.mathOp(other, function(a, b) { return a | b; });
+    //    return NIError;
     // }
 
     radd(other: any): any {
@@ -159,8 +153,8 @@ class Py_Complex {
     rmult(other: any): any {
         return this.revMathOp(other, function(a, b) {
             var r, i: Py_Float;
-            r = (this.real.mult(other.real) - this.imag.mult(other.imag));
-            i = (this.imag.mult(other.real) + this.real.mult(other.imag));
+            r = a.real.mult(b.real).sub(a.imag.mult(b.imag));
+            i = a.imag.mult(b.real).add(a.real.mult(b.imag));
             return new Py_Complex(r, i);
         });
     }
@@ -168,9 +162,9 @@ class Py_Complex {
     rfloordiv(other: any): any {
         return this.revMathOp(other, function(a, b) {
             var r, i, d: Py_Float;
-            r = (this.real.mult(other.real) + this.imag.mult(other.imag));
-            i = (this.imag.mult(other.real) - this.real.mult(other.imag));
-            d = (other.real.mult(other.real) + other.imag.mult(other.imag));
+            r = a.real.mult(b.real).add(a.imag.mult(b.imag));
+            i = a.imag.mult(b.real).sub(a.real.mult(b.imag));
+            d = b.real.mult(b.real).add(b.imag.mult(b.imag));
             return new Py_Complex(r.floordiv(d), i.floordiv(d));
         });
     }
@@ -182,9 +176,9 @@ class Py_Complex {
     rtruediv(other: any): any {
         return this.revMathOp(other, function(a, b) {
             var r, i, d: Py_Float;
-            r = (this.real.mult(other.real) + this.imag.mult(other.imag));
-            i = (this.imag.mult(other.real) - this.real.mult(other.imag));
-            d = (other.real.mult(other.real) + other.imag.mult(other.imag));
+            r = a.real.mult(b.real).add(a.imag.mult(b.imag));
+            i = a.imag.mult(b.real).sub(a.real.mult(b.imag));
+            d = b.real.mult(b.real).add(b.imag.mult(b.imag));
             return new Py_Complex(r.truediv(d), i.truediv(d));
         });
     }

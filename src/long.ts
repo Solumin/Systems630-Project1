@@ -22,11 +22,11 @@ class Py_Long {
         return new Py_Long(d);
     }
 
-    private mathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
+    private mathOp(other: any, op: (a: Py_Long, b: Py_Long) => any): any {
         if (other.isInt)
-            return new Py_Long(op(this.value, Py_Long.fromPy_Int(other).value));
+            return op(this, Py_Long.fromPy_Int(other));
         else if (other.isLong)
-            return new Py_Long(op(this.value, other.value));
+            return op(this, other);
         else
             return NIError;
     }
@@ -34,29 +34,39 @@ class Py_Long {
     // Reverse math ops will occur iff a `op` b => a doesn't implement op for
     // type b. For longs, this should occur for a: Py_Int, b: Py_Long
     // Therefore, these should do c: Py_Long = Py_Long(a), c `op` b
-    private revMathOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
+    private revMathOp(other: any, op: (a: Py_Long, b: Py_Long) => any): any {
         if (other.isInt)
-            return new Py_Long(op(Py_Long.fromPy_Int(other).value, this.value));
+            return op(Py_Long.fromPy_Int(other), this);
         else if (other.isLong)
-            return new Py_Long(op(other.value, this.value));
+            return op(other, this);
         else
             return NIError;
     }
 
     add(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.plus(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Long(a.value.plus(b.value));
+        });
     }
 
     sub(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.minus(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Long(a.value.minus(b.value));
+        });
     }
 
     mult(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.times(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Long(a.value.times(b.value));
+        });
     }
 
     floordiv(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.divToInt(b); });
+        return this.mathOp(other, function(a, b) {
+            if (b.value.isZero())
+                throw new Error("Division by 0");
+            return new Py_Long(a.value.divToInt(b.value));
+        });
     }
 
     div(other: any): any {
@@ -64,32 +74,42 @@ class Py_Long {
     }
 
     truediv(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.div(b); });
+        return this.mathOp(other, function(a, b) {
+            if (b.value.isZero())
+                throw new Error("Division by 0");
+            return new Py_Long(a.value.div(b.value));
+        });
     }
 
     mod(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.modulo(b); });
+        return this.mathOp(other, function(a, b) {
+            if (b.value.isZero())
+                throw new Error("Modulo by 0");
+            return new Py_Long(a.value.modulo(b.value));
+        });
     }
 
     divmod(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return a.divToInt(b).modulo(b);
+            return new Py_Long(a.value.divToInt(b.value).modulo(b.value));
         });
     }
 
     pow(other: any): any {
-        return this.mathOp(other, function(a, b) { return a.toPower(b); });
+        return this.mathOp(other, function(a, b) {
+            return new Py_Long(a.value.toPower(b.value));
+        });
     }
 
     lshift(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return a.times(Decimal.pow(2, b));
+            return new Py_Long(a.value.times(Decimal.pow(2, b.value)));
         });
     }
 
     rshift(other: any): any {
         return this.mathOp(other, function(a, b) {
-            return a.divToInt(Decimal.pow(2, b));
+            return new Py_Long(a.value.divToInt(Decimal.pow(2, b.value)));
         });
     }
 
@@ -102,37 +122,47 @@ class Py_Long {
         // if (other instanceof Py_Int)
         //     return new Py_Long(this.value.and(other.value));
         // else
-            return NIError;
+        return NIError;
     }
 
     xor(other: any): any {
         // if (other instanceof Py_Int)
         //     return new Py_Long(this.value.xor(other.value));
         // else
-            return NIError;
+        return NIError;
     }
 
     or(other: any): any {
         // if (other instanceof Py_Int)
         //     return new Py_Long(this.value.or(other.value));
         // else
-            return NIError;
+        return NIError;
     }
 
     radd(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a.plus(b); });
+        return this.revMathOp(other, function(a, b) {
+            return new Py_Long(a.value.plus(b.value));
+        });
     }
 
     rsub(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a.minus(b); });
+        return this.revMathOp(other, function(a, b) {
+            return new Py_Long(a.value.minus(b.value));
+        });
     }
 
     rmult(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a.times(b); });
+        return this.revMathOp(other, function(a, b) {
+            return new Py_Long(a.value.times(b.value));
+        });
     }
 
     rfloordiv(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a.divToInt(b); });
+        return this.revMathOp(other, function(a, b) {
+            if (b.value.isZero())
+                throw new Error("Division by 0");
+            return new Py_Long(a.value.divToInt(b.value));
+        });
     }
 
     rdiv(other: any): any {
@@ -140,33 +170,43 @@ class Py_Long {
     }
 
     rtruediv(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a.div(b); });
+        return this.revMathOp(other, function(a, b) {
+            if (b.value.isZero())
+                throw new Error("Division by 0");
+            return new Py_Long(a.value.div(b.value));
+        });
     }
 
     rmod(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a.modulo(b); });
+        return this.revMathOp(other, function(a, b) {
+            if (b.value.isZero())
+                throw new Error("Division by 0");
+            return new Py_Long(a.value.modulo(b.value));
+        });
     }
 
     rdivmod(other: any): any {
         return this.revMathOp(other, function(a, b) {
-            return a.divToInt(b).modulo(b)
-       ; });
+            return new Py_Long(a.value.divToInt(b.value).modulo(b.value));
+        });
     }
 
     rpow(other: any): any {
-        return this.revMathOp(other, function(a, b) { return a.toPower(b); });
+        return this.revMathOp(other, function(a, b) {
+            return new Py_Long(a.value.toPower(b.value));
+        });
     }
 
     rlshift(other: any): any {
         return this.revMathOp(other, function(a, b) {
-            return a.times(Decimal.pow(2, b));
-       ; });
+            return new Py_Long(a.value.times(Decimal.pow(2, b.value)));
+        });
     }
 
     rrshift(other: any): any {
         return this.revMathOp(other, function(a, b) {
-            return a.divToInt(Decimal.pow(2, b));
-       ; });
+            return new Py_Long(a.value.divToInt(Decimal.pow(2, b.value)));
+        });
     }
 
     // And, Xor and Or require messing with the guts of Decimal
@@ -178,21 +218,21 @@ class Py_Long {
         // if (other instanceof Py_Int)
         //     return new Py_Long(this.value.and(other.value));
         // else
-            return NIError;
+        return NIError;
     }
 
     rxor(other: any): any {
         // if (other instanceof Py_Int)
         //     return new Py_Long(this.value.xor(other.value));
         // else
-            return NIError;
+        return NIError;
     }
 
     ror(other: any): any {
         // if (other instanceof Py_Int)
         //     return new Py_Long(this.value.or(other.value));
         // else
-            return NIError;
+        return NIError;
     }
 
     neg(): Py_Long {
@@ -216,42 +256,48 @@ class Py_Long {
     }
 
     // Rich comparison ops
-    private cmpOp(other: any, op: (a: Decimal, b: Decimal) => any): any {
+    private cmpOp(other: any, op: (a: Py_Long, b: Py_Long) => any): any {
         if (other.isInt)
-            return op(this.value, Py_Long.fromPy_Int(other).value);
+            return op(this, Py_Long.fromPy_Int(other));
         else if (other.isLong)
-            return op(this.value, other.value);
+            return op(this, other);
         else
             return NIError;
     }
 
     lt(other): boolean {
-        return this.cmpOp(other, function(a, b) { return a.lessThan(b); });
+        return this.cmpOp(other, function(a, b) {
+            return a.value.lessThan(b.value);
+        });
     }
 
     le(other): boolean {
         return this.cmpOp(other, function(a, b) {
-            return a.lessThanOrEqualTo(b);
+            return a.value.lessThanOrEqualTo(b.value);
         });
     }
 
     eq(other): boolean {
-        return this.cmpOp(other, function(a, b) { return a.equals(b); });
+        return this.cmpOp(other, function(a, b) {
+            return a.value.equals(b.value);
+        });
     }
 
     ne(other): boolean {
-        return this.cmpOp(other, function(a, b) { return !a.equals(b); });
+        return this.cmpOp(other, function(a, b) {
+            return !a.value.equals(b.value);
+        });
     }
 
     gt(other): boolean {
         return this.cmpOp(other, function(a, b) {
-            return a.greaterThan(b);
+            return a.value.greaterThan(b.value);
         });
     }
 
     ge(other): boolean {
         return this.cmpOp(other, function(a, b) {
-            return a.greaterThanOrEqualTo(b);
+            return a.value.greaterThanOrEqualTo(b.value);
         });
     }
 

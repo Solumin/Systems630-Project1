@@ -46,6 +46,8 @@ class Py_Int {
 
     floordiv(other: any): any {
         return this.mathOp(other, function(a, b) {
+            if (b.value.isZero())
+                throw new Error("Division by 0");
             return new Py_Int(a.value.div(b.value));
         });
     }
@@ -64,6 +66,8 @@ class Py_Int {
 
     mod(other: any): any {
         return this.mathOp(other, function(a, b) {
+            if (b.value.isZero())
+                throw new Error("Modulos by 0 is not allowed");
             return new Py_Int(a.value.modulo(b.value));
         });
     }
@@ -140,6 +144,8 @@ class Py_Int {
 
     rfloordiv(other: any): any {
         return this.mathOp(other, function(a, b) {
+            if (b.value.isZero())
+                throw new Error("Division by 0");
             return new Py_Int(a.value.div(b.value));
         });
     }
@@ -157,6 +163,8 @@ class Py_Int {
 
     rmod(other: any): any {
         return this.mathOp(other, function(a, b) {
+            if (b.value.isZero())
+                throw new Error("Modulo by 0 is not allowed");
             return new Py_Int(a.value.modulo(b.value));
         });
     }
