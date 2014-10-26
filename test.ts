@@ -2,11 +2,17 @@ import Unmarshaller = require('./src/unmarshal');
 import Interpreter = require('./src/interpreter');
 import Py_CodeObject = require('./src/codeobject');
 
-console.log("Running Integer test...")
-var u = new Unmarshaller("examples/math/intTest.pyc");
-var i = new Interpreter();
-var code: Py_CodeObject = u.value();
-i.interpret(u.value());
+var interp = new Interpreter();
+function test(name, file) {
+    console.log("Running " + name + "...");
+    var u = new Unmarshaller(file);
+    // The test does all the pass/fail checking
+    interp.interpret(u.value());
+    console.log();
+}
+
+test("Integer test", "examples/math/intTest.pyc");
+test("Keyword arguments in a function", "examples/functions/keywordargs.pyc");
 
 // console.log("Running unmarshal test...");
 // var u = new Unmarshaller("examples/play.pyc");

@@ -419,8 +419,8 @@ class Interpreter {
         var b = f.pop();
         var a = f.pop();
 
-        if (typeof a == 'string' || typeof b == 'string') {
-            f.push(a.toString() + b.toString());
+        if (typeof a == 'string' && typeof b == 'string') {
+            f.push(a + b);
             return;
         }
 
