@@ -2,6 +2,8 @@
 *.js
 ## Except for the ones in lib/
 !lib/*.js
+## Also, except for main driver!
+!main.js
 # .pyc files should be generated and cleaned by make
 examples/**/*.pyc
 # Ignore Vim's swap files

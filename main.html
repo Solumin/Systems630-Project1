@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <head>
+    <meta content="text/html; charset=UTF-8" />
+    <title>Systems 630 Project 1: Python Bytecode Intepreter</title>
 </head>
 <body>
     <input type="file" accept=".pyc" id="pycfile"/>
     <input id="processFile" type="button" value="Process File">
+    <p><legend>Output:</legend></p>
+    <p>
+    <textarea id="output" readonly=true rows="25" cols="80"></textarea>
+    </p>
 
     <script type="text/javascript" src="lib/browserfs.js"></script>
     <script type="text/javascript" src="pyinterp.js"></script>

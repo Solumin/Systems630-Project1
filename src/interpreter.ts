@@ -17,9 +17,13 @@ class Interpreter {
     stack: any[]
     builtins: { [name: string]: any } = {"True": true, "False": false,
             "None": None, "NotImplemented": NotImplementedError};
+    outputDevice: any;
 
-    constructor() {
+    constructor(out = process.stdout) {
         this.stack = [];
+        if (typeof out.write == 'undefined')
+            throw new Error("Output device must have a 'write' method");
+        this.outputDevice = out;
     }
 
     // toBool returns false if the argument would be considered False in Python
@@ -645,12 +649,12 @@ class Interpreter {
     // 71: PRINT_ITEM
     print_item(f: Py_FrameObject) {
         var a = f.pop();
-        process.stdout.write(a.toString());
+        this.outputDevice.write(a.toString());
     }
 
     // 72: PRINT_NEWLINE
     print_newline(f: Py_FrameObject) {
-        process.stdout.write("\n");
+        this.outputDevice.write("\n");
     }
 
     // 83: RETURN_VALUE
