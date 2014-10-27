@@ -1,3 +1,4 @@
+import fs = require('fs');
 import Unmarshaller = require('./src/unmarshal');
 import Interpreter = require('./src/interpreter');
 import Py_CodeObject = require('./src/codeobject');
@@ -5,7 +6,7 @@ import Py_CodeObject = require('./src/codeobject');
 var interp = new Interpreter();
 function test(name, file) {
     console.log("Running " + name);
-    var u = new Unmarshaller(file);
+    var u = new Unmarshaller(fs.readFileSync(file));
     // The test does all the pass/fail checking
     interp.interpret(u.value());
     console.log();

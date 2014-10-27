@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<head>
+</head>
+<body>
+    <input type="file" accept=".pyc" id="pycfile"/>
+    <input id="processFile" type="button" value="Process File">
+
+    <script type="text/javascript" src="lib/browserfs.js"></script>
+    <script type="text/javascript" src="pyinterp.js"></script>
+    <script type="text/javascript">
+        <!-- Get the contents of the .pyc file -->
+        function readFile(e) {
+            console.log('READER: ', e.target);
+            var pycdata = new Buffer(e.target.result);
+            console.log(pycdata);
+            return pycdata;
+        }
+
+        <!-- Once user has selected file, load it to be read -->
+        function loadFile() {
+            var pycfile = document.getElementById('pycfile').files[0];
+            if (typeof pycfile === "undefined") {
+                console.log("NO FILE UPLOADED");
+                return;
+            }
+            console.log('PYC: ', pycfile);
+            var reader = new FileReader();
+            reader.onerror = (function (error) { console.log(error);});
+            reader.onload = readFile;
+        }
+
+        BrowserFS.install(window);
+        document.getElementById("processFile").onclick = loadFile;
+    </script>
+</body>

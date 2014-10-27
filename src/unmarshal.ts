@@ -10,7 +10,6 @@ import Py_Complex = require('./complex');
 import None = require('./none');
 import fs = require('fs');
 import gLong = require("../lib/gLong");
-// TODO: Write declaration file for decimal.js
 var Decimal = require('../lib/decimal');
 
 // An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX")
@@ -31,12 +30,11 @@ class Unmarshaller {
     // The output of unmarshalling the .pyc file
     output: Py_CodeObject;
 
-    constructor(inputFilePath: string) {
+    constructor(inputBuffer: Buffer) {
         // Initialize values
         this.internedStrs = [];
         // For testing purposes, this is synchronous
-        // TODO: Replace with BrowserFS call
-        this.input = fs.readFileSync(inputFilePath);
+        this.input = inputBuffer;
         this.magicNumber = this.input.readUInt16LE(0);
 
         if (this.magicNumber != Unmarshaller.PYTHON_2_7_8_MAGIC) {

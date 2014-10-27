@@ -12,11 +12,16 @@ JSSOURCES=$(TSSOURCES:.ts=.js)
 # Example files:
 PYSOURCES=$(wildcard $(EDIR)/*.py) $(wildcard $(EDIR)/**/*.py)
 EXSOURCES=$(PYSOURCES:.py=.pyc)
+# Main library output file:
+MAINOUT=pyinterp.js
+# Flags for compiling main file
+MAINFLAGS=--out $(MAINOUT)
 # Test application file:
 TEST=test.ts
 TESTJS=test.js
 
-# all:
+main:
+	$(TSC) $(TSCFLAGS) $(MAINFLAGS) $(TSSOURCES)
 
 test: $(TESTJS) $(EXSOURCES)
 	@echo WARNING:
