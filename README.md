@@ -10,6 +10,16 @@ Systems630-Project1
 
 **Tested on:** Google Chrome 38.0.2125.104 (64-bit)
 
+## Features
+Supports a subset of Python 2.7.8 bytecode:
+- Functions (including keyword and default arguments)
+- Condition statements (`if` and comparisons of integers and booleans)
+- The four numeric types: Integer (32 and 64 bit), Long (arbitrary precision),
+  Float and Complex.
+    - Certain operations are unsupported, e.g. powers for complex numbers
+- Output via printing
+    - Spaces are not automatically inserted between elements
+
 # Usage
 
 ## Running Main Interpreter
