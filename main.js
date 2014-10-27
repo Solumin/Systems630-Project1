@@ -4,13 +4,8 @@ var Interpreter = require('./src/interpreter');
 
 // Get the contents of the .pyc file
 function readFile(readerEvent) {
-    console.log("PYC: ", readerEvent.target.result);
-    console.log("Length: ", readerEvent.target.result.byteLength);
     var buffer = new Uint8Array(readerEvent.target.result);
     var pycdata = new Buffer(buffer);
-    // var pycdata = new Buffer(readerEvent.target.result);
-    console.log("DATA:", pycdata);
-    console.log("Length:", pycdata.length);
     interpData(pycdata);
 }
 
@@ -18,34 +13,41 @@ function readFile(readerEvent) {
 function loadFile() {
     var pycfile = document.getElementById('pycfile').files[0];
     if (typeof pycfile === "undefined") {
-        console.log("NO FILE UPLOADED");
+        alert("Please upload a .pyc file");
         return;
     }
-    console.log("PYC File:", pycfile);
     var reader = new FileReader();
-    reader.onerror = (function (error) { console.log(error);});
+    reader.onerror = function(error) {
+        alert("There was an error when loading the file:\n" + error);
+    }
+
     reader.onload = readFile;
     reader.readAsArrayBuffer(pycfile);
 }
 
 // Once file has been loaded and read, interpret it
 function interpData(data) {
-    console.log("In interpData");
     if (data.length == 0) {
-        console.log("No data!");
+        alert("No data could be read from the file.");
         return;
     }
 
+    // Prepare the device for output
     var outputDevice = {}
     var outputField = document.getElementById("output");
     outputDevice['write'] = function(str) {
         outputField.value += str;
     };
+    // Reset the outputField's output
+    outputField.value = "";
 
+    // Create the interpreter and unmarshaller instance
     var interp = new Interpreter(outputDevice);
     var unmar = new Unmarshaller(data);
-    var value = unmar.value();
-    console.log(interp.interpret(value));
+    // Unmarshal the file
+    var code = unmar.value();
+    // Interpret the code!
+    interp.interpret(code);
 }
 
 BrowserFS.install(window);

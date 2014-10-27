@@ -3,14 +3,22 @@ import Py_Int = require('./integer');
 import Py_Long = require('./long');
 import Py_Float = require('./float');
 
+// Py_Complex models Python Complex numbers. These are stored as 2
+// floating-point numbers, one each for the real and imaginary components.
+// Complex is the "widest" of Python's numeric types, which means any operation
+// between another number and a complex will (most likely) recast the other
+// number as a Complex.
 class Py_Complex {
     isComplex: boolean = true;
     constructor(public real: Py_Float, public imag: Py_Float) {}
 
+    // fromNumber creates a new complex number from 1 or 2 JS numbers.
+    // This is simple since Py_Floats are just wrappers around JS numbers.
     static fromNumber(r: number, i = 0) {
         return new Py_Complex(new Py_Float(r), new Py_Float(i));
     }
 
+    // The following three functions are used to widen other numbers to Complex.
     static fromPy_Int(n: Py_Int): Py_Complex {
         return new Py_Complex(Py_Float.fromPy_Int(n), new Py_Float(0));
     }
@@ -23,6 +31,9 @@ class Py_Complex {
         return new Py_Complex(n, new Py_Float(0));
     }
 
+    // All mathematical operations on Complex numbers must accept any other
+    // Python numbers (Int, Long and Float). Therefore, this 'wrapper' is used
+    // to handle the common case of casting the other argument to a Complex.
     private mathOp(other: any, op: (a: Py_Complex, b: Py_Complex) => any): any {
         if (other.isInt)
             return op(this, Py_Complex.fromPy_Int(other));
@@ -52,6 +63,7 @@ class Py_Complex {
             return NIError;
     }
 
+    // The following operations should be self explanatory.
     add(other: any): any {
         return this.mathOp(other, function(a, b) {
             return new Py_Complex(a.real.add(b.real), a.imag.add(b.imag));
@@ -64,6 +76,8 @@ class Py_Complex {
         });
     }
 
+    // Multiplication and division are weird on Complex numbers. Wikipedia is a
+    // good primer on the subject.
     mult(other: any): any {
         return this.mathOp(other, function(a, b) {
             var r, i: Py_Float;
@@ -101,6 +115,9 @@ class Py_Complex {
         });
     }
 
+    // Modulo is REALLY weird in Python. (a % b) will always have the sign of b,
+    // and a = (a//b)*b + (a%b). Complex numbers make it worse, because they
+    // only consider the real component of (a // b)
     mod(other: any): any {
         return this.mathOp(other, function(a, b) {
             if (b.real.value == 0 && b.imag.value == 0)
@@ -133,6 +150,8 @@ class Py_Complex {
         // });
     }
 
+    // The following are undefined for floats and therefore undefined for
+    // complex
     // lshift(other: any): any {
     //     return NIError
     // }
@@ -153,6 +172,7 @@ class Py_Complex {
     //    return NIError;
     // }
 
+    // Reverse operations. Same notes as above.
     radd(other: any): any {
         return this.revMathOp(other, function(a, b) {
             return new Py_Complex(a.real.add(b.real), a.imag.add(b.imag));
@@ -254,6 +274,8 @@ class Py_Complex {
         return this
     }
 
+    // This is the standard definition for absolute value: The ABSOLUTE distance
+    // of (a + bi) from 0. Therefore, hypotenuse.
     abs(): Py_Float {
         var r = this.real.value;
         var i = this.imag.value;

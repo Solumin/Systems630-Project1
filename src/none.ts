@@ -1,5 +1,5 @@
-// Null is an empty value. Mostly used in the interpreter for dictionaries.
-// Python has a single null object called "None".
+// Python has a single null object called "None". It's used to represent no
+// value. Here we loosely use it in singleton form for easier comparisons.
 class NullSingleton {
     private static _instance: NullSingleton;
 

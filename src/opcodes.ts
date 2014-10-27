@@ -1,3 +1,7 @@
+// The following is simply a list of all the opcodes in the Python bytecode.
+// It's stored here as an enum to make the main interpreter loop a little
+// cleaner. Note there are 'holes' in the list, e.g. 6 - 8, where no op is
+// defined.
 enum Opcodes {
     STOP_CODE            = 0,
     POP_TOP              = 1,

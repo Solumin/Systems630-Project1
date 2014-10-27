@@ -2,10 +2,14 @@ import NIError = require('./notimplementederror');
 import Py_Int = require('./integer');
 import Py_Long = require('./long');
 
+// Py_Float emulates the Python Floating-point numeric class. Py_Float is
+// basically a wrapper around JavaScript's numbers.
+// Note that edge cases with e.g. NaN, +/-Infinity are not really covered.
 class Py_Float {
     isFloat: boolean = true;
     constructor(public value: number) {}
 
+    // Float is below Complex but above Int and Long in the widening hierarchy
     static fromPy_Int(n: Py_Int): Py_Float {
         return new Py_Float(n.toNumber());
     }
@@ -14,6 +18,8 @@ class Py_Float {
         return new Py_Float(n.toNumber());
     }
 
+    // Like the other classes, Floats must widen Ints and Longs to perform the
+    // operation. This standardizes the math operation functions.
     private mathOp(other: any, op: (a: Py_Float, b: Py_Float) => any): any {
         if (other.isInt)
             return op(this, Py_Float.fromPy_Int(other));
@@ -39,6 +45,7 @@ class Py_Float {
             return NIError;
     }
 
+    // The following functions are dangerously self-explanatory
     add(other: any): any {
         return this.mathOp(other, function(a, b) {
             return new Py_Float(a.value + b.value);
@@ -77,6 +84,8 @@ class Py_Float {
         });
     }
 
+    // Modulo in Python has the following property: a % b) will always have the
+    // sign of b, and a == (a//b)*b + (a%b).
     mod(other: any): any {
         return this.mathOp(other, function(a, b) {
             if (b.value == 0)
@@ -98,6 +107,7 @@ class Py_Float {
         });
     }
 
+    // The following are undefined for Floats in Python, which is sensible
     // lshift(other: any): any {
     //     return NIError
     // }
@@ -118,6 +128,8 @@ class Py_Float {
     //    return NIError
     // }
 
+    // Reverse mathematical operations are the same as the above ops except with
+    // reversed arguments.
     radd(other: any): any {
         return this.revMathOp(other, function(a, b) {
             return new Py_Float(a.value + (b.value));
@@ -217,6 +229,8 @@ class Py_Float {
     // }
 
     // Rich comparison ops
+    // Similar to math ops, Floats have to be able to compare the narrower
+    // types.
     private cmpOp(other: any, op: (a: Py_Float, b: Py_Float) => any): any {
         if (other.isInt)
             return op(this, Py_Float.fromPy_Int(other));

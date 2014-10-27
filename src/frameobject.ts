@@ -1,5 +1,10 @@
 import Py_CodeObject = require('./codeobject');
 
+// Frame Objects are basically stack frames for functions, except they carry
+// extra context (e.g. globals, local scope, etc.). This class is not simplified
+// in order to keep the fairly neat documentation.
+// Frame objects maintain their own stack and scope. This allows for easier
+// handling of function calls and other scoping actions.
 class Py_FrameObject {
     // Previous stack frame (this frame's caller, may be None)
     back: Py_FrameObject;
@@ -47,6 +52,7 @@ class Py_FrameObject {
         this.stack = [];
     }
 
+    // Stack handling operations.
     push(v) {
         return this.stack.push(v);
     }
@@ -59,11 +65,13 @@ class Py_FrameObject {
         return this.stack[this.stack.length-1];
     }
 
+    // The frame's lastInst field keeps track of the last executed instruction.
     readOp(): number {
         this.lastInst += 1;
         return this.codeObj.code[this.lastInst];
     }
 
+    // Arguments are stored as 2 bytes, little-endian.
     readArg(): number {
         this.lastInst += 1;
         var low = this.codeObj.code[this.lastInst];

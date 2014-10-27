@@ -8,6 +8,8 @@ class Py_Long {
     isLong: boolean = true;
     constructor(public value: Decimal) {}
 
+    // Long is a step above integer in the hierarchy. They represent
+    // arbitrary-precision decimal numbers.
     static fromInt(n: number) {
         var d = Decimal(n);
         return new Py_Long(d);
@@ -17,11 +19,15 @@ class Py_Long {
         return Py_Long.fromString(n.toString());
     }
 
+    // fromString allows us to leverage the power of the underlying Decimal
+    // class to easily convert from Py_Int to Py_Long.
     static fromString(s: string) {
         var d = new Decimal(s);
         return new Py_Long(d);
     }
 
+    // Longs only have to widen Ints. This makes the main math operations
+    // straightforward, for the most part.
     private mathOp(other: any, op: (a: Py_Long, b: Py_Long) => any): any {
         if (other.isInt)
             return op(this, Py_Long.fromPy_Int(other));
@@ -43,6 +49,7 @@ class Py_Long {
             return NIError;
     }
 
+    // The following should be self explanatary, to an extent.
     add(other: any): any {
         return this.mathOp(other, function(a, b) {
             return new Py_Long(a.value.plus(b.value));
@@ -61,6 +68,10 @@ class Py_Long {
         });
     }
 
+    // Note: The Decimal type DOES have a divideToInteger function. In Python,
+    // the floor division operator always rounds towards negative infinity.
+    // Therefore, the slightly longer div(...).floor() method chain should be
+    // used.
     floordiv(other: any): any {
         return this.mathOp(other, function(a, b) {
             if (b.value.isZero())
@@ -69,6 +80,7 @@ class Py_Long {
         });
     }
 
+    // True division, always.
     div(other: any): any {
         return this.truediv(other);
     }
@@ -81,6 +93,8 @@ class Py_Long {
         });
     }
 
+    // As stated previously, Python's unusual mod rules come into play here.
+    // (a % b) has b's sign, and a == (a // b) * b + (a % b)
     mod(other: any): any {
         return this.mathOp(other, function(a, b) {
             if (b.value.isZero())
@@ -95,12 +109,14 @@ class Py_Long {
         });
     }
 
+    // Thankfully, Decimal has a toPower function.
     pow(other: any): any {
         return this.mathOp(other, function(a, b) {
             return new Py_Long(a.value.toPower(b.value));
         });
     }
 
+    // These are a bitty "hacky" but they get the job done.
     lshift(other: any): any {
         return this.mathOp(other, function(a, b) {
             return new Py_Long(a.value.times(Decimal.pow(2, b.value)));
@@ -139,6 +155,7 @@ class Py_Long {
         return NIError;
     }
 
+    // Reverse mathematical operations follow the same design as above.
     radd(other: any): any {
         return this.revMathOp(other, function(a, b) {
             return new Py_Long(a.value.plus(b.value));
@@ -250,12 +267,13 @@ class Py_Long {
             return this;
     }
 
-    // ~x = (-x) - 1 for integers, emulate it w/ long
+    // ~x = (-x) - 1 for integers, so we emulate that here
     invert(): Py_Long {
         return this.neg().sub(Py_Long.fromString("1"));
     }
 
-    // Rich comparison ops
+    // Rich comparison operations are used for intra-numeric comparisons.
+    // That just means we need to handle Ints and can pass anything else along.
     private cmpOp(other: any, op: (a: Py_Long, b: Py_Long) => any): any {
         if (other.isInt)
             return op(this, Py_Long.fromPy_Int(other));

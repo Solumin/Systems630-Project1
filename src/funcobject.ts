@@ -9,6 +9,9 @@
 
 import Py_CodeObject = require('./codeobject');
 
+// Similar to frame objects, Function Objects wrap Python functions. However,
+// these are more the data representation of functions, and are transformed into
+// Frame Objects when the function is called.
 class Py_FuncObject {
     code: Py_CodeObject;
     globals: { [name: string]: any };

@@ -1,7 +1,8 @@
 /// <reference path="../lib/node.d.ts" />
 
-// An Unmarshaller takes a .pyc file (as a string of binarys, e.g. "\xXX") and
-// converts into a Python code object.
+// An Unmarshaller takes a .pyc file (as a string of bytes, e.g. "\xXX") and
+// converts it into a Python code object. The marshal format is not officially
+// documented, and there may be unnecessary cruft in the unmarshal loop below.
 import Py_CodeObject = require('./codeobject');
 import Py_Int = require('./integer');
 import Py_Long = require('./long');
@@ -40,6 +41,8 @@ class Unmarshaller {
         if (this.magicNumber != Unmarshaller.PYTHON_2_7_8_MAGIC) {
             throw new Error("Unsupported Python version.");
         }
+        // Note: The 2 bytes after the magic number are just an CRLF and can be
+        // ignored.
 
         // Python marshals the date in seconds -- see time.localtime in the
         // Python stdlib.
@@ -49,7 +52,7 @@ class Unmarshaller {
         this.index = 8;
     }
 
-    // Processes the input string
+    // Processes the input string, returning the corresponding code object.
     value(): Py_CodeObject {
         if (this.output == null) {
             this.output = this.unmarshal();
@@ -79,7 +82,7 @@ class Unmarshaller {
         return s;
     }
 
-    // // Reads a 4-byte integer from the input
+    // Reads a 4-byte integer from the input. Used for string indices, etc.
     readInt32(): number {
         var i = this.input.readInt32LE(this.index);
         this.index += 4;
@@ -103,16 +106,23 @@ class Unmarshaller {
         return f;
     }
 
+    // Read a string from the input. Strings are encoded with a 32-bit integer
+    // length (in bytes), followed by the actual bytes of the string.
     readString(length: number, encoding = "ascii"): string {
         var s = this.input.toString(encoding, this.index, this.index+length);
         this.index += length;
         return s;
     }
 
+    // Unicode strings have to be treated differently by the Buffer class.
     readUnicodeString(length: number): string {
         return this.readString(length, "utf8");
     }
 
+    // Buffer's ASCII encoding automatically chops off the highest bit, so e.g.
+    // 0x84 (the MAKE_FUNCTION opcode) is truncated to 0x04. This is obviously
+    // disastrous. Instead, we read binary strings directly as Buffers.
+    // This function is really just a helper for unmarshalCodeString
     readBinaryString(length: number): Buffer {
         var buf = new Buffer(length);
         this.input.copy(buf, 0, this.index, this.index+length);
@@ -120,11 +130,8 @@ class Unmarshaller {
         return buf
     }
 
-    // Code strings are a special case: They're raw binary
-    // nodeJS buffers COULD handle this by using the 'ascii' encoding, except
-    // ONLY handles 7-bit chars. So something like "\x84", which is the
-    // MAKE_FUNCTION opcode and has the binary format 10000100b, is truncated to
-    // "\x04".
+    // Code strings are treated separately, since they're marshalled as normal
+    // strings but need to be unmarshalled as binary strings.
     unmarshalCodeString(): Buffer {
         var op = this.readChar();
         if (op != "s") {
@@ -134,7 +141,8 @@ class Unmarshaller {
         return this.readBinaryString(length);
     }
 
-    // Unmarshals the input string
+    // Unmarshals the input string recursively. May handle unneeded cases, e.g.
+    // T (true) and F (false) due to undocumented marshalling format.
     unmarshal() {
         var unit = this.readChar();
         var res: any;

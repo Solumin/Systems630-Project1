@@ -19,10 +19,12 @@ Supports a subset of Python 2.7.8 bytecode:
     - Certain operations are unsupported, e.g. powers for complex numbers
 - Output via printing
     - Spaces are not automatically inserted between elements
+- **NOTE:** This interpreter forces true division. That is, `5 / 2 == 2.5`. To
+  force floor division, use the `\\` operator à la Python 3.
 
 # Usage
 
-## Running Main Interpreter
+## Running the Interpreter
 - Compile the main JavaScript driver:
 ```
 $ make main
@@ -38,6 +40,8 @@ $ make main
 $ make test
 $ node test.js
 ```
+- Alternatively, follow the "Running the Interpreter" steps and load one of the
+  \*test.pyc files from the examples/ directory.
 
 ### Adding More Tests
 - Write the test: `testExample.py`
@@ -48,10 +52,3 @@ $ node test.js
 test("This is a sample test", "examples/path/to/testExample.pyc");
 ```
 - Make should be able to automatically compile the test file
-
-Repository for Project 1 of the CS630 Systems course
-
-- example\_pyc/ contains several sample Python files, their compiled versions,
-  and annotations on those compiled files.
-- pyc\_notes/ contains information gained while dissecting .pyc files
-- typescript/ contains a start at the .pyc unmarshaller.
