@@ -13,15 +13,20 @@ JSSOURCES=$(TSSOURCES:.ts=.js)
 PYSOURCES=$(wildcard $(EDIR)/*.py) $(wildcard $(EDIR)/**/*.py)
 EXSOURCES=$(PYSOURCES:.py=.pyc)
 # Main library output file:
+MAININ=main.js
 MAINOUT=pyinterp.js
 # Flags for compiling main file
-MAINFLAGS=--out $(MAINOUT)
+# MAINFLAGS=--out pyinter.js # This fails silently. GG, TypeScript.
 # Test application file:
 TEST=test.ts
 TESTJS=test.js
 
 main:
-	$(TSC) $(TSCFLAGS) $(MAINFLAGS) $(TSSOURCES)
+	@echo Compiling source files...
+	$(TSC) $(TSCFLAGS) $(TSSOURCES)
+	@echo
+	@echo Compiling main JS file...
+	browserify $(MAININ) > $(MAINOUT)
 
 test: $(TESTJS) $(EXSOURCES)
 	@echo WARNING:
@@ -63,5 +68,12 @@ clean-test: clean-ex
 	@echo Cleaning $(TESTJS)
 	$(RM) $(TESTJS)
 
-clean: clean-test clean-src clean-ex
+clean-main: clean-src
+	@echo
+	@echo Cleaning $(MAINOUT)
+	$(RM) $(MAINOUT)
+
+clean-all: clean-main clean-test clean-src clean-ex
+
+clean: clean-main
 
