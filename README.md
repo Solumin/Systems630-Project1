@@ -8,13 +8,36 @@ Systems630-Project1
 - Python 2.7.8 for compiling tests
     - `python2.7` should be in $PATH
 
-## Testing
+**Tested on:** Google Chrome 38.0.2125.104 (64-bit)
+
+# Usage
+
+## Running Main Interpreter
+- Compile the main JavaScript driver:
+```
+$ make main
+```
+- Load `main.html` in your browser of choice
+- Click on "Choose File" and upload a .pyc file
+- Click "Process File". The output should appear in the Output area.
+
+## Running Tests
 - Compile the test.js file and the Python tests with Make
 - Run the test.js file in node
 ```
 $ make test
 $ node test.js
 ```
+
+### Adding More Tests
+- Write the test: `testExample.py`
+- Save it somewhere in the examples/ directory
+- Add a new test to test.ts that gives a description for the test and a path to
+  the .pyc file:
+```javascript
+test("This is a sample test", "examples/path/to/testExample.pyc");
+```
+- Make should be able to automatically compile the test file
 
 Repository for Project 1 of the CS630 Systems course
 
