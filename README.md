@@ -2,7 +2,7 @@ Systems630-Project1
 ===================
 
 ## Dependencies
-- TypeScript
+- TypeScript version 1.1.0.1
 - Browserify (`npm install browserify`)
 - NodeJS for testing
 - Python 2.7.8 for compiling tests
@@ -21,6 +21,8 @@ Supports a subset of Python 2.7.8 bytecode:
     - Spaces are not automatically inserted between elements
 - **NOTE:** This interpreter forces true division. That is, `5 / 2 == 2.5`. To
   force floor division, use the `\\` operator à la Python 3.
+- Most unary and binary op codes are defined, along with those necessary for
+  loading and storing objects and executing functions.
 
 # Usage
 
