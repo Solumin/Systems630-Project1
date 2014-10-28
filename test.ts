@@ -2,7 +2,7 @@ import fs = require('fs');
 import Unmarshaller = require('./src/unmarshal');
 import Interpreter = require('./src/interpreter');
 
-var interp = new Interpreter();
+var interp = new Interpreter(process.stdout);
 function test(name, file) {
     console.log("Running " + name);
     var u = new Unmarshaller(fs.readFileSync(file));

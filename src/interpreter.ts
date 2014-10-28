@@ -12,15 +12,21 @@ import NotImplementedError = require('./notimplementederror');
 
 import gLong = require("../lib/gLong");
 
+// The Interpreter uses a simple Fetch-Decode-Execute loop to execute Python
+// code. Each program is first unmarshalled into a Py_CodeObject. The
+// interpreter then wraps the code object inside a frame object, which tracks
+// the execution state of the code (e.g. stack, instruction pointer, etc.). The
+// interpreter can be configured to output to any device as long as it has a
+// "write" method. The interpreter does not maintain its own stack.
 class Interpreter {
-    // The interpreter stack
-    stack: any[]
     builtins: { [name: string]: any } = {"True": true, "False": false,
             "None": None, "NotImplemented": NotImplementedError};
+    // More formally, this should be some kind of "IOWriter" interface that
+    // defines a write method. For this last-minute addition, it'll just have to
+    // be 'any'.
     outputDevice: any;
 
-    constructor(out = process.stdout) {
-        this.stack = [];
+    constructor(out: any) {
         if (typeof out.write == 'undefined')
             throw new Error("Output device must have a 'write' method");
         this.outputDevice = out;
@@ -50,12 +56,15 @@ class Interpreter {
         }
     }
 
+    // Interpret wraps a code object in a frame and executes it.
+    // This is the "base frame" and has no pointer to a previous frame.
     interpret(code: Py_CodeObject) {
         return this.exec(
             new Py_FrameObject(null, this.builtins, code, {}, -1,
                 code.firstlineno, {}, false));
     }
 
+    // exec is the Fetch-Execute-Decode loop for the interpreter.
     exec(frame: Py_FrameObject) {
         var code: Py_CodeObject = frame.codeObj;
         for (var op = frame.readOp(); op != undefined; op = frame.readOp()) {
@@ -123,12 +132,6 @@ class Interpreter {
                 case opcodes.BINARY_TRUE_DIVIDE:
                     this.binary_true_divide(frame);
                     break;
-                // case opcodes.INPLACE_FLOOR_DIVIDE:
-                //     this.inplace_floor_divide(frame);
-                //     break;
-                // case opcodes.INPLACE_TRUE_DIVIDE:
-                //     this.inplace_true_divide(frame);
-                //     break;
                 case opcodes.STORE_SUBSCR:
                     this.store_subscr(frame);
                     break;
@@ -327,7 +330,18 @@ class Interpreter {
             throw new Error("No inversion function for " + a);
     }
 
-     // 19: BINARY_POWER
+    // All of the binary functions follow the same chain of logic:
+    // 1. There is some function for each object that defines this operation
+    //    (e.g. addition is implemented by the "add" function)
+    // 2. Operations that are not supported for a particular type (e.g. binary
+    //    AND or shifts for non-integers) are left undefined.
+    // 3. If a particular operation is not defined for the given arguments,
+    //    the function will return the NotImplementedError.
+    // 4. If this is the case, try the reverse operation (rop) function
+    // 5. If rop is similarly undefined or returns NotImplementedError, the
+    //    operation is not permitted for the given types.
+
+    // 19: BINARY_POWER
     binary_power(f: Py_FrameObject) {
         var b = f.pop();
         var a = f.pop();
@@ -504,7 +518,8 @@ class Interpreter {
 
     // 27: BINARY_TRUE_DIVIDE
     // used when from __future__ import division is in effect
-    //TODO: do not know how it is different from BINARY_DIVIDE
+    // However, BINARY_DIV is forced to be TRUEDIVISION in the implementation of
+    // the numeric types.
     binary_true_divide(f: Py_FrameObject) {
         var b = f.pop();
         var a = f.pop();
@@ -698,7 +713,9 @@ class Interpreter {
 
         // Convert booleans to Integers
         // Python has True and False encoded as Integers (booleans, subclassed
-        // from Integer) but that will take too long
+        // from Integer) but that will take too long to implement
+        // Note that True = 1 and False = 0 is consistent with Python (True >
+        // False == True)
         if (typeof a == 'boolean') {
             if (a)
                 a = Py_Int.fromInt(1);
@@ -732,6 +749,7 @@ class Interpreter {
             case '>=':
                 f.push(this.doGE(a,b));
                 break;
+                // Comparisons of sequences and types are not implemented
             // case 'in':
             //     return b.some( function(elem, idx, arr) {
             //         return elem == a;
@@ -988,7 +1006,7 @@ class Interpreter {
     }
 
     //TODO: From here down to Opcodes: Check if this is the correct
-    //implementation
+    //implementation. (They should be Slice/Array objects, probably!)
     // 4: DUP_TOP
     dup_top(f: Py_FrameObject) {
         f.push(f.peek());
