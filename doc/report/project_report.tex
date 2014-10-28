@@ -221,6 +221,7 @@ The current tests are targeted at our numeric methods, function implementation, 
 
 \section{Results}\label{results}
 
+\paragraph{}
 We implemented a Python bytecode interpreter in TypeScript with the following features:
 
 \begin{itemize}
@@ -230,13 +231,21 @@ We implemented a Python bytecode interpreter in TypeScript with the following fe
   \item Most unary and binary opcodes, along with those necessary for loading and storing variables and executing functions
 \end{itemize}
 
+\paragraph{}
 We elected to enforce true division in our interpreter. In normal Python 2.x, the division operator performed floor division if both arguments were integers and normal division if otherwise. By enforcing true division, we remove ambiguity: `\texttt{/}' will never round the result and `\texttt{//}' can be used to perform floor division.
 
 \subsection{Not implemented}
 
 \paragraph{}
-As mentioned in the \textsc{Readme},
+There are many features of Python that we were unable to implement. Some of these are despite our work in that area; for example, we did not implement the power operator (\texttt{**}) for complex numbers, due to the complexity of the operation. Similarly, bitwise operations for long integers are undefined. Another small quirk is that the PRINT\_ITEM opcode does not put a space between items. While JavaScript's \texttt{console.log} function does this, we could not rely on the existence of this function for output. Unfortunately, we are missing many of Python's built-in functions and modules, which limits the effectiveness of our interpreter.
 
+\paragraph{}
+Additionally, some features are not fully implemented. We wrote the basic functions for managing Python slices and arrays, but did not build separate classes and did not thoroughly test these functions. As such, we are leaving them off the features list.
+
+\subsection{Challenges}
+
+\paragraph{}
+Our largest hurdle was our inexperience with JavaScript, TypeScript and Python. A better understanding of Python would have helped us avoid early pitfalls, like the na\"ive implementations of the numeric types that we started with. We could have developed more features more quickly if we were more experienced with TypeScript and JavaScript. We faced these challenges as best we could and produced a solid, if sparsely-featured, interpreter.
 
 %\bibliographystyle{unsrt}
 %\bibliography{sample}
