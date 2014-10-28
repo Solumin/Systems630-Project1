@@ -205,11 +205,27 @@ We encountered several other challenges while implementing the numeric types. Fo
 
 \section{Using the Interpreter}
 
-\subsection{In the Browser}
+\paragraph{}
+We treated the interpreter as a Node.js application during development, since this made it easier to develop and debug. Each class was given its own file, which the other classes imported as needed. External libraries were included as separate TypeScript and JavaScript files. Obviously, this approach does not work in the browser. The first step to enabling our interpreter in the browser was replacing NodeJS with John Vilk's BrowserFS\footnote{\url{https://github.com/jvilk/BrowserFS}}. We only used the file system and Buffer interfaces from NodeJS, which BrowserFS replaced with browser-friendly versions. The second step was turning our many JavaScript files into one script for the browser. We used Browserify\footnote{\url{http://browserify.org/}}, which takes a single sources JavaScript file and bundles all of its dependencies into one script. Thanks to these two resources, our Python bytecode interpreter is usable in the browser and on the command line.
 
-\subsection{On the Command Line: Node.JS}
+\paragraph{}
+The project's \textsc{Readme} describes how to use the interpreter in both of these situations. It should be noted that the Node.JS command line version is used for testing, while the browser version is used for interpreting random \pyc files.
 
 \subsection{Test Suite}
+
+\paragraph{}
+Given the size of this project, testing was a vital step for ensuring the correctness of our implementation. We first used very simple tests to in a sort of ``test-driven development'' model. Write a short Python script that tested a feature we wanted to implement, then throw it into the interpreter to see which opcodes we still needed to implement.
+
+\paragraph{}
+The current tests are targeted at our numeric methods, function implementation, and comparison methods. We developed the reference values by running each test in Python as we wrote the tests. The tests are not exhaustive, though more elaborate testing schemes (namely computer-generated tests) could be helpful for ensuring all corner cases and argument type combinations are covered.
+
+\section{Results}\label{results}
+
+We implemented a Python bytecode interpreter in TypeScript with the following features:
+
+\begin{itemize}
+  \item 
+\end{itemize}<++>
 
 \subsection{Not implemented}
 
