@@ -80,7 +80,7 @@ Instructor: & Professor Emery Berger % Instructor/supervisor
 The project consists of designing and implementing an interpreter for Python bytecode in TypeScript, a typed superset of JavaScript. The interpreter is designed to work in the browser, loading and executing programs from Python bytecode files, i.e. \pyc files. It can also be run with the Node.JS framework.
 
 \paragraph{}
-In Section~\ref{parser} we explain how we parsed the bytecode, what is the Marshall format and what data structures we used. In Section~\ref{interpreter} we explain the design of the interpreter and what we were able to implement.
+In Section~\ref{parser} we explain how we parsed the bytecode, what is the Marshal format and what data structures we used. In Section~\ref{interpreter} we explain the design of the interpreter and what we were able to implement.
 
 \section{Parser}\label{parser}
 
@@ -150,17 +150,28 @@ As with the code objects mentioned above, our implementation of frame objects wa
 We used several other data objects in our interpreter. Two of these are simple constants: None, Python's Null type; and NotImplemented, an error message used heavily by numeric methods. NotImplemented is discussed further in section~\ref{numeric}.
 
 \paragraph{}
-The other type of data object is Function Objects. While code objects are the ``physical'' representation of code and frame objects are the ``execution'' representation, function objects are the data representation of functions. A function is marshalled as just another code object
+The other type of data object is Function Objects. While code objects are the ``physical'' representation of code and frame objects are the ``execution'' representation, function objects are the data representation of functions. A function is marshalled as just another code object. The interpreter then loads this code object and the function's default arguments before using the MAKE\_FUNCTION bytecode to create a function object.
 
+\paragraph{}
+Function objects are primarily used to associate a function with its default arguments and the context (scope) of the program at the time of creation. The function object also wraps the original code object. The function object is stored for later use, namely when the CALL\_FUNCTION opcode is used. At this time, the function object is pushed to the stack with the arguments for this particular call. The opcode unwraps the code object, associates the arguments with their local variables, creates a new frame object, and tells the interpreter to execute this new frame.
 
-\subsection{Numeric methods} \label{numeric}
+\subsection{Numeric Types} \label{numeric}
 
-Issues with numeric methods and how they were fixed.
+\paragraph{}
+Besides functions, another significant feature of our interpreter is the numeric methods. Python provides four basic numeric types: Integers (32- and 64-bit), Long Integers (arbitrary precision), Floating-point numbers (IEEE-754) and Complex numbers. However, programmers do not need to concern themselves with which number type they are using, as Python will invisibly transition between types as needed. This is a key feature of the language, and we felt it was important to make sure our numbers met this standard.
+
+\section{Using the Interpreter}
+
+\subsection{In the Browser}
+
+\subsection{On the Command Line: Node.JS}
+
+\subsection{Test Suite}
 
 \subsection{Not implemented}
 
-\subsection{Using the browser}
-
+\paragraph{}
+As mentioned in the \textsc{Readme},
 
 
 %\bibliographystyle{unsrt}
