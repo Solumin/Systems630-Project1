@@ -224,8 +224,13 @@ The current tests are targeted at our numeric methods, function implementation, 
 We implemented a Python bytecode interpreter in TypeScript with the following features:
 
 \begin{itemize}
-  \item 
-\end{itemize}<++>
+  \item Functions, including keyword and default arguments
+  \item Condition statements and boolean values, comparisons between numeric types
+  \item Four numeric types: Integers, Longs, Floats and Complex numbers
+  \item Most unary and binary opcodes, along with those necessary for loading and storing variables and executing functions
+\end{itemize}
+
+We elected to enforce true division in our interpreter. In normal Python 2.x, the division operator performed floor division if both arguments were integers and normal division if otherwise. By enforcing true division, we remove ambiguity: `\texttt{/}' will never round the result and `\texttt{//}' can be used to perform floor division.
 
 \subsection{Not implemented}
 
