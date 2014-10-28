@@ -101,17 +101,18 @@ We define the class Unmarshaller to handle the parsing phase. The class has the 
 	\item \texttt{input}: the path for the \pyc file that is going to be processed
 	\item \texttt{magicNumber}: stores the magic number
 	\item \texttt{date}: stores the date of compilation
-	\item \texttt{internedStrs}:
+	\item \texttt{internedStrs}: it stores the strings that were preceded with `t', meaning that they should be stored for later use.
 	\item \texttt{output}: the code object generated after parsing the \pyc file
 \end{itemize}
 
 The following are the central methods implemented by this class.
 
 \begin{itemize}
-	\item \texttt{value()}:
-	\item \texttt{unmarshallCodeString()}:
-	\item \texttt{unmarshal()}:
+	\item \texttt{unmarshalCodeString()}:  this method is called every time the string for a code object is identified in the \pyc file. It reads the length of the string and then reads the appropriate number of bytes.
+	\item \texttt{unmarshal()}: this method is called every time the program is about to read a new ``field''. The method will check what is the upcoming type and then call the appropriate functions.
+	\item \texttt{value()}: this method makes the first call of \texttt{unmarshal()} and return the output, i.e. the code object after parsing.
 \end{itemize}
+
 
 \paragraph{}
 The Unmarshaller, as we have named it, parses a \pyc file by recursing over the file and creating a code object. The Marshal format encodes data by using a single character for the object's type (`\texttt{i}' for 32-bit integers, `\texttt{s}' for strings, and so on) followed by some number of bytes. A long integer (Python's arbitrary precision integer type) consists of the letter `\texttt{l}', a 32-bit integer indicating the length of the number, and a corresponding sequence of base-15 digits. Data whose type are already known, such as the fields of code objects (discussed below), are stored as raw bytes.
