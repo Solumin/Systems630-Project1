@@ -163,6 +163,23 @@ In a typical execution model, each function call pushes a stack frame to a centr
 \paragraph{}
 As with the code objects mentioned above, our implementation of frame objects was inspired by the official Python documentation. However, we originally used a single stack in the interpreter, since it was the simplest appraoch and the documentation did not mention the stack. We found that, while this implementation was simple, it made more complex code difficult. For example, the central stack design had no clear boundary between function calls, and a function would just leave its return value on the stack when it exited. Having a stack per frame gave the RETURN\_VALUE opcode significance and clearly marked where the interpreter should stop executing the current frame. It also made clean up easier, since the leftover data could be discarded.
 
+\paragraph{}
+The following are the attributes and some methods of the Py\_FrameObject class:
+
+\begin{itemize}
+	\item \texttt{back}: points to the previous stack frame, which called the current one
+	\item \texttt{builtins}: the builtins are defined in \texttt{interpreter.ts} and, in our case, it consists of the values ``True'', ``False'', ``None'' and ``NotImplemented''
+	\item \texttt{codeObj}: the code object that is being executed in this frame
+	\item \texttt{globals}: global values
+	\item \texttt{lastInst}: last executed instruction
+	\item \texttt{lineNum}: current line number
+	\item \texttt{locals}: local namespace
+	\item \texttt{stack}: stack that will be used only but the frame
+	\item \texttt{readOp()}: based on the lastInst, this methods reads the next opcode
+	\item \texttt{readArg()}: if the opcode requires arguments, then this method will read that	
+\end{itemize}
+
+
 \subsection{Additional Data Objects}
 
 \paragraph{}
