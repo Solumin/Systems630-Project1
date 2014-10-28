@@ -178,6 +178,27 @@ Function objects are primarily used to associate a function with its default arg
 \paragraph{}
 Besides functions, another significant feature of our interpreter is the numeric methods. Python provides four basic numeric types: Integers (32- and 64-bit), Long Integers (arbitrary precision), Floating-point numbers (IEEE-754) and Complex numbers. However, programmers do not need to concern themselves with which number type they are using, as Python will invisibly transition between types as needed. This is a key feature of the language, and we felt it was important to make sure our numbers met this standard.
 
+\paragraph{}
+Our original implementation was straightforward: 32-bit integers and floating-point numbers were represented using normal JavaScript numbers, 64-bit integers were stored in gLong\footnote{A 64-bit integer library developed at Google, later adapted to TypeScript as part of the Doppion project. \url{https://github.com/plasma-umass/doppio/blob/master/src/gLong.ts}} objects, longs in Decimal\footnote{An arbitrary-precision library created by Michael Mclaughlin \url{https://github.com/MikeMcl/decimal.js/}} objects, and complex numbers as a simple class with two JavaScript number fields, representing the real and imaginary parts of the number. The limitations of this approach became clear very quickly. The key problem was widening; Python defines a hierarchy of numeric types, where integers are narrower than longs are narrower than floats are narrower than complex numbers. An operation between a narrow and wider number would cast the narrow number up to the wider type. This was impossible when 32-bit integers were both distinct from 64-bit integers (Python does not make this distinction) and indistinguishable from floating-point numbers. Additionally, these operations are defined by functions (e.g. addition has an \texttt{add} function) and reverse functions (e.g. \texttt{radd}). Reverse functions are used in widening. If \texttt{a + b => a.radd(b)} is undefined due to \texttt{b}'s type, \texttt{b.radd(a)} is called instead. These functions would have to be added to the class definitions, which was impossible for floats since they are primitive types.
+
+\paragraph{}
+We implemented one class for each type: Py\_Int, which combined 32- and 64-bit integers in one class with gLong objects as the backend; Py\_Long, which simply wrapped Decimal objects; Py\_Float, which used JavaScript number; and Py\_Complex, which used two Py\_Floats for its fields. In each class, we implemented the mathematical operations and their reversed counterparts. Since each operation needed to handle the widening operation, we defined a general ``mathOp'' function, which widens arguments or defers execution as needed. Each operation passes an anonymous function to this function. We used a similar approach to define the comparison operators, since they also widened arguments as needed. The \texttt{mathOp} function for the Py\_Float class looks as follows:
+
+\begin{verbatim}
+private mathOp(other: any, op: (a: Py_Float, b: Py_Float) => any): any {
+    if (other.isInt)
+        return op(this, Py_Float.fromPy_Int(other));
+    else if (other.isLong)
+        return op(this, Py_Float.fromPy_Long(other));
+    else if (other.isFloat)
+        return op(this, other);
+    else
+        return NotImplemented;
+}
+\end{verbatim}
+
+``NotImplemented'' indicates that Py\_Float cannot handle this particular argument type, and \texttt{other.r<op>} should be used instead.
+
 \section{Using the Interpreter}
 
 \subsection{In the Browser}
