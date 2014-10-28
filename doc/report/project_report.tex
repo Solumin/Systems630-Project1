@@ -197,7 +197,10 @@ private mathOp(other: any, op: (a: Py_Float, b: Py_Float) => any): any {
 }
 \end{verbatim}
 
-``NotImplemented'' indicates that Py\_Float cannot handle this particular argument type, and \texttt{other.r<op>} should be used instead.
+``NotImplemented'' indicates that Py\_Float cannot handle this particular argument type, and \texttt{other.r<op>} should be used instead. The interpreter determines with operation to use and handles the cases of using the reversed operation. If both functions return NotImplemented, the interpreter throws an error indicating that the types are incompatible with the operation.
+
+\paragraph{}
+We encountered several other challenges while implementing the numeric types. For example, Python implements modulo in a somewhat unusual fashion. Modulo between two positive integers is straightforward, but things get unusual when floats, negative values and complex numbers are involved. Python has two rules for modulo: $(a \% b)$ will have the same sign as $b$, and $a =  \mathrm{floor}(a / b) * b + (a \% b)$. These rules must be held to for all modulo operations on any combination of types, and this invariant was very helpful for making our number implementation correct.
 
 \section{Using the Interpreter}
 
