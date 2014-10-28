@@ -62,7 +62,8 @@
 %Date Performed: & January 1, 2012 \\ % Date the experiment was performed
 %Partners: & James Smith \\ % Partner names
 %& Mary Smith \\
-Instructor: & Professor Emery Berger % Instructor/supervisor
+Course: CPMSCI 630 - Systems \\
+Instructor: Professor Emery Berger % Instructor/supervisor
 \end{tabular}
 \end{center}
 
@@ -128,6 +129,23 @@ A code object is a representation of a block of executable Python code. These ca
 
 \paragraph{}
 We designed our code object class (Py\_CodeObject) around the official Python documentation, with particular inspiration from the \texttt{inspect} library. Due the limitations of our interpreter, not all of the fields were needed. For example, the \texttt{co\_cellvars} field is used for closures, which we did not implement. However, we included these fields for the sake of completeness and compatibility with the Python design.
+
+\paragraph{}
+The following are the attributes of the Py\_CodeObject class:
+
+\begin{itemize}
+	\item \texttt{argcounts}: the number of arguments that the function/code requires
+	\item \texttt{nlocals}: number of local variables
+	\item \texttt{stacksize}: the depth of the stack that is going to be used by that code
+	\item \texttt{code}: the code that will be executed. It consists of a sequence of bytecode instructions, each of which has an opcode associated to it. The list of instructions and their respective opcodes can be found in \texttt{Systems630-Project1/src/opcodes.ts} on the repository.
+	\item \texttt{consts}: the constant objects. Those can ben numbers, strings, collections (such as lists, or dictionaries), and also code objects.  
+	\item \texttt{names}: 
+	\item \texttt{varnames}: the names of all the variables defined in the code object
+	\item \texttt{filename}: the name of the file the originated the code object
+	\item \texttt{name}: indicates if the code object refers to a function, and then it is the name of the function, or it will be \texttt{module}, indicating that it is the ``main'' code.
+	\item \texttt{firstlineno}: the line number where this code object started on the \texttt{.py} that compiled into the \pyc file
+	\item \texttt{flags}, \texttt{freevars}, \texttt{cellvars}, \texttt{lnotab}: among the fields we did not use
+	\end{itemize}
 
 \paragraph{}
 Code objects are primary used in the interpreter as components of frame objects, which are discussed in section~\ref{py-frameobject}.
