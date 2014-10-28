@@ -81,7 +81,7 @@ Instructor: Professor Emery Berger % Instructor/supervisor
 The project consists of designing and implementing an interpreter for Python bytecode in TypeScript, a typed superset of JavaScript. The interpreter is designed to work in the browser, loading and executing programs from Python bytecode files, i.e. \pyc files. It can also be run with the Node.JS framework.
 
 \paragraph{}
-In Section~\ref{parser} we explain how we parsed the bytecode, what is the Marshal format and what data structures we used. In Section~\ref{interpreter} we explain the design of the interpreter and what we were able to implement.
+In Section~\ref{parser} we explain how we parsed the bytecode, what is the Marshal format and what data structures we used. In Section~\ref{interpreter} we explain the design of the interpreter, using the frame execution model. In Section~\ref{using interpreter} we point out how the application runs, and finally in Section~\ref{results} we describe the features our interpreter has, what we were not able to implement and some of the challenges we encounter.
 
 \section{Parser}\label{parser}
 
@@ -220,7 +220,7 @@ private mathOp(other: any, op: (a: Py_Float, b: Py_Float) => any): any {
 \paragraph{}
 We encountered several other challenges while implementing the numeric types. For example, Python implements modulo in a somewhat unusual fashion. Modulo between two positive integers is straightforward, but things get unusual when floats, negative values and complex numbers are involved. Python has two rules for modulo: $(a \% b)$ will have the same sign as $b$, and $a =  \mathrm{floor}(a / b) * b + (a \% b)$. These rules must be held to for all modulo operations on any combination of types, and this invariant was very helpful for making our number implementation correct.
 
-\section{Using the Interpreter}
+\section{Using the Interpreter}\label{using interpreter}
 
 \paragraph{}
 We treated the interpreter as a Node.js application during development, since this made it easier to develop and debug. Each class was given its own file, which the other classes imported as needed. External libraries were included as separate TypeScript and JavaScript files. Obviously, this approach does not work in the browser. The first step to enabling our interpreter in the browser was replacing NodeJS with John Vilk's BrowserFS\footnote{\url{https://github.com/jvilk/BrowserFS}}. We only used the file system and Buffer interfaces from NodeJS, which BrowserFS replaced with browser-friendly versions. The second step was turning our many JavaScript files into one script for the browser. We used Browserify\footnote{\url{http://browserify.org/}}, which takes a single sources JavaScript file and bundles all of its dependencies into one script. Thanks to these two resources, our Python bytecode interpreter is usable in the browser and on the command line.
